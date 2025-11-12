@@ -1,76 +1,195 @@
-// Main Application Logic
+// Main Application Logic with Google Authentication
 const app = {
     currentUser: null,
     currentQuiz: null,
     currentQuestionIndex: 0,
     userAnswers: [],
     score: 0,
+    quizzes: [],
+    isAdmin: false,
 
     // Initialize the app
     init() {
-        this.checkSavedUser();
-        this.renderQuizList();
+        this.setupAuthListener();
     },
 
-    // User Authentication (Simple local storage based)
+    // Firebase Authentication Listener
+    setupAuthListener() {
+        if (!firebase.apps.length) {
+            console.log('Firebase not initialized');
+            return;
+        }
+
+        firebase.auth().onAuthStateChanged((user) => {
+            if (user) {
+                this.currentUser = user;
+                this.checkAdminStatus();
+                this.loadQuizzes();
+                this.showSection('quiz-selection');
+                this.updateUserDisplay();
+            } else {
+                this.currentUser = null;
+                this.isAdmin = false;
+                this.showSection('auth-section');
+                this.updateUserDisplay();
+            }
+        });
+    },
+
+    // Check if user is admin
+    checkAdminStatus() {
+        if (!this.currentUser) return;
+
+        const database = firebase.database();
+        database.ref(`admins/${this.currentUser.uid}`).once('value')
+            .then((snapshot) => {
+                this.isAdmin = snapshot.val() === true;
+                this.updateAdminButton();
+            })
+            .catch((error) => {
+                console.error('Error checking admin status:', error);
+                this.isAdmin = false;
+            });
+    },
+
+    updateAdminButton() {
+        const adminBtn = document.getElementById('admin-btn');
+        if (adminBtn) {
+            adminBtn.style.display = this.isAdmin ? 'block' : 'none';
+        }
+    },
+
+    // Google Sign In
     login() {
-        const username = document.getElementById('username').value.trim();
-        if (username) {
-            this.currentUser = username;
-            localStorage.setItem('homeschoolUser', username);
-            this.showSection('quiz-selection');
-            this.updateUserDisplay();
-        } else {
-            alert('Please enter your name!');
-        }
+        const provider = new firebase.auth.GoogleAuthProvider();
+        firebase.auth().signInWithPopup(provider)
+            .catch((error) => {
+                console.error('Authentication error:', error);
+                alert('Sign in failed. Please try again.');
+            });
     },
 
+    // Sign Out
     logout() {
-        this.currentUser = null;
-        localStorage.removeItem('homeschoolUser');
-        document.getElementById('username').value = '';
-        this.showSection('auth-section');
-        this.updateUserDisplay();
-    },
-
-    checkSavedUser() {
-        const savedUser = localStorage.getItem('homeschoolUser');
-        if (savedUser) {
-            this.currentUser = savedUser;
-            this.showSection('quiz-selection');
-            this.updateUserDisplay();
-        }
+        firebase.auth().signOut()
+            .catch((error) => {
+                console.error('Sign out error:', error);
+            });
     },
 
     updateUserDisplay() {
         const loginForm = document.getElementById('login-form');
         const userInfo = document.getElementById('user-info');
         const currentUserSpan = document.getElementById('current-user');
+        const userEmailSpan = document.getElementById('user-email');
+        const userPhoto = document.getElementById('user-photo');
 
         if (this.currentUser) {
             loginForm.style.display = 'none';
             userInfo.style.display = 'block';
-            currentUserSpan.textContent = this.currentUser;
+            currentUserSpan.textContent = this.currentUser.displayName || 'User';
+            userEmailSpan.textContent = this.currentUser.email || '';
+            if (userPhoto && this.currentUser.photoURL) {
+                userPhoto.src = this.currentUser.photoURL;
+            }
         } else {
             loginForm.style.display = 'flex';
             userInfo.style.display = 'none';
         }
     },
 
+    // Navigate to admin panel
+    goToAdmin() {
+        window.location.href = 'admin.html';
+    },
+
     // UI Navigation
     showSection(sectionId) {
         const sections = ['auth-section', 'quiz-selection', 'quiz-section', 'results-section'];
         sections.forEach(id => {
-            document.getElementById(id).style.display = id === sectionId ? 'block' : 'none';
+            const element = document.getElementById(id);
+            if (element) {
+                element.style.display = id === sectionId ? 'block' : 'none';
+            }
         });
+    },
+
+    // Load Quizzes from Firebase
+    loadQuizzes() {
+        const database = firebase.database();
+        database.ref('quizzes').once('value')
+            .then((snapshot) => {
+                const quizzesData = snapshot.val();
+                if (quizzesData) {
+                    this.quizzes = Object.keys(quizzesData).map(key => ({
+                        id: key,
+                        ...quizzesData[key]
+                    }));
+                } else {
+                    // No quizzes in database, use default ones
+                    this.quizzes = this.getDefaultQuizzes();
+                }
+                this.renderQuizList();
+            })
+            .catch((error) => {
+                console.error('Error loading quizzes:', error);
+                // Fallback to default quizzes
+                this.quizzes = this.getDefaultQuizzes();
+                this.renderQuizList();
+            });
+    },
+
+    // Default quizzes for initial setup
+    getDefaultQuizzes() {
+        return [
+            {
+                id: 'charlottes-web',
+                title: "Charlotte's Web",
+                description: "Test your knowledge of E.B. White's classic tale",
+                questions: [
+                    {
+                        question: "What is the name of the pig in Charlotte's Web?",
+                        options: ["Wilbur", "Charlie", "Babe", "Porky"],
+                        correctAnswer: 0
+                    },
+                    {
+                        question: "What kind of animal is Charlotte?",
+                        options: ["Butterfly", "Bee", "Spider", "Ant"],
+                        correctAnswer: 2
+                    },
+                    {
+                        question: "What does Charlotte write in her web to save Wilbur?",
+                        options: ["GOOD PIG", "SOME PIG", "BEST PIG", "NICE PIG"],
+                        correctAnswer: 1
+                    },
+                    {
+                        question: "Who is Fern?",
+                        options: ["The farmer's wife", "The farmer's daughter", "A goose", "A horse"],
+                        correctAnswer: 1
+                    },
+                    {
+                        question: "Where does the story take place?",
+                        options: ["A zoo", "A farm", "A forest", "A city"],
+                        correctAnswer: 1
+                    }
+                ]
+            }
+        ];
     },
 
     // Quiz List Rendering
     renderQuizList() {
         const quizList = document.getElementById('quiz-list');
+        if (!quizList) return;
+
         quizList.innerHTML = '';
 
-        quizzes.forEach(quiz => {
+        if (this.quizzes.length === 0) {
+            quizList.innerHTML = '<p style="text-align: center; color: #666;">No quizzes available yet. Check back soon!</p>';
+            return;
+        }
+
+        this.quizzes.forEach(quiz => {
             const quizCard = document.createElement('div');
             quizCard.className = 'quiz-card';
             quizCard.innerHTML = `
@@ -208,8 +327,11 @@ const app = {
         const timestamp = new Date().toISOString();
 
         const resultData = {
-            user: this.currentUser,
+            userId: this.currentUser.uid,
+            userName: this.currentUser.displayName || 'Anonymous',
+            userEmail: this.currentUser.email,
             quiz: this.currentQuiz.title,
+            quizId: this.currentQuiz.id,
             score: this.score,
             total: this.currentQuiz.questions.length,
             percentage: percentage,
