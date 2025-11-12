@@ -14,6 +14,8 @@ const todos = {
     isAllowedUser(email) {
         const ALLOWED_EMAILS = [
             'techride.trevor@gmail.com',
+            'iyoko.bainter@gmail.com',
+            'trevor.bainter@gmail.com',
             // Add your kids' emails here:
             // 'kid1@gmail.com',
             // 'kid2@gmail.com',

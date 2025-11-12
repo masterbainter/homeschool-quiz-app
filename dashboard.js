@@ -41,7 +41,9 @@ const dashboard = {
     // List of allowed emails (you can edit this list)
     isAllowedUser(email) {
         const ALLOWED_EMAILS = [
-            'techride.trevor@gmail.com',  // Admin (you)
+            'techride.trevor@gmail.com',  // Admin
+            'iyoko.bainter@gmail.com',    // Admin
+            'trevor.bainter@gmail.com',   // Admin
             // Add your kids' emails here:
             // 'kid1@gmail.com',
             // 'kid2@gmail.com',
