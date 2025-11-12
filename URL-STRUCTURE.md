@@ -7,6 +7,7 @@ This app uses pretty URLs for a cleaner user experience.
 | Pretty URL | Actual File | Description |
 |------------|-------------|-------------|
 | `/` | `index.html` | Main quiz app homepage |
+| `/todos` | `todos.html` | Todo list for students (requires login) |
 | `/admin` | `admin.html` | Admin panel (restricted to techride.trevor@gmail.com) |
 
 ## How It Works
@@ -22,6 +23,7 @@ The app uses GitHub Pages' 404 handler to route pretty URLs:
 
 All internal navigation uses pretty URLs:
 - `window.location.href = '/'` - Go to home
+- `window.location.href = '/todos'` - Go to todos
 - `window.location.href = '/admin'` - Go to admin panel
 
 ## Benefits

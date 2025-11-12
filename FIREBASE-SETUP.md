@@ -57,6 +57,16 @@ Complete guide to setting up Firebase with Google Authentication and admin acces
       "$resultId": {
         ".validate": "newData.hasChildren(['userId', 'userName', 'quiz', 'score', 'total', 'percentage', 'timestamp'])"
       }
+    },
+    "todos": {
+      ".read": "auth != null && (root.child('todos').child(auth.uid).exists() || auth.token.email === 'techride.trevor@gmail.com')",
+      "$userId": {
+        ".read": "auth.uid === $userId || auth.token.email === 'techride.trevor@gmail.com'",
+        ".write": "auth.uid === $userId",
+        "$todoId": {
+          ".validate": "newData.hasChildren(['text', 'completed', 'createdAt', 'userId'])"
+        }
+      }
     }
   }
 }
@@ -68,6 +78,7 @@ Complete guide to setting up Firebase with Google Authentication and admin acces
 
 - **quizzes**: Anyone logged in can read, only techride.trevor@gmail.com can write/edit
 - **quiz-results**: Only techride.trevor@gmail.com can read all results, anyone can write their own
+- **todos**: Users can only read/write their own todos, admin can see all todos
 
 **Note:** Admin access is hardcoded to the email `techride.trevor@gmail.com` in both the client code and database rules. No need to manually add admins to the database.
 
