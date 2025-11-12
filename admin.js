@@ -168,30 +168,22 @@ const admin = {
         document.getElementById('ai-loading').style.display = 'block';
 
         try {
-            // TODO: Replace with your actual API endpoint
-            // For now, we'll call a placeholder that shows the setup is needed
-            const endpoint = 'https://YOUR_BACKEND_URL/generate-quiz';
+            // Call Firebase Function
+            const generateQuiz = firebase.functions().httpsCallable('generateQuiz');
 
-            const response = await fetch(endpoint, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({
-                    bookTitle,
-                    author,
-                    questionCount,
-                    difficulty,
-                    context,
-                    adminEmail: this.currentUser.email
-                })
+            const result = await generateQuiz({
+                bookTitle,
+                author,
+                questionCount,
+                difficulty,
+                context: context || undefined
             });
 
-            if (!response.ok) {
+            if (!result.data.success) {
                 throw new Error('Failed to generate quiz');
             }
 
-            const quizData = await response.json();
+            const quizData = result.data.quiz;
 
             // Hide AI section, show manual form with AI-generated data
             this.switchToManual();
@@ -222,12 +214,20 @@ const admin = {
             console.error('AI generation error:', error);
 
             // Show helpful error message
-            if (error.message.includes('YOUR_BACKEND_URL')) {
-                alert('AI quiz generation is not yet configured.\n\nPlease see AI-QUIZ-SETUP.md for setup instructions.\n\nFor now, you can use manual entry.');
-                this.switchToManual();
+            let errorMessage = 'Failed to generate quiz. ';
+
+            if (error.code === 'unauthenticated') {
+                errorMessage += 'Please sign in again.';
+            } else if (error.code === 'permission-denied') {
+                errorMessage += 'Only admin can generate quizzes.';
+            } else if (error.code === 'failed-precondition') {
+                errorMessage += 'API configuration error. The function may not be deployed yet.';
             } else {
-                alert('Failed to generate quiz. Please try again or use manual entry.');
+                errorMessage += error.message || 'Please try again or use manual entry.';
             }
+
+            alert(errorMessage);
+            this.switchToManual();
         } finally {
             document.getElementById('generate-btn').disabled = false;
             document.getElementById('ai-loading').style.display = 'none';

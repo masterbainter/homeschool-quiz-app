@@ -2,6 +2,12 @@
 # Note: firebase-config.js is intentionally NOT ignored as it's needed for GitHub Pages
 # Just ensure you use Firebase security rules to protect your data
 
+# Firebase Functions
+functions/node_modules/
+functions/.env
+functions/package-lock.json
+.firebase/
+
 # OS files
 .DS_Store
 Thumbs.db
@@ -15,6 +21,7 @@ Thumbs.db
 
 # Logs
 *.log
+*-debug.log
 
 # Temporary files
 *.tmp
