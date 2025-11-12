@@ -119,14 +119,119 @@ const admin = {
     showAddQuiz() {
         this.editingQuizId = null;
         document.getElementById('form-title').textContent = 'Add New Quiz';
-        document.getElementById('quiz-form').reset();
-        document.getElementById('questions-container').innerHTML = '';
 
-        // Add one empty question
-        this.addQuestion();
+        // Show AI generator by default
+        this.showAIGenerator();
 
         document.getElementById('quiz-form-section').style.display = 'block';
         document.getElementById('quiz-form-section').scrollIntoView({ behavior: 'smooth' });
+    },
+
+    // Show AI generator
+    showAIGenerator() {
+        document.getElementById('ai-generation-section').style.display = 'block';
+        document.getElementById('quiz-form').style.display = 'none';
+        document.getElementById('ai-loading').style.display = 'none';
+
+        // Reset AI form
+        document.getElementById('ai-book-title').value = '';
+        document.getElementById('ai-author').value = '';
+        document.getElementById('ai-context').value = '';
+    },
+
+    // Switch to manual entry
+    switchToManual() {
+        document.getElementById('ai-generation-section').style.display = 'none';
+        document.getElementById('quiz-form').style.display = 'block';
+
+        // Reset manual form
+        document.getElementById('quiz-form').reset();
+        document.getElementById('questions-container').innerHTML = '';
+        this.addQuestion(); // Add one empty question
+    },
+
+    // Generate quiz with AI
+    async generateQuizWithAI() {
+        const bookTitle = document.getElementById('ai-book-title').value.trim();
+        const author = document.getElementById('ai-author').value.trim();
+        const questionCount = parseInt(document.getElementById('ai-question-count').value);
+        const difficulty = document.getElementById('ai-difficulty').value;
+        const context = document.getElementById('ai-context').value.trim();
+
+        if (!bookTitle) {
+            alert('Please enter a book title');
+            return;
+        }
+
+        // Show loading
+        document.getElementById('generate-btn').disabled = true;
+        document.getElementById('ai-loading').style.display = 'block';
+
+        try {
+            // TODO: Replace with your actual API endpoint
+            // For now, we'll call a placeholder that shows the setup is needed
+            const endpoint = 'https://YOUR_BACKEND_URL/generate-quiz';
+
+            const response = await fetch(endpoint, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    bookTitle,
+                    author,
+                    questionCount,
+                    difficulty,
+                    context,
+                    adminEmail: this.currentUser.email
+                })
+            });
+
+            if (!response.ok) {
+                throw new Error('Failed to generate quiz');
+            }
+
+            const quizData = await response.json();
+
+            // Hide AI section, show manual form with AI-generated data
+            this.switchToManual();
+
+            // Populate form with AI data
+            document.getElementById('quiz-title').value = quizData.title;
+            document.getElementById('quiz-description').value = quizData.description || '';
+
+            // Clear and add AI-generated questions
+            document.getElementById('questions-container').innerHTML = '';
+            quizData.questions.forEach(q => {
+                this.addQuestion(q);
+            });
+
+            // Add notice
+            const form = document.getElementById('quiz-form');
+            const notice = document.createElement('div');
+            notice.className = 'ai-preview-notice';
+            notice.innerHTML = `
+                <h4>✨ AI Generated Quiz</h4>
+                <p>Review and edit the questions below. You can add, remove, or modify any question before saving.</p>
+            `;
+            form.insertBefore(notice, form.firstChild);
+
+            alert('Quiz generated successfully! Review and edit as needed before saving.');
+
+        } catch (error) {
+            console.error('AI generation error:', error);
+
+            // Show helpful error message
+            if (error.message.includes('YOUR_BACKEND_URL')) {
+                alert('AI quiz generation is not yet configured.\n\nPlease see AI-QUIZ-SETUP.md for setup instructions.\n\nFor now, you can use manual entry.');
+                this.switchToManual();
+            } else {
+                alert('Failed to generate quiz. Please try again or use manual entry.');
+            }
+        } finally {
+            document.getElementById('generate-btn').disabled = false;
+            document.getElementById('ai-loading').style.display = 'none';
+        }
     },
 
     // Edit existing quiz

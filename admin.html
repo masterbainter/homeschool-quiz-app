@@ -59,7 +59,70 @@
                         <button onclick="admin.cancelEdit()" class="btn btn-secondary">Cancel</button>
                     </div>
 
-                    <form id="quiz-form" onsubmit="admin.saveQuiz(event)">
+                    <!-- AI Generation Section -->
+                    <div id="ai-generation-section" class="ai-section" style="display: none;">
+                        <h3>🤖 AI Quiz Generator</h3>
+                        <p class="ai-description">Use AI to automatically generate quiz questions based on the book. You can review and edit all questions before saving.</p>
+
+                        <div class="form-group">
+                            <label for="ai-book-title">Book Title *</label>
+                            <input type="text" id="ai-book-title" placeholder="e.g., Charlotte's Web" required>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="ai-author">Author (optional)</label>
+                            <input type="text" id="ai-author" placeholder="e.g., E.B. White">
+                        </div>
+
+                        <div class="form-group">
+                            <label for="ai-question-count">Number of Questions</label>
+                            <select id="ai-question-count">
+                                <option value="5">5 questions</option>
+                                <option value="8" selected>8 questions</option>
+                                <option value="10">10 questions</option>
+                                <option value="12">12 questions</option>
+                                <option value="15">15 questions</option>
+                            </select>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="ai-difficulty">Difficulty Level</label>
+                            <select id="ai-difficulty">
+                                <option value="easy">Easy (Ages 8-10)</option>
+                                <option value="medium" selected>Medium (Ages 10-12)</option>
+                                <option value="hard">Hard (Ages 12+)</option>
+                            </select>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="ai-context">Additional Context (optional)</label>
+                            <textarea id="ai-context" rows="3" placeholder="e.g., Focus on character development, themes, or specific chapters"></textarea>
+                        </div>
+
+                        <div class="ai-actions">
+                            <button type="button" onclick="admin.generateQuizWithAI()" class="btn btn-primary" id="generate-btn">
+                                ✨ Generate Quiz
+                            </button>
+                            <button type="button" onclick="admin.switchToManual()" class="btn btn-secondary">
+                                ✏️ Manual Entry Instead
+                            </button>
+                        </div>
+
+                        <div id="ai-loading" class="ai-loading" style="display: none;">
+                            <div class="spinner"></div>
+                            <p>AI is generating your quiz questions... This may take 15-30 seconds.</p>
+                        </div>
+                    </div>
+
+                    <!-- Manual Form Section -->
+                    <form id="quiz-form" onsubmit="admin.saveQuiz(event)" style="display: none;">
+                        <div class="form-header">
+                            <h3>Quiz Details</h3>
+                            <button type="button" onclick="admin.showAIGenerator()" class="btn btn-secondary btn-small">
+                                🤖 Use AI Instead
+                            </button>
+                        </div>
+
                         <div class="form-group">
                             <label for="quiz-title">Book Title *</label>
                             <input type="text" id="quiz-title" required placeholder="e.g., Charlotte's Web">
