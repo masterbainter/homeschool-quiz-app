@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Homeschool Quiz App</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>📚 Homeschool Quiz App</h1>
+            <p class="subtitle">Test your knowledge on books you've read!</p>
+        </header>
+
+        <div id="app">
+            <!-- Login/User Section -->
+            <div id="auth-section" class="section">
+                <h2>Welcome!</h2>
+                <div id="login-form">
+                    <input type="text" id="username" placeholder="Enter your name" maxlength="20">
+                    <button onclick="app.login()" class="btn btn-primary">Start Learning</button>
+                </div>
+                <div id="user-info" style="display: none;">
+                    <p>Hello, <span id="current-user"></span>! 👋</p>
+                    <button onclick="app.logout()" class="btn btn-secondary">Switch User</button>
+                </div>
+            </div>
+
+            <!-- Quiz Selection -->
+            <div id="quiz-selection" class="section" style="display: none;">
+                <h2>Choose a Book Quiz</h2>
+                <div id="quiz-list" class="quiz-grid">
+                    <!-- Quiz buttons will be populated here -->
+                </div>
+            </div>
+
+            <!-- Quiz Section -->
+            <div id="quiz-section" class="section" style="display: none;">
+                <div class="quiz-header">
+                    <h2 id="quiz-title"></h2>
+                    <div class="progress-bar">
+                        <div id="progress" class="progress-fill"></div>
+                    </div>
+                    <p class="progress-text">Question <span id="current-question">1</span> of <span id="total-questions">0</span></p>
+                </div>
+
+                <div id="question-container">
+                    <h3 id="question-text"></h3>
+                    <div id="answers" class="answers-grid">
+                        <!-- Answer buttons will be populated here -->
+                    </div>
+                </div>
+
+                <button id="next-btn" onclick="app.nextQuestion()" class="btn btn-primary" style="display: none;">Next Question</button>
+                <button id="back-btn" onclick="app.backToQuizzes()" class="btn btn-secondary">Back to Quizzes</button>
+            </div>
+
+            <!-- Results Section -->
+            <div id="results-section" class="section" style="display: none;">
+                <h2>Quiz Complete! 🎉</h2>
+                <div class="results-card">
+                    <div class="score-display">
+                        <p class="score-label">Your Score</p>
+                        <p class="score-value"><span id="score">0</span> / <span id="total">0</span></p>
+                        <p class="score-percentage" id="percentage">0%</p>
+                    </div>
+                    <p id="feedback-message" class="feedback"></p>
+                </div>
+                <div class="results-actions">
+                    <button onclick="app.retakeQuiz()" class="btn btn-primary">Try Again</button>
+                    <button onclick="app.backToQuizzes()" class="btn btn-secondary">Choose Another Quiz</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-database-compat.js"></script>
+
+    <!-- App Scripts -->
+    <script src="firebase-config.js"></script>
+    <script src="quizzes/quiz-data.js"></script>
+    <script src="app.js"></script>
+</body>
+</html>

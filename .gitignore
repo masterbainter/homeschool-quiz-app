@@ -1,0 +1,21 @@
+# Environment and config files with sensitive data
+# Note: firebase-config.js is intentionally NOT ignored as it's needed for GitHub Pages
+# Just ensure you use Firebase security rules to protect your data
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Editor files
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# Logs
+*.log
+
+# Temporary files
+*.tmp
+.cache/
