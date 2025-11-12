@@ -16,9 +16,8 @@ const todos = {
             'techride.trevor@gmail.com',
             'iyoko.bainter@gmail.com',
             'trevor.bainter@gmail.com',
-            // Add your kids' emails here:
-            // 'kid1@gmail.com',
-            // 'kid2@gmail.com',
+            'madmaxmadadax@gmail.com',
+            'sakurasaurusjade@gmail.com',
         ];
         return ALLOWED_EMAILS.includes(email.toLowerCase());
     },

@@ -44,9 +44,8 @@ const dashboard = {
             'techride.trevor@gmail.com',  // Admin
             'iyoko.bainter@gmail.com',    // Admin
             'trevor.bainter@gmail.com',   // Admin
-            // Add your kids' emails here:
-            // 'kid1@gmail.com',
-            // 'kid2@gmail.com',
+            'madmaxmadadax@gmail.com',    // Student
+            'sakurasaurusjade@gmail.com', // Student
         ];
 
         return ALLOWED_EMAILS.includes(email.toLowerCase());
