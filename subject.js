@@ -19,6 +19,17 @@ const subject = {
         this.setupAuthListener();
     },
 
+    // List of allowed emails
+    isAllowedUser(email) {
+        const ALLOWED_EMAILS = [
+            'techride.trevor@gmail.com',
+            // Add your kids' emails here:
+            // 'kid1@gmail.com',
+            // 'kid2@gmail.com',
+        ];
+        return ALLOWED_EMAILS.includes(email.toLowerCase());
+    },
+
     // Firebase Authentication Listener
     setupAuthListener() {
         if (!firebase.apps.length) {
@@ -28,6 +39,14 @@ const subject = {
 
         firebase.auth().onAuthStateChanged((user) => {
             if (user) {
+                // Check if user is allowed
+                if (!this.isAllowedUser(user.email)) {
+                    alert('Access denied. This account is not authorized.');
+                    firebase.auth().signOut();
+                    window.location.href = '/';
+                    return;
+                }
+
                 this.currentUser = user;
                 this.updateUserDisplay();
                 this.loadSubject();

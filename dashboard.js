@@ -18,6 +18,13 @@ const dashboard = {
 
         firebase.auth().onAuthStateChanged((user) => {
             if (user) {
+                // Check if user is allowed
+                if (!this.isAllowedUser(user.email)) {
+                    alert('Access denied. This account is not authorized to use this app.\n\nPlease contact your teacher.');
+                    firebase.auth().signOut();
+                    return;
+                }
+
                 this.currentUser = user;
                 this.checkAdminStatus();
                 this.loadCurriculum();
@@ -29,6 +36,18 @@ const dashboard = {
                 this.showAuthSection();
             }
         });
+    },
+
+    // List of allowed emails (you can edit this list)
+    isAllowedUser(email) {
+        const ALLOWED_EMAILS = [
+            'techride.trevor@gmail.com',  // Admin (you)
+            // Add your kids' emails here:
+            // 'kid1@gmail.com',
+            // 'kid2@gmail.com',
+        ];
+
+        return ALLOWED_EMAILS.includes(email.toLowerCase());
     },
 
     // Check if user is admin
