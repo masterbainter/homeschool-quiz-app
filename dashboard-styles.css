@@ -1,0 +1,107 @@
+/* Dashboard Specific Styles */
+
+.dashboard-container {
+    max-width: 1200px;
+}
+
+.subjects-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 25px;
+    margin-top: 25px;
+}
+
+.subject-card {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    padding: 35px 25px;
+    border-radius: 20px;
+    cursor: pointer;
+    transition: all 0.3s;
+    text-align: center;
+    position: relative;
+    overflow: hidden;
+}
+
+.subject-card:hover {
+    transform: translateY(-8px);
+    box-shadow: 0 15px 35px rgba(102, 126, 234, 0.4);
+}
+
+.subject-card.disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+    background: linear-gradient(135deg, #999 0%, #666 100%);
+}
+
+.subject-card.disabled:hover {
+    transform: none;
+    box-shadow: none;
+}
+
+.subject-icon {
+    font-size: 4em;
+    margin-bottom: 15px;
+    display: block;
+}
+
+.subject-title {
+    font-size: 1.8em;
+    font-weight: 700;
+    margin-bottom: 10px;
+}
+
+.subject-description {
+    font-size: 0.95em;
+    opacity: 0.9;
+    margin-bottom: 15px;
+    line-height: 1.4;
+}
+
+.subject-sections-count {
+    font-size: 0.85em;
+    opacity: 0.8;
+    margin-top: 15px;
+    padding-top: 15px;
+    border-top: 1px solid rgba(255, 255, 255, 0.3);
+}
+
+/* Subject gradients */
+.subject-card.reading {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+}
+
+.subject-card.math {
+    background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+}
+
+.subject-card.science {
+    background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+}
+
+.subject-card.history {
+    background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%);
+}
+
+.subject-card.writing {
+    background: linear-gradient(135deg, #fa709a 0%, #fee140 100%);
+}
+
+.subject-card.art {
+    background: linear-gradient(135deg, #30cfd0 0%, #330867 100%);
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .subjects-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .subject-icon {
+        font-size: 3em;
+    }
+
+    .subject-title {
+        font-size: 1.5em;
+    }
+}

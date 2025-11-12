@@ -5,41 +5,58 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Redirecting...</title>
     <script>
-        // Handle pretty URLs on GitHub Pages
+        // Handle pretty URLs and dynamic routing on GitHub Pages
         (function() {
             var path = window.location.pathname;
 
-            // Remove leading slash
-            path = path.replace(/^\//, '');
+            // Remove leading/trailing slashes
+            path = path.replace(/^\//, '').replace(/\/$/, '');
 
             // Remove .html if present
             path = path.replace(/\.html$/, '');
 
-            // Map pretty URLs to actual files
-            var routes = {
+            // Split path into segments
+            var segments = path.split('/').filter(Boolean);
+
+            // Static routes
+            var staticRoutes = {
                 'admin': '/admin.html',
                 'todos': '/todos.html',
                 '': '/index.html'
             };
 
-            // Get the target page
-            var target = routes[path];
+            // Check for exact static route match
+            if (staticRoutes[path]) {
+                window.location.replace(staticRoutes[path] + window.location.search + window.location.hash);
+                return;
+            }
 
-            if (target) {
-                // Redirect to the actual page
-                window.location.replace(target + window.location.search + window.location.hash);
+            // Dynamic routing
+            if (segments.length === 1) {
+                // /reading -> subject page
+                window.location.replace('/subject.html?subject=' + segments[0] + window.location.search.substring(1) + window.location.hash);
+            } else if (segments.length === 2) {
+                // /reading/books -> section page
+                window.location.replace('/quiz.html?subject=' + segments[0] + '&section=' + segments[1] + window.location.search.substring(1) + window.location.hash);
+            } else if (segments.length === 3) {
+                // /reading/books/charlottes-web -> specific quiz
+                window.location.replace('/quiz.html?subject=' + segments[0] + '&section=' + segments[1] + '&quiz=' + segments[2] + window.location.search.substring(1) + window.location.hash);
             } else if (path === '') {
-                // Root - go to index
+                // Root
                 window.location.replace('/index.html');
             } else {
                 // Unknown route - show 404
-                document.write('<style>body{font-family:sans-serif;display:flex;align-items:center;justify-content:center;height:100vh;margin:0;background:linear-gradient(135deg,#667eea 0%,#764ba2 100%);color:white;text-align:center}</style>');
-                document.write('<div><h1>404 - Page Not Found</h1><p>The page you\'re looking for doesn\'t exist.</p><a href="/" style="color:white;text-decoration:underline">Go Home</a></div>');
+                showError();
+            }
+
+            function showError() {
+                document.write('<style>body{font-family:sans-serif;display:flex;align-items:center;justify-content:center;height:100vh;margin:0;background:linear-gradient(135deg,#667eea 0%,#764ba2 100%);color:white;text-align:center}h1{font-size:3em;margin-bottom:10px}a{color:white;text-decoration:none;background:rgba(255,255,255,0.2);padding:12px 24px;border-radius:8px;margin-top:20px;display:inline-block;transition:all 0.3s}a:hover{background:rgba(255,255,255,0.3)}</style>');
+                document.write('<div><h1>404</h1><p style="font-size:1.2em;margin-bottom:20px">Page not found</p><a href="/">Go to Dashboard</a></div>');
             }
         })();
     </script>
 </head>
 <body>
-    <p>Redirecting...</p>
+    <p style="text-align:center;padding:20px">Redirecting...</p>
 </body>
 </html>

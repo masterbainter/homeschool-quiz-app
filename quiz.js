@@ -7,9 +7,23 @@ const app = {
     score: 0,
     quizzes: [],
     isAdmin: false,
+    subjectId: null,
+    sectionId: null,
+    quizId: null,
 
     // Initialize the app
     init() {
+        // Get URL parameters
+        const urlParams = new URLSearchParams(window.location.search);
+        this.subjectId = urlParams.get('subject');
+        this.sectionId = urlParams.get('section');
+        this.quizId = urlParams.get('quiz');
+
+        if (!this.subjectId || !this.sectionId) {
+            window.location.href = '/';
+            return;
+        }
+
         this.setupAuthListener();
     },
 
@@ -115,61 +129,36 @@ const app = {
             .then((snapshot) => {
                 const quizzesData = snapshot.val();
                 if (quizzesData) {
-                    this.quizzes = Object.keys(quizzesData).map(key => ({
-                        id: key,
-                        ...quizzesData[key]
-                    }));
+                    // Filter quizzes by subject and section
+                    const prefix = `${this.subjectId}-${this.sectionId}-`;
+                    this.quizzes = Object.keys(quizzesData)
+                        .filter(key => key.startsWith(prefix))
+                        .map(key => ({
+                            id: key,
+                            ...quizzesData[key]
+                        }));
                 } else {
-                    // No quizzes in database, use default ones
-                    this.quizzes = this.getDefaultQuizzes();
+                    this.quizzes = [];
                 }
+
+                // If a specific quiz is requested, load it directly
+                if (this.quizId) {
+                    const quiz = this.quizzes.find(q => q.id.endsWith('-' + this.quizId));
+                    if (quiz) {
+                        this.startQuiz(quiz);
+                        return;
+                    }
+                }
+
                 this.renderQuizList();
             })
             .catch((error) => {
                 console.error('Error loading quizzes:', error);
-                // Fallback to default quizzes
-                this.quizzes = this.getDefaultQuizzes();
+                this.quizzes = [];
                 this.renderQuizList();
             });
     },
 
-    // Default quizzes for initial setup
-    getDefaultQuizzes() {
-        return [
-            {
-                id: 'charlottes-web',
-                title: "Charlotte's Web",
-                description: "Test your knowledge of E.B. White's classic tale",
-                questions: [
-                    {
-                        question: "What is the name of the pig in Charlotte's Web?",
-                        options: ["Wilbur", "Charlie", "Babe", "Porky"],
-                        correctAnswer: 0
-                    },
-                    {
-                        question: "What kind of animal is Charlotte?",
-                        options: ["Butterfly", "Bee", "Spider", "Ant"],
-                        correctAnswer: 2
-                    },
-                    {
-                        question: "What does Charlotte write in her web to save Wilbur?",
-                        options: ["GOOD PIG", "SOME PIG", "BEST PIG", "NICE PIG"],
-                        correctAnswer: 1
-                    },
-                    {
-                        question: "Who is Fern?",
-                        options: ["The farmer's wife", "The farmer's daughter", "A goose", "A horse"],
-                        correctAnswer: 1
-                    },
-                    {
-                        question: "Where does the story take place?",
-                        options: ["A zoo", "A farm", "A forest", "A city"],
-                        correctAnswer: 1
-                    }
-                ]
-            }
-        ];
-    },
 
     // Quiz List Rendering
     renderQuizList() {
@@ -307,7 +296,13 @@ const app = {
 
     backToQuizzes() {
         this.currentQuiz = null;
-        this.showSection('quiz-selection');
+        // Go back to subject page if we're showing a specific quiz,
+        // otherwise stay on quiz selection
+        if (this.quizId) {
+            window.location.href = `/${this.subjectId}/${this.sectionId}`;
+        } else {
+            this.showSection('quiz-selection');
+        }
     },
 
     // Firebase Integration

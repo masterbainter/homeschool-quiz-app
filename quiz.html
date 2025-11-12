@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Homeschool Quiz App</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>📚 Homeschool Quiz App</h1>
+            <p class="subtitle">Test your knowledge on books you've read!</p>
+        </header>
+
+        <div id="app">
+            <!-- Login/User Section -->
+            <div id="auth-section" class="section">
+                <h2>Welcome!</h2>
+                <div id="login-form">
+                    <p class="auth-message">Sign in with your Google account to start learning!</p>
+                    <button onclick="app.login()" class="btn btn-primary">
+                        <svg width="18" height="18" viewBox="0 0 18 18" style="vertical-align: middle; margin-right: 10px;">
+                            <path fill="#4285F4" d="M16.51 8H8.98v3h4.3c-.18 1-.74 1.48-1.6 2.04v2.01h2.6a7.8 7.8 0 0 0 2.38-5.88c0-.57-.05-.66-.15-1.18z"></path>
+                            <path fill="#34A853" d="M8.98 17c2.16 0 3.97-.72 5.3-1.94l-2.6-2a4.8 4.8 0 0 1-7.18-2.54H1.83v2.07A8 8 0 0 0 8.98 17z"></path>
+                            <path fill="#FBBC05" d="M4.5 10.52a4.8 4.8 0 0 1 0-3.04V5.41H1.83a8 8 0 0 0 0 7.18l2.67-2.07z"></path>
+                            <path fill="#EA4335" d="M8.98 4.18c1.17 0 2.23.4 3.06 1.2l2.3-2.3A8 8 0 0 0 1.83 5.4L4.5 7.49a4.77 4.77 0 0 1 4.48-3.3z"></path>
+                        </svg>
+                        Sign in with Google
+                    </button>
+                </div>
+                <div id="user-info" style="display: none;">
+                    <div class="user-profile">
+                        <img id="user-photo" src="" alt="Profile" class="user-photo">
+                        <div>
+                            <p>Hello, <span id="current-user"></span>! 👋</p>
+                            <p class="user-email" id="user-email"></p>
+                        </div>
+                    </div>
+                    <div class="auth-buttons">
+                        <button onclick="window.location.href='/todos'" class="btn btn-primary">📝 My Todos</button>
+                        <button onclick="app.logout()" class="btn btn-secondary">Sign Out</button>
+                        <button id="admin-btn" onclick="app.goToAdmin()" class="btn btn-admin" style="display: none;">Admin Panel</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Quiz Selection -->
+            <div id="quiz-selection" class="section" style="display: none;">
+                <h2>Choose a Book Quiz</h2>
+                <div id="quiz-list" class="quiz-grid">
+                    <!-- Quiz buttons will be populated here -->
+                </div>
+            </div>
+
+            <!-- Quiz Section -->
+            <div id="quiz-section" class="section" style="display: none;">
+                <div class="quiz-header">
+                    <h2 id="quiz-title"></h2>
+                    <div class="progress-bar">
+                        <div id="progress" class="progress-fill"></div>
+                    </div>
+                    <p class="progress-text">Question <span id="current-question">1</span> of <span id="total-questions">0</span></p>
+                </div>
+
+                <div id="question-container">
+                    <h3 id="question-text"></h3>
+                    <div id="answers" class="answers-grid">
+                        <!-- Answer buttons will be populated here -->
+                    </div>
+                </div>
+
+                <button id="next-btn" onclick="app.nextQuestion()" class="btn btn-primary" style="display: none;">Next Question</button>
+                <button id="back-btn" onclick="app.backToQuizzes()" class="btn btn-secondary">Back to Quizzes</button>
+            </div>
+
+            <!-- Results Section -->
+            <div id="results-section" class="section" style="display: none;">
+                <h2>Quiz Complete! 🎉</h2>
+                <div class="results-card">
+                    <div class="score-display">
+                        <p class="score-label">Your Score</p>
+                        <p class="score-value"><span id="score">0</span> / <span id="total">0</span></p>
+                        <p class="score-percentage" id="percentage">0%</p>
+                    </div>
+                    <p id="feedback-message" class="feedback"></p>
+                </div>
+                <div class="results-actions">
+                    <button onclick="app.retakeQuiz()" class="btn btn-primary">Try Again</button>
+                    <button onclick="app.backToQuizzes()" class="btn btn-secondary">Choose Another Quiz</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-database-compat.js"></script>
+
+    <!-- App Scripts -->
+    <script src="/firebase-config.js"></script>
+    <script src="/quiz.js"></script>
+</body>
+</html>
