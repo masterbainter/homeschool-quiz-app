@@ -23,28 +23,23 @@ const admin = {
                 this.checkAdminStatus();
             } else {
                 // Not logged in, redirect to main app
-                window.location.href = 'index.html';
+                window.location.href = '/';
             }
         });
     },
 
     // Check if user has admin privileges
     checkAdminStatus() {
-        const database = firebase.database();
-        database.ref(`admins/${this.currentUser.uid}`).once('value')
-            .then((snapshot) => {
-                if (snapshot.val() === true) {
-                    this.isAdmin = true;
-                    this.showAdminPanel();
-                    this.loadQuizzes();
-                } else {
-                    this.showUnauthorized('You do not have admin access');
-                }
-            })
-            .catch((error) => {
-                console.error('Error checking admin status:', error);
-                this.showUnauthorized('Error verifying admin access');
-            });
+        // Only allow specific email address
+        const ADMIN_EMAIL = 'techride.trevor@gmail.com';
+
+        if (this.currentUser.email === ADMIN_EMAIL) {
+            this.isAdmin = true;
+            this.showAdminPanel();
+            this.loadQuizzes();
+        } else {
+            this.showUnauthorized('You do not have admin access. Only ' + ADMIN_EMAIL + ' can access this panel.');
+        }
     },
 
     showAdminPanel() {

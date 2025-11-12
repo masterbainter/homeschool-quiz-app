@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Redirecting...</title>
+    <script>
+        // Handle pretty URLs on GitHub Pages
+        (function() {
+            var path = window.location.pathname;
+
+            // Remove leading slash
+            path = path.replace(/^\//, '');
+
+            // Remove .html if present
+            path = path.replace(/\.html$/, '');
+
+            // Map pretty URLs to actual files
+            var routes = {
+                'admin': '/admin.html',
+                '': '/index.html'
+            };
+
+            // Get the target page
+            var target = routes[path];
+
+            if (target) {
+                // Redirect to the actual page
+                window.location.replace(target + window.location.search + window.location.hash);
+            } else if (path === '') {
+                // Root - go to index
+                window.location.replace('/index.html');
+            } else {
+                // Unknown route - show 404
+                document.write('<style>body{font-family:sans-serif;display:flex;align-items:center;justify-content:center;height:100vh;margin:0;background:linear-gradient(135deg,#667eea 0%,#764ba2 100%);color:white;text-align:center}</style>');
+                document.write('<div><h1>404 - Page Not Found</h1><p>The page you\'re looking for doesn\'t exist.</p><a href="/" style="color:white;text-decoration:underline">Go Home</a></div>');
+            }
+        })();
+    </script>
+</head>
+<body>
+    <p>Redirecting...</p>
+</body>
+</html>

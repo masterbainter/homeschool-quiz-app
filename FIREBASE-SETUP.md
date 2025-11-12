@@ -46,21 +46,17 @@ Complete guide to setting up Firebase with Google Authentication and admin acces
   "rules": {
     "quizzes": {
       ".read": "auth != null",
-      ".write": "root.child('admins').child(auth.uid).val() === true",
+      ".write": "auth.token.email === 'techride.trevor@gmail.com'",
       "$quizId": {
         ".validate": "newData.hasChildren(['title', 'questions'])"
       }
     },
     "quiz-results": {
-      ".read": "root.child('admins').child(auth.uid).val() === true",
+      ".read": "auth.token.email === 'techride.trevor@gmail.com'",
       ".write": "auth != null",
       "$resultId": {
         ".validate": "newData.hasChildren(['userId', 'userName', 'quiz', 'score', 'total', 'percentage', 'timestamp'])"
       }
-    },
-    "admins": {
-      ".read": "auth != null && root.child('admins').child(auth.uid).val() === true",
-      ".write": false
     }
   }
 }
@@ -70,9 +66,10 @@ Complete guide to setting up Firebase with Google Authentication and admin acces
 
 ### What These Rules Do:
 
-- **quizzes**: Anyone logged in can read, only admins can write/edit
-- **quiz-results**: Only admins can read all results, anyone can write their own
-- **admins**: Only admins can read the admin list, nobody can write (set manually)
+- **quizzes**: Anyone logged in can read, only techride.trevor@gmail.com can write/edit
+- **quiz-results**: Only techride.trevor@gmail.com can read all results, anyone can write their own
+
+**Note:** Admin access is hardcoded to the email `techride.trevor@gmail.com` in both the client code and database rules. No need to manually add admins to the database.
 
 ## Step 5: Get Firebase Configuration
 
@@ -105,51 +102,16 @@ const firebaseConfig = {
 2. Replace the placeholder config with your actual Firebase config
 3. Save the file
 
-## Step 7: Set Up Admin User
+## Step 7: Admin Access
 
-You need to manually add your Google account as an admin in the Firebase Database.
+Admin access is automatically granted to `techride.trevor@gmail.com`.
 
-### Method 1: Using Firebase Console (Recommended)
+When you sign in with this email:
+- The **Admin Panel** button will appear
+- You can access `/admin` to manage quizzes
+- You can view all quiz results in Firebase Console
 
-1. **Sign in to your app first:**
-   - Go to https://school.bainter.xyz (or your GitHub Pages URL)
-   - Click "Sign in with Google"
-   - Sign in with the Google account you want to make admin
-
-2. **Get your User ID:**
-   - Open browser console (F12)
-   - Type: `firebase.auth().currentUser.uid`
-   - Copy the user ID (looks like: `a1b2c3d4e5f6g7h8i9j0`)
-
-3. **Add admin in Firebase Console:**
-   - Go to Firebase Console > Realtime Database
-   - Click **"+"** next to the root
-   - Name: `admins`
-   - Click **"+"** next to `admins`
-   - Name: paste your user ID (e.g., `a1b2c3d4e5f6g7h8i9j0`)
-   - Value: `true` (type: boolean)
-   - Click **"Add"**
-
-Your database should now look like:
-
-```
-root
-  └── admins
-       └── a1b2c3d4e5f6g7h8i9j0: true
-```
-
-### Method 2: Using Firebase CLI (Advanced)
-
-```bash
-# Install Firebase CLI
-npm install -g firebase-tools
-
-# Login
-firebase login
-
-# Set admin (replace YOUR_USER_ID with actual ID)
-firebase database:set /admins/YOUR_USER_ID true --project your-project-id
-```
+**No database setup needed** - the email is hardcoded in the application for security.
 
 ## Step 8: Deploy Updated Code
 
@@ -169,20 +131,20 @@ git push
 ## Step 9: Test Everything
 
 1. **Test Login:**
-   - Go to https://school.bainter.xyz
+   - Go to https://school.bainter.xyz (or `/`)
    - Click "Sign in with Google"
    - Verify you can sign in
 
-2. **Test Admin Access:**
+2. **Test Admin Access (with techride.trevor@gmail.com):**
    - After signing in, look for "Admin Panel" button
-   - If it appears, you're set as admin!
-   - Click it to go to admin panel
+   - Click it or go to `/admin`
+   - Verify you can access the admin panel
 
 3. **Test Quiz Creation:**
-   - In admin panel, click "Add New Quiz"
+   - In admin panel (`/admin`), click "Add New Quiz"
    - Create a test quiz
    - Save it
-   - Go back to main app and verify it appears
+   - Go back to main app (`/`) and verify it appears
 
 ## Troubleshooting
 
@@ -200,17 +162,16 @@ git push
 
 ### "Admin Panel button doesn't appear"
 
-- Verify you added your user ID to `/admins/` in Firebase Database
-- The value must be boolean `true`, not string "true"
+- Verify you're signed in with `techride.trevor@gmail.com`
 - Try signing out and back in
 - Check browser console for errors
+- Other emails will not have admin access
 
 ### "Access Denied in Admin Panel"
 
-- Your user ID must be exactly correct in the database
-- Get your ID from browser console: `firebase.auth().currentUser.uid`
-- Compare it with the ID in Firebase Database
-- The database path must be: `/admins/YOUR_USER_ID`
+- Only `techride.trevor@gmail.com` can access the admin panel
+- Sign in with the correct Google account
+- Check browser console: `firebase.auth().currentUser.email` should show the admin email
 
 ### Database permission errors
 
@@ -232,8 +193,6 @@ Your Firebase Realtime Database will have this structure:
 
 ```
 root
-├── admins
-│   └── [userId]: true
 ├── quizzes
 │   └── [quizId]
 │       ├── title: "Book Title"
@@ -258,12 +217,13 @@ root
 
 ## Adding More Admins
 
-To add additional admin users:
+To add additional admin users, you need to modify the code:
 
-1. Have them sign in to the app first
-2. Get their user ID from browser console
-3. In Firebase Console > Realtime Database
-4. Add their ID under `/admins/` with value `true`
+1. Edit `app.js` and `admin.js`
+2. Find the line: `const ADMIN_EMAIL = 'techride.trevor@gmail.com';`
+3. Change or add additional email checks
+4. Update Firebase security rules to include the new email
+5. Commit and push to GitHub
 
 ## Next Steps
 

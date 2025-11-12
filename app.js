@@ -40,16 +40,10 @@ const app = {
     checkAdminStatus() {
         if (!this.currentUser) return;
 
-        const database = firebase.database();
-        database.ref(`admins/${this.currentUser.uid}`).once('value')
-            .then((snapshot) => {
-                this.isAdmin = snapshot.val() === true;
-                this.updateAdminButton();
-            })
-            .catch((error) => {
-                console.error('Error checking admin status:', error);
-                this.isAdmin = false;
-            });
+        // Only allow specific email address
+        const ADMIN_EMAIL = 'techride.trevor@gmail.com';
+        this.isAdmin = (this.currentUser.email === ADMIN_EMAIL);
+        this.updateAdminButton();
     },
 
     updateAdminButton() {
@@ -100,7 +94,7 @@ const app = {
 
     // Navigate to admin panel
     goToAdmin() {
-        window.location.href = 'admin.html';
+        window.location.href = '/admin';
     },
 
     // UI Navigation
