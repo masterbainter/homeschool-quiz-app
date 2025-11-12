@@ -3,13 +3,13 @@
 // Get these from Firebase Console > Project Settings > General > Your apps > Firebase SDK snippet
 
 const firebaseConfig = {
-    apiKey: "YOUR_API_KEY_HERE",
-    authDomain: "YOUR_PROJECT_ID.firebaseapp.com",
-    databaseURL: "https://YOUR_PROJECT_ID-default-rtdb.firebaseio.com",
-    projectId: "YOUR_PROJECT_ID",
-    storageBucket: "YOUR_PROJECT_ID.appspot.com",
-    messagingSenderId: "YOUR_MESSAGING_SENDER_ID",
-    appId: "YOUR_APP_ID"
+    apiKey: "AIzaSyDwjdhtou4EfG1xXTsNBAE-LXpjmiabUHg",
+    authDomain: "homeschool-quiz-app.firebaseapp.com",
+    databaseURL: "https://homeschool-quiz-app-default-rtdb.firebaseio.com",
+    projectId: "homeschool-quiz-app",
+    storageBucket: "homeschool-quiz-app.firebasestorage.app",
+    messagingSenderId: "766668921569",
+    appId: "1:766668921569:web:374935fa8d27a6478eb5a0"
 };
 
 // Initialize Firebase
