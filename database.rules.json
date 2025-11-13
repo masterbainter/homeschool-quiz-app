@@ -1,0 +1,59 @@
+{
+  "rules": {
+    // Curriculum - read by all authenticated users
+    "curriculum": {
+      ".read": "auth != null",
+      ".write": "root.child('user-roles/admins').val().contains(auth.token.email) || root.child('user-roles/teachers').val().contains(auth.token.email)"
+    },
+
+    // Quizzes - read by all, write by admin/teachers
+    "quizzes": {
+      ".read": "auth != null",
+      ".write": "root.child('user-roles/admins').val().contains(auth.token.email) || root.child('user-roles/teachers').val().contains(auth.token.email)"
+    },
+
+    // Quiz results - users can write their own, all authenticated can read
+    "quiz-results": {
+      ".read": "auth != null",
+      "$resultId": {
+        ".write": "auth != null && (!data.exists() || data.child('userId').val() == auth.uid)"
+      }
+    },
+
+    // User profiles - users can read/write their own, admins/teachers can read all
+    "users": {
+      "$userId": {
+        ".read": "auth != null && (auth.uid == $userId || root.child('user-roles/admins').val().contains(auth.token.email) || root.child('user-roles/teachers').val().contains(auth.token.email))",
+        ".write": "auth != null && auth.uid == $userId"
+      }
+    },
+
+    // Assignments - admins/teachers can write, assigned users can read
+    "assignments": {
+      "$userId": {
+        ".read": "auth != null && (auth.uid == $userId || root.child('user-roles/admins').val().contains(auth.token.email) || root.child('user-roles/teachers').val().contains(auth.token.email))",
+        ".write": "root.child('user-roles/admins').val().contains(auth.token.email) || root.child('user-roles/teachers').val().contains(auth.token.email)"
+      }
+    },
+
+    // Todos - users can manage their own, admins/teachers can read all
+    "todos": {
+      "$userId": {
+        ".read": "auth != null && (auth.uid == $userId || root.child('user-roles/admins').val().contains(auth.token.email) || root.child('user-roles/teachers').val().contains(auth.token.email))",
+        ".write": "auth != null && auth.uid == $userId"
+      }
+    },
+
+    // User roles - read by all authenticated, write by admins only
+    "user-roles": {
+      ".read": "auth != null",
+      ".write": "root.child('user-roles/admins').val().contains(auth.token.email)"
+    },
+
+    // AI usage logs - read/write by admins only
+    "ai-usage-logs": {
+      ".read": "root.child('user-roles/admins').val().contains(auth.token.email)",
+      ".write": "root.child('user-roles/admins').val().contains(auth.token.email) || root.child('user-roles/teachers').val().contains(auth.token.email)"
+    }
+  }
+}
