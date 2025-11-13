@@ -28,6 +28,9 @@ const books = {
                 return;
             }
 
+            // Load Google Books API key from Firebase
+            await GOOGLE_BOOKS_CONFIG.loadApiKey();
+
             // Check if Google Books API is configured
             if (!GoogleBooksAPI.isConfigured()) {
                 document.getElementById('api-warning').style.display = 'block';
