@@ -181,10 +181,71 @@ const dashboard = {
             this.renderSubjects();
         });
 
-        // Load assigned quizzes for students (not admin)
-        if (!this.isAdmin) {
+        // Load assigned quizzes and reading list for students (not admin)
+        if (!this.isAdmin && !this.isTeacher) {
+            this.loadReadingList();
             this.loadAssignedQuizzes();
         }
+    },
+
+    // Load reading assignments for current student
+    loadReadingList() {
+        const database = firebase.database();
+
+        database.ref(`reading-assignments/${this.currentUser.uid}`).on('value', (snapshot) => {
+            const readingAssignments = snapshot.val();
+
+            if (!readingAssignments || Object.keys(readingAssignments).length === 0) {
+                document.getElementById('reading-list-section').style.display = 'none';
+                return;
+            }
+
+            const booksList = Object.values(readingAssignments);
+
+            // Render reading list
+            const grid = document.getElementById('reading-list-grid');
+            grid.innerHTML = booksList.map(book => {
+                const statusClass = book.status === 'completed' ? 'completed' :
+                                   book.status === 'reading' ? 'reading' : 'assigned';
+                const statusText = book.status === 'completed' ? 'Completed' :
+                                  book.status === 'reading' ? 'Reading' : 'Assigned';
+
+                return `
+                    <div class="book-card" onclick="dashboard.updateBookStatus('${book.bookId}', '${book.status}')">
+                        ${book.coverImage ?
+                            `<img src="${book.coverImage}" alt="${this.escapeHtml(book.bookTitle)}" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+                             <div class="book-cover-placeholder" style="display:none;">📖</div>` :
+                            `<div class="book-cover-placeholder">📖</div>`
+                        }
+                        <h3>${this.escapeHtml(book.bookTitle)}</h3>
+                        <p>${this.escapeHtml(book.author)}</p>
+                        <span class="book-status ${statusClass}">${statusText}</span>
+                        ${book.pageCount ? `<p style="font-size: 0.85em; color: #999;">${book.pageCount} pages</p>` : ''}
+                    </div>
+                `;
+            }).join('');
+
+            document.getElementById('reading-list-section').style.display = 'block';
+        });
+    },
+
+    // Update book reading status (cycle through: assigned -> reading -> completed)
+    updateBookStatus(bookId, currentStatus) {
+        const statusCycle = {
+            'assigned': 'reading',
+            'reading': 'completed',
+            'completed': 'assigned'
+        };
+
+        const newStatus = statusCycle[currentStatus];
+        const database = firebase.database();
+
+        database.ref(`reading-assignments/${this.currentUser.uid}/${bookId}/status`)
+            .set(newStatus)
+            .catch((error) => {
+                console.error('Error updating book status:', error);
+                alert('Failed to update status. Please try again.');
+            });
     },
 
     // Load quizzes assigned to current student
