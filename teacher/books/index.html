@@ -267,7 +267,7 @@
         <div id="unauthorized" style="display: none; text-align: center; padding: 40px;">
             <h2>Access Denied</h2>
             <p>Only admins and teachers can access the book library.</p>
-            <button onclick="window.location.href='/teacher'" class="btn btn-secondary">Back to Admin</button>
+            <button onclick="window.location.href='/'" class="btn btn-secondary">Go Home</button>
         </div>
 
         <!-- Main Content -->
@@ -304,8 +304,9 @@
                 <p>Searching books...</p>
             </div>
 
-            <div style="text-align: center; margin-top: 30px;">
-                <button onclick="window.location.href='/teacher'" class="btn btn-secondary">← Back to Admin Panel</button>
+            <div style="text-align: center; margin-top: 30px; display: flex; gap: 10px; justify-content: center;">
+                <button onclick="window.location.href='/'" class="btn btn-secondary">🏠 Home</button>
+                <button onclick="window.location.href='/teacher'" class="btn btn-secondary">← Back to Teacher Panel</button>
             </div>
         </div>
     </div>
