@@ -40,7 +40,8 @@ exports.generateQuiz = functions.https.onCall(async (data, context) => {
     author,
     questionCount = 8,
     difficulty = 'medium',
-    context: additionalContext
+    context: additionalContext,
+    overrideLimit = false
   } = data;
 
   // Validate required fields
@@ -57,6 +58,40 @@ exports.generateQuiz = functions.https.onCall(async (data, context) => {
       'invalid-argument',
       'Question count must be between 3 and 20'
     );
+  }
+
+  // Check daily rate limit (5 quizzes per 24 hours)
+  const DAILY_LIMIT = 5;
+  const now = Date.now();
+  const oneDayAgo = now - (24 * 60 * 60 * 1000);
+
+  try {
+    // Get usage logs from last 24 hours
+    const logsSnapshot = await admin.database()
+      .ref('ai-usage-logs')
+      .orderByChild('timestamp')
+      .startAt(oneDayAgo)
+      .once('value');
+
+    const recentLogs = logsSnapshot.val();
+    const recentCount = recentLogs ? Object.keys(recentLogs).length : 0;
+
+    // If limit exceeded and no override, check with admin
+    if (recentCount >= DAILY_LIMIT && !overrideLimit) {
+      throw new functions.https.HttpsError(
+        'resource-exhausted',
+        `Daily limit of ${DAILY_LIMIT} quiz generations reached (${recentCount} generated in last 24 hours). Admin approval required to continue.`
+      );
+    }
+
+    console.log(`Rate limit check: ${recentCount}/${DAILY_LIMIT} quizzes in last 24h${overrideLimit ? ' (OVERRIDE ACTIVE)' : ''}`);
+  } catch (error) {
+    // If it's our rate limit error, re-throw it
+    if (error.code === 'resource-exhausted') {
+      throw error;
+    }
+    // Otherwise log and continue (don't block on rate limit check failure)
+    console.error('Rate limit check failed:', error);
   }
 
   // Build prompt for Claude

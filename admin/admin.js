@@ -53,6 +53,61 @@ const admin = {
         if (this.currentUser.photoURL) {
             userPhoto.src = this.currentUser.photoURL;
         }
+
+        // Load daily usage stats
+        this.loadDailyUsage();
+    },
+
+    // Load and display daily AI usage
+    async loadDailyUsage() {
+        try {
+            const database = firebase.database();
+            const now = Date.now();
+            const oneDayAgo = now - (24 * 60 * 60 * 1000);
+
+            const snapshot = await database.ref('ai-usage-logs')
+                .orderByChild('timestamp')
+                .startAt(oneDayAgo)
+                .once('value');
+
+            const logs = snapshot.val();
+            const count = logs ? Object.keys(logs).length : 0;
+            const limit = 5;
+
+            // Create or update usage badge
+            let usageBadge = document.getElementById('daily-usage-badge');
+            if (!usageBadge) {
+                usageBadge = document.createElement('div');
+                usageBadge.id = 'daily-usage-badge';
+                usageBadge.style.cssText = `
+                    position: fixed;
+                    bottom: 20px;
+                    right: 20px;
+                    background: ${count >= limit ? '#dc3545' : count >= 3 ? '#ffc107' : '#28a745'};
+                    color: white;
+                    padding: 12px 20px;
+                    border-radius: 8px;
+                    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+                    font-size: 14px;
+                    font-weight: 600;
+                    z-index: 1000;
+                    cursor: pointer;
+                `;
+                usageBadge.onclick = () => window.location.href = '/admin/stats';
+                document.body.appendChild(usageBadge);
+            } else {
+                usageBadge.style.background = count >= limit ? '#dc3545' : count >= 3 ? '#ffc107' : '#28a745';
+            }
+
+            usageBadge.innerHTML = `
+                🤖 Daily AI Usage: ${count}/${limit}
+                ${count >= limit ? '<br><small>Limit reached</small>' : ''}
+            `;
+            usageBadge.title = 'Click to view detailed usage statistics';
+
+        } catch (error) {
+            console.error('Failed to load daily usage:', error);
+        }
     },
 
     showUnauthorized(message) {
@@ -151,7 +206,7 @@ const admin = {
     },
 
     // Generate quiz with AI
-    async generateQuizWithAI() {
+    async generateQuizWithAI(overrideLimit = false) {
         const bookTitle = document.getElementById('ai-book-title').value.trim();
         const author = document.getElementById('ai-author').value.trim();
         const questionCount = parseInt(document.getElementById('ai-question-count').value);
@@ -176,7 +231,8 @@ const admin = {
                 author,
                 questionCount,
                 difficulty,
-                context: context || undefined
+                context: context || undefined,
+                overrideLimit: overrideLimit
             });
 
             if (!result.data.success) {
@@ -213,7 +269,29 @@ const admin = {
         } catch (error) {
             console.error('AI generation error:', error);
 
-            // Show helpful error message
+            // Handle rate limit error with override option
+            if (error.code === 'resource-exhausted' && error.message.includes('Daily limit')) {
+                document.getElementById('generate-btn').disabled = false;
+                document.getElementById('ai-loading').style.display = 'none';
+
+                // Show confirmation dialog for admin override
+                const confirmed = confirm(
+                    `⚠️ DAILY LIMIT REACHED\n\n` +
+                    `${error.message}\n\n` +
+                    `As the admin (${this.currentUser.email}), you can override this limit.\n\n` +
+                    `Do you want to generate this quiz anyway?\n\n` +
+                    `Click OK to override the limit, or Cancel to stop.`
+                );
+
+                if (confirmed) {
+                    // Retry with override
+                    console.log('Admin approved rate limit override');
+                    this.generateQuizWithAI(true);
+                }
+                return;
+            }
+
+            // Show helpful error message for other errors
             let errorMessage = 'Failed to generate quiz. ';
 
             if (error.code === 'unauthenticated') {
