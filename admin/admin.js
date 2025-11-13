@@ -65,9 +65,16 @@ const admin = {
             userPhoto.src = this.currentUser.photoURL;
         }
 
-        // Load daily usage stats (only for admins, not teachers)
+        // Show/hide admin-only features
         if (this.isAdmin) {
+            // Only admins can see usage stats
             this.loadDailyUsage();
+            const statsBtn = document.getElementById('stats-btn');
+            if (statsBtn) statsBtn.style.display = 'inline-block';
+
+            // Only admins can manage users
+            const userMgmtBtn = document.getElementById('user-management-btn');
+            if (userMgmtBtn) userMgmtBtn.style.display = 'inline-block';
         }
     },
 

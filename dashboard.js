@@ -16,10 +16,13 @@ const dashboard = {
             return;
         }
 
-        firebase.auth().onAuthStateChanged((user) => {
+        firebase.auth().onAuthStateChanged(async (user) => {
             if (user) {
+                // Load roles from Firebase first
+                await RolesLoader.load();
+
                 // Check if user is allowed
-                if (!this.isAllowedUser(user.email)) {
+                if (!RolesLoader.isAllowedUser(user.email)) {
                     alert('Access denied. This account is not authorized to use this app.\n\nPlease contact your teacher.');
                     firebase.auth().signOut();
                     return;
@@ -39,39 +42,11 @@ const dashboard = {
         });
     },
 
-    // List of admin emails (full access including usage override)
-    ADMIN_EMAILS: [
-        'techride.trevor@gmail.com'
-    ],
-
-    // List of teacher emails (all admin features except usage override/viewing)
-    TEACHER_EMAILS: [
-        'iyoko.bainter@gmail.com',
-        'trevor.bainter@gmail.com'
-    ],
-
-    // List of student emails
-    STUDENT_EMAILS: [
-        'madmaxmadadax@gmail.com',
-        'sakurasaurusjade@gmail.com'
-    ],
-
-    // List of allowed emails (you can edit this list)
-    isAllowedUser(email) {
-        const ALLOWED_EMAILS = [
-            ...this.ADMIN_EMAILS,
-            ...this.TEACHER_EMAILS,
-            ...this.STUDENT_EMAILS
-        ];
-
-        return ALLOWED_EMAILS.includes(email.toLowerCase());
-    },
-
-    // Check if user is admin or teacher
+    // Check if user is admin or teacher (uses dynamic roles from Firebase)
     checkAdminStatus() {
         const userEmail = this.currentUser.email;
-        this.isAdmin = this.ADMIN_EMAILS.includes(userEmail);
-        this.isTeacher = this.TEACHER_EMAILS.includes(userEmail);
+        this.isAdmin = RolesLoader.isAdmin(userEmail);
+        this.isTeacher = RolesLoader.isTeacher(userEmail);
 
         // Both admins and teachers see admin button
         this.updateAdminButton();

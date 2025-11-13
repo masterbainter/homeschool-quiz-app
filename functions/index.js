@@ -10,15 +10,38 @@ const anthropic = new Anthropic({
   apiKey: functions.config().anthropic?.key || process.env.ANTHROPIC_API_KEY
 });
 
-// Role-based authorization
-const ADMIN_EMAILS = [
-  'techride.trevor@gmail.com'
-];
+/**
+ * Load user roles from Firebase Realtime Database
+ */
+async function loadUserRoles() {
+  try {
+    const rolesSnapshot = await admin.database().ref('user-roles').once('value');
+    const rolesData = rolesSnapshot.val();
 
-const TEACHER_EMAILS = [
-  'iyoko.bainter@gmail.com',
-  'trevor.bainter@gmail.com'
-];
+    if (rolesData) {
+      return {
+        admins: rolesData.admins || ['techride.trevor@gmail.com'],
+        teachers: rolesData.teachers || [],
+        students: rolesData.students || []
+      };
+    }
+
+    // Fallback to defaults
+    return {
+      admins: ['techride.trevor@gmail.com'],
+      teachers: ['iyoko.bainter@gmail.com', 'trevor.bainter@gmail.com'],
+      students: ['madmaxmadadax@gmail.com', 'sakurasaurusjade@gmail.com']
+    };
+  } catch (error) {
+    console.error('Error loading roles:', error);
+    // Return safe defaults on error
+    return {
+      admins: ['techride.trevor@gmail.com'],
+      teachers: [],
+      students: []
+    };
+  }
+}
 
 /**
  * Cloud Function to generate quiz questions using Claude AI
@@ -33,9 +56,12 @@ exports.generateQuiz = functions.https.onCall(async (data, context) => {
     );
   }
 
+  // Load roles from database
+  const roles = await loadUserRoles();
+
   const userEmail = context.auth.token.email;
-  const isAdmin = ADMIN_EMAILS.includes(userEmail);
-  const isTeacher = TEACHER_EMAILS.includes(userEmail);
+  const isAdmin = roles.admins.includes(userEmail);
+  const isTeacher = roles.teachers.includes(userEmail);
 
   // Verify user is admin or teacher
   if (!isAdmin && !isTeacher) {

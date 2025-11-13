@@ -1,0 +1,235 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>User Management - Admin Panel</title>
+    <link rel="stylesheet" href="/styles.css">
+    <link rel="stylesheet" href="/admin/admin-styles.css">
+    <style>
+        .user-management {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .role-section {
+            background: white;
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        .role-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 2px solid #f0f0f0;
+        }
+
+        .role-header h2 {
+            margin: 0;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .role-badge {
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 12px;
+            font-size: 0.85em;
+            font-weight: 600;
+        }
+
+        .role-admin { background: #dc3545; color: white; }
+        .role-teacher { background: #ffc107; color: #333; }
+        .role-student { background: #28a745; color: white; }
+
+        .user-list {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .user-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px 15px;
+            background: #f8f9fa;
+            border-radius: 6px;
+            border: 1px solid #dee2e6;
+        }
+
+        .user-email {
+            font-family: monospace;
+            font-size: 0.95em;
+        }
+
+        .btn-remove {
+            background: #dc3545;
+            color: white;
+            border: none;
+            padding: 6px 16px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 0.9em;
+        }
+
+        .btn-remove:hover {
+            background: #c82333;
+        }
+
+        .add-user-form {
+            display: flex;
+            gap: 10px;
+            margin-top: 15px;
+        }
+
+        .add-user-form input {
+            flex: 1;
+            padding: 10px;
+            border: 1px solid #dee2e6;
+            border-radius: 4px;
+            font-size: 0.95em;
+        }
+
+        .btn-add {
+            background: #28a745;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-weight: 600;
+        }
+
+        .btn-add:hover {
+            background: #218838;
+        }
+
+        .empty-list {
+            text-align: center;
+            padding: 20px;
+            color: #999;
+        }
+
+        .info-box {
+            background: #e7f3ff;
+            border-left: 4px solid #2196F3;
+            padding: 15px;
+            margin-bottom: 20px;
+            border-radius: 4px;
+        }
+
+        .info-box p {
+            margin: 5px 0;
+            font-size: 0.95em;
+        }
+
+        .warning-box {
+            background: #fff3cd;
+            border-left: 4px solid #ffc107;
+            padding: 15px;
+            margin-top: 20px;
+            border-radius: 4px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>👥 User Management</h1>
+            <p class="subtitle">Manage user access and roles</p>
+        </header>
+
+        <!-- Auth Check -->
+        <div id="auth-check" style="text-align: center; padding: 40px;">
+            <p>Checking authentication...</p>
+        </div>
+
+        <!-- Unauthorized -->
+        <div id="unauthorized" style="display: none; text-align: center; padding: 40px;">
+            <h2>Access Denied</h2>
+            <p>Only the main admin can manage users.</p>
+            <button onclick="window.location.href='/admin'" class="btn btn-secondary">Back to Admin</button>
+        </div>
+
+        <!-- User Management Content -->
+        <div id="content" class="user-management" style="display: none;">
+            <div class="info-box">
+                <p><strong>ℹ️ How it works:</strong></p>
+                <p>• <strong>Admin:</strong> Full access including usage override and user management (you)</p>
+                <p>• <strong>Teacher:</strong> Can generate quizzes and manage students (cannot override limits)</p>
+                <p>• <strong>Student:</strong> Can take quizzes and view assignments</p>
+            </div>
+
+            <!-- Admin Section -->
+            <div class="role-section">
+                <div class="role-header">
+                    <h2>
+                        <span class="role-badge role-admin">ADMIN</span>
+                        Administrators
+                    </h2>
+                </div>
+                <div id="admin-list" class="user-list">
+                    <!-- Admin emails will be loaded here -->
+                </div>
+                <div class="warning-box">
+                    <strong>⚠️ Warning:</strong> Be careful when managing admin access. Always ensure at least one admin email remains configured.
+                </div>
+            </div>
+
+            <!-- Teacher Section -->
+            <div class="role-section">
+                <div class="role-header">
+                    <h2>
+                        <span class="role-badge role-teacher">TEACHER</span>
+                        Teachers
+                    </h2>
+                </div>
+                <div id="teacher-list" class="user-list">
+                    <!-- Teacher emails will be loaded here -->
+                </div>
+                <div class="add-user-form">
+                    <input type="email" id="new-teacher-email" placeholder="teacher@example.com">
+                    <button onclick="userManagement.addUser('teacher')" class="btn-add">+ Add Teacher</button>
+                </div>
+            </div>
+
+            <!-- Student Section -->
+            <div class="role-section">
+                <div class="role-header">
+                    <h2>
+                        <span class="role-badge role-student">STUDENT</span>
+                        Students
+                    </h2>
+                </div>
+                <div id="student-list" class="user-list">
+                    <!-- Student emails will be loaded here -->
+                </div>
+                <div class="add-user-form">
+                    <input type="email" id="new-student-email" placeholder="student@example.com">
+                    <button onclick="userManagement.addUser('student')" class="btn-add">+ Add Student</button>
+                </div>
+            </div>
+
+            <div style="text-align: center; margin-top: 30px;">
+                <button onclick="window.location.href='/admin'" class="btn btn-secondary">← Back to Admin Panel</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-database-compat.js"></script>
+
+    <!-- App Scripts -->
+    <script src="/firebase-config.js"></script>
+    <script src="users.js"></script>
+</body>
+</html>
