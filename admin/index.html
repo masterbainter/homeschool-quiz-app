@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Admin Panel - Homeschool Quiz App</title>
-    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="../styles.css">
     <link rel="stylesheet" href="admin-styles.css">
 </head>
 <body>
@@ -33,7 +33,10 @@
                 <!-- Navigation -->
                 <div class="section">
                     <div class="admin-nav">
-                        <button onclick="window.location.href='/'" class="btn btn-secondary">← Back to Quiz App</button>
+                        <div>
+                            <button onclick="window.location.href='/'" class="btn btn-secondary">← Back to Quiz App</button>
+                            <button onclick="window.location.href='/admin/help'" class="btn btn-secondary">📖 How to Create Quizzes</button>
+                        </div>
                         <div class="admin-user-info">
                             <img id="admin-user-photo" src="" alt="Profile" class="user-photo-small">
                             <span id="admin-user-name"></span>
@@ -158,7 +161,7 @@
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-functions-compat.js"></script>
 
     <!-- App Scripts -->
-    <script src="firebase-config.js"></script>
+    <script src="../firebase-config.js"></script>
     <script src="admin.js"></script>
 </body>
 </html>

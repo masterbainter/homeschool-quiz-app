@@ -20,7 +20,6 @@
 
             // Static routes
             var staticRoutes = {
-                'admin': '/admin.html',
                 'todos': '/todos.html',
                 '': '/index.html'
             };
@@ -31,8 +30,11 @@
                 return;
             }
 
+            // Handle /admin and /admin/* routes (these are real directories)
+            // No redirect needed - GitHub Pages will serve the index.html from those directories
+
             // Dynamic routing
-            if (segments.length === 1) {
+            if (segments.length === 1 && segments[0] !== 'admin') {
                 // /reading -> subject page
                 window.location.replace('/subject.html?subject=' + segments[0] + window.location.search.substring(1) + window.location.hash);
             } else if (segments.length === 2) {
