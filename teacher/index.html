@@ -3,15 +3,15 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Admin Panel - Homeschool Quiz App</title>
+    <title>Teacher Panel - Homeschool Quiz App</title>
     <link rel="stylesheet" href="../styles.css">
-    <link rel="stylesheet" href="admin-styles.css">
+    <link rel="stylesheet" href="teacher-styles.css">
 </head>
 <body>
     <div class="container">
         <header>
-            <h1>🔧 Admin Panel</h1>
-            <p class="subtitle">Manage your book quizzes</p>
+            <h1>👨‍🏫 Teacher Panel</h1>
+            <p class="subtitle">Manage quizzes and student assignments</p>
         </header>
 
         <div id="app">
@@ -35,9 +35,10 @@
                     <div class="admin-nav">
                         <div>
                             <button onclick="window.location.href='/'" class="btn btn-secondary">← Back to Quiz App</button>
-                            <button onclick="window.location.href='/teacher'" class="btn btn-secondary">👨‍🏫 Teacher Panel</button>
-                            <button onclick="window.location.href='/admin/users'" class="btn btn-secondary">👥 User Management</button>
-                            <button onclick="window.location.href='/admin/stats'" class="btn btn-secondary">📊 Usage Stats</button>
+                            <button onclick="window.location.href='/teacher/books'" class="btn btn-secondary">📚 Book Library</button>
+                            <button onclick="window.location.href='/teacher/students'" class="btn btn-secondary">👨‍🎓 Student Progress</button>
+                            <button onclick="window.location.href='/teacher/help'" class="btn btn-secondary">📖 How to Create Quizzes</button>
+                            <button onclick="window.location.href='/admin'" class="btn btn-secondary" id="admin-panel-btn" style="display: none;">⚙️ Admin Panel</button>
                         </div>
                         <div class="admin-user-info">
                             <img id="admin-user-photo" src="" alt="Profile" class="user-photo-small">
@@ -46,32 +47,22 @@
                     </div>
                 </div>
 
-                <!-- Admin Overview -->
+                <!-- Quiz List -->
                 <div class="section">
-                    <h2>⚙️ System Administration</h2>
-                    <p style="margin-bottom: 20px;">Manage users, view usage statistics, and configure system settings.</p>
-
-                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 20px;">
-                        <div class="admin-card" onclick="window.location.href='/admin/users'">
-                            <h3>👥 User Management</h3>
-                            <p>Add/remove users and manage roles (admins, teachers, students)</p>
-                        </div>
-                        <div class="admin-card" onclick="window.location.href='/admin/stats'">
-                            <h3>📊 Usage Statistics</h3>
-                            <p>View AI quiz generation usage and system activity</p>
-                        </div>
-                        <div class="admin-card" onclick="window.location.href='/teacher'">
-                            <h3>👨‍🏫 Teacher Panel</h3>
-                            <p>Create quizzes, assign books, track student progress</p>
-                        </div>
+                    <div class="section-header">
+                        <h2>📚 Book Quizzes</h2>
+                        <button onclick="teacher.showAddQuiz()" class="btn btn-primary">+ Add New Quiz</button>
+                    </div>
+                    <div id="quiz-list" class="admin-quiz-list">
+                        <!-- Quiz items will be populated here -->
                     </div>
                 </div>
 
-                <!-- Hidden Quiz Form Section -->
+                <!-- Add/Edit Quiz Form -->
                 <div id="quiz-form-section" class="section" style="display: none;">
                     <div class="section-header">
                         <h2 id="form-title">Add New Quiz</h2>
-                        <button onclick="admin.cancelEdit()" class="btn btn-secondary">Cancel</button>
+                        <button onclick="teacher.cancelEdit()" class="btn btn-secondary">Cancel</button>
                     </div>
 
                     <!-- AI Generation Section -->
@@ -127,10 +118,10 @@
                         </div>
 
                         <div class="ai-actions">
-                            <button type="button" onclick="admin.generateQuizWithAI()" class="btn btn-primary" id="generate-btn">
+                            <button type="button" onclick="teacher.generateQuizWithAI()" class="btn btn-primary" id="generate-btn">
                                 ✨ Generate Quiz
                             </button>
-                            <button type="button" onclick="admin.switchToManual()" class="btn btn-secondary">
+                            <button type="button" onclick="teacher.switchToManual()" class="btn btn-secondary">
                                 ✏️ Manual Entry Instead
                             </button>
                         </div>
@@ -142,10 +133,10 @@
                     </div>
 
                     <!-- Manual Form Section -->
-                    <form id="quiz-form" onsubmit="admin.saveQuiz(event)" style="display: none;">
+                    <form id="quiz-form" onsubmit="teacher.saveQuiz(event)" style="display: none;">
                         <div class="form-header">
                             <h3>Quiz Details</h3>
-                            <button type="button" onclick="admin.showAIGenerator()" class="btn btn-secondary btn-small">
+                            <button type="button" onclick="teacher.showAIGenerator()" class="btn btn-secondary btn-small">
                                 🤖 Use AI Instead
                             </button>
                         </div>
@@ -165,12 +156,12 @@
                             <div id="questions-container">
                                 <!-- Questions will be added here -->
                             </div>
-                            <button type="button" onclick="admin.addQuestion()" class="btn btn-secondary">+ Add Question</button>
+                            <button type="button" onclick="teacher.addQuestion()" class="btn btn-secondary">+ Add Question</button>
                         </div>
 
                         <div class="form-actions">
                             <button type="submit" class="btn btn-primary">Save Quiz</button>
-                            <button type="button" onclick="admin.cancelEdit()" class="btn btn-secondary">Cancel</button>
+                            <button type="button" onclick="teacher.cancelEdit()" class="btn btn-secondary">Cancel</button>
                         </div>
                     </form>
                 </div>
@@ -186,6 +177,6 @@
 
     <!-- App Scripts -->
     <script src="../firebase-config.js"></script>
-    <script src="admin.js"></script>
+    <script src="teacher.js"></script>
 </body>
 </html>

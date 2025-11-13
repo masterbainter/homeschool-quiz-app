@@ -1,0 +1,528 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quiz Creation Guide - Admin Help</title>
+    <link rel="stylesheet" href="../../styles.css">
+    <style>
+        .help-container {
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        .help-header {
+            text-align: center;
+            margin-bottom: 40px;
+            padding: 30px 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border-radius: 12px;
+        }
+        .help-header h1 {
+            margin: 0 0 10px 0;
+            font-size: 2.5em;
+        }
+        .help-header p {
+            margin: 0;
+            opacity: 0.9;
+            font-size: 1.1em;
+        }
+        .help-nav {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 30px;
+        }
+        .section {
+            background: white;
+            border-radius: 12px;
+            padding: 30px;
+            margin-bottom: 30px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+        .section h2 {
+            color: #667eea;
+            margin-top: 0;
+            padding-bottom: 15px;
+            border-bottom: 2px solid #f0f0f0;
+        }
+        .section h3 {
+            color: #764ba2;
+            margin-top: 25px;
+        }
+        .step-list {
+            list-style: none;
+            padding: 0;
+            counter-reset: step-counter;
+        }
+        .step-list li {
+            counter-increment: step-counter;
+            margin-bottom: 25px;
+            padding-left: 50px;
+            position: relative;
+        }
+        .step-list li::before {
+            content: counter(step-counter);
+            position: absolute;
+            left: 0;
+            top: 0;
+            background: #667eea;
+            color: white;
+            width: 35px;
+            height: 35px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            font-size: 1.1em;
+        }
+        .step-list li strong {
+            display: block;
+            font-size: 1.1em;
+            margin-bottom: 8px;
+            color: #333;
+        }
+        .tip-box {
+            background: #f0f7ff;
+            border-left: 4px solid #667eea;
+            padding: 15px 20px;
+            margin: 20px 0;
+            border-radius: 4px;
+        }
+        .tip-box strong {
+            color: #667eea;
+            display: block;
+            margin-bottom: 8px;
+        }
+        .warning-box {
+            background: #fff3cd;
+            border-left: 4px solid #ffc107;
+            padding: 15px 20px;
+            margin: 20px 0;
+            border-radius: 4px;
+        }
+        .warning-box strong {
+            color: #856404;
+            display: block;
+            margin-bottom: 8px;
+        }
+        .example-box {
+            background: #f8f9fa;
+            border: 1px solid #dee2e6;
+            padding: 15px 20px;
+            margin: 15px 0;
+            border-radius: 8px;
+            font-family: monospace;
+        }
+        .checklist {
+            list-style: none;
+            padding: 0;
+        }
+        .checklist li {
+            padding: 8px 0;
+            padding-left: 30px;
+            position: relative;
+        }
+        .checklist li::before {
+            content: "✓";
+            position: absolute;
+            left: 0;
+            color: #28a745;
+            font-weight: bold;
+            font-size: 1.2em;
+        }
+        .difficulty-badge {
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 0.9em;
+            font-weight: 600;
+            margin-right: 10px;
+        }
+        .difficulty-easy {
+            background: #d4edda;
+            color: #155724;
+        }
+        .difficulty-medium {
+            background: #fff3cd;
+            color: #856404;
+        }
+        .difficulty-hard {
+            background: #f8d7da;
+            color: #721c24;
+        }
+        code {
+            background: #f8f9fa;
+            padding: 2px 6px;
+            border-radius: 3px;
+            font-size: 0.9em;
+            color: #e83e8c;
+        }
+        .btn {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 8px;
+            font-size: 1em;
+            cursor: pointer;
+            text-decoration: none;
+            display: inline-block;
+            transition: all 0.3s;
+        }
+        .btn-primary {
+            background: #667eea;
+            color: white;
+        }
+        .btn-primary:hover {
+            background: #5568d3;
+        }
+        .btn-secondary {
+            background: #6c757d;
+            color: white;
+        }
+        .btn-secondary:hover {
+            background: #5a6268;
+        }
+    </style>
+</head>
+<body>
+    <div class="help-container">
+        <div class="help-header">
+            <h1>📖 Quiz Creation Guide</h1>
+            <p>Complete guide to creating and managing quizzes with AI and manual tools</p>
+        </div>
+
+        <div class="help-nav">
+            <button onclick="window.location.href='/teacher'" class="btn btn-secondary">← Back to Admin Panel</button>
+            <button onclick="window.location.href='/'" class="btn btn-secondary">Home</button>
+        </div>
+
+        <!-- Quick Start -->
+        <div class="section">
+            <h2>🚀 Quick Start</h2>
+            <p>Creating a quiz is easy! You have two options:</p>
+            <ul style="font-size: 1.1em; line-height: 1.8;">
+                <li><strong>🤖 AI Generation (Recommended):</strong> Let AI create quiz questions automatically in 15-30 seconds</li>
+                <li><strong>✏️ Manual Entry:</strong> Write each question yourself for complete control</li>
+            </ul>
+            <div class="tip-box">
+                <strong>💡 Pro Tip:</strong>
+                Use AI to generate questions, then switch to manual mode to review and customize them before saving!
+            </div>
+        </div>
+
+        <!-- Method 1: AI Generation -->
+        <div class="section">
+            <h2>🤖 Method 1: AI-Generated Quizzes</h2>
+            <p>The fastest way to create comprehensive quizzes with high-quality questions.</p>
+
+            <h3>Step-by-Step Instructions</h3>
+            <ol class="step-list">
+                <li>
+                    <strong>Click "Add New Quiz"</strong>
+                    From the Admin Panel, click the green "+ Add New Quiz" button at the top of the quiz list.
+                </li>
+                <li>
+                    <strong>Enter Book Information</strong>
+                    Fill in the AI generation form:
+                    <ul>
+                        <li><strong>Book Title:</strong> Required (e.g., "Charlotte's Web")</li>
+                        <li><strong>Author:</strong> Optional but recommended (e.g., "E.B. White")</li>
+                    </ul>
+                </li>
+                <li>
+                    <strong>Choose Quiz Settings</strong>
+                    <ul>
+                        <li><strong>Number of Questions:</strong> Select 5, 8, 10, 12, or 15 questions</li>
+                        <li><strong>Difficulty Level:</strong>
+                            <br><span class="difficulty-badge difficulty-easy">Easy (Ages 8-10)</span> Basic comprehension
+                            <br><span class="difficulty-badge difficulty-medium">Medium (Ages 10-12)</span> Standard analysis
+                            <br><span class="difficulty-badge difficulty-hard">Hard (Ages 12+)</span> Advanced critical thinking
+                        </li>
+                    </ul>
+                </li>
+                <li>
+                    <strong>Add Additional Context (Optional)</strong>
+                    Provide specific instructions to guide the AI:
+                    <div class="example-box">
+                        Example: "Focus on character development and the friendship between Wilbur and Charlotte"
+                        <br><br>
+                        Example: "Include questions about chapters 5-10 only"
+                        <br><br>
+                        Example: "Emphasize themes of loyalty and sacrifice"
+                    </div>
+                </li>
+                <li>
+                    <strong>Click "Generate Quiz"</strong>
+                    The AI will create your quiz in 15-30 seconds. You'll see a loading indicator while it works.
+                </li>
+                <li>
+                    <strong>Review Generated Questions</strong>
+                    After generation completes, you'll automatically be taken to the manual editor where you can:
+                    <ul>
+                        <li>Review all AI-generated questions</li>
+                        <li>Edit question text or answer options</li>
+                        <li>Change the correct answer</li>
+                        <li>Add new questions</li>
+                        <li>Delete unwanted questions</li>
+                    </ul>
+                </li>
+                <li>
+                    <strong>Save Your Quiz</strong>
+                    When satisfied, click the "Save Quiz" button at the bottom.
+                </li>
+            </ol>
+
+            <div class="warning-box">
+                <strong>⚠️ Important:</strong>
+                AI-generated quizzes are loaded into the editor for review. Always check the questions before saving to ensure they're appropriate for your students.
+            </div>
+        </div>
+
+        <!-- Method 2: Manual Creation -->
+        <div class="section">
+            <h2>✏️ Method 2: Manual Quiz Creation</h2>
+            <p>Create quizzes from scratch with complete control over every question.</p>
+
+            <h3>Step-by-Step Instructions</h3>
+            <ol class="step-list">
+                <li>
+                    <strong>Click "Add New Quiz"</strong>
+                    From the Admin Panel, click "+ Add New Quiz" button.
+                </li>
+                <li>
+                    <strong>Switch to Manual Mode</strong>
+                    Click the "✏️ Manual Entry Instead" button (or if you're already in AI mode, you can switch anytime).
+                </li>
+                <li>
+                    <strong>Enter Quiz Details</strong>
+                    <ul>
+                        <li><strong>Book Title:</strong> Required (this becomes the quiz title)</li>
+                        <li><strong>Description:</strong> Optional subtitle or description</li>
+                    </ul>
+                    <div class="example-box">
+                        Title: "The Chronicles of Narnia: The Lion, the Witch and the Wardrobe"
+                        <br>
+                        Description: "Test your knowledge of C.S. Lewis's magical adventure"
+                    </div>
+                </li>
+                <li>
+                    <strong>Add Questions</strong>
+                    Click the "+ Add Question" button to create a new question. For each question:
+                    <ul>
+                        <li>Enter the question text</li>
+                        <li>Add 4 answer options (A, B, C, D)</li>
+                        <li>Select which answer is correct</li>
+                    </ul>
+                </li>
+                <li>
+                    <strong>Add More Questions</strong>
+                    Keep clicking "+ Add Question" until you have all your questions (typically 5-15 questions per quiz).
+                </li>
+                <li>
+                    <strong>Review and Save</strong>
+                    Double-check all questions and answers, then click "Save Quiz".
+                </li>
+            </ol>
+
+            <div class="tip-box">
+                <strong>💡 Writing Good Questions:</strong>
+                <ul class="checklist">
+                    <li>Make questions clear and specific</li>
+                    <li>Use age-appropriate vocabulary</li>
+                    <li>Avoid trick questions or confusing wording</li>
+                    <li>Make sure the correct answer is clearly correct</li>
+                    <li>Make distractors (wrong answers) plausible but clearly incorrect</li>
+                    <li>Mix question types: plot, character, theme, vocabulary</li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- Editing Existing Quizzes -->
+        <div class="section">
+            <h2>✨ Editing Existing Quizzes</h2>
+            <p>You can modify any quiz at any time.</p>
+
+            <h3>How to Edit</h3>
+            <ol class="step-list">
+                <li>
+                    <strong>Find the Quiz</strong>
+                    In the Admin Panel, scroll through the quiz list to find the one you want to edit.
+                </li>
+                <li>
+                    <strong>Click "Edit"</strong>
+                    Click the yellow "Edit" button on the quiz card.
+                </li>
+                <li>
+                    <strong>Make Changes</strong>
+                    The quiz will load in the manual editor where you can:
+                    <ul>
+                        <li>Change the quiz title or description</li>
+                        <li>Edit any question text</li>
+                        <li>Modify answer options</li>
+                        <li>Change which answer is correct</li>
+                        <li>Add new questions</li>
+                        <li>Remove questions (click "Remove" on any question)</li>
+                    </ul>
+                </li>
+                <li>
+                    <strong>Save Changes</strong>
+                    Click "Save Quiz" when done. Your changes will be immediately available to students.
+                </li>
+            </ol>
+        </div>
+
+        <!-- Hybrid Workflow -->
+        <div class="section">
+            <h2>🔄 Hybrid Workflow (Best of Both Worlds)</h2>
+            <p>Combine AI speed with manual precision for the best results.</p>
+
+            <h3>Recommended Process</h3>
+            <ol class="step-list">
+                <li>
+                    <strong>Generate with AI</strong>
+                    Use AI generation to create a complete quiz quickly (8-10 questions recommended).
+                </li>
+                <li>
+                    <strong>Review Questions</strong>
+                    After AI generation, review each question in the editor that appears.
+                </li>
+                <li>
+                    <strong>Edit as Needed</strong>
+                    <ul>
+                        <li>Rephrase questions that are too complex or too simple</li>
+                        <li>Adjust answer options to better match your students' level</li>
+                        <li>Fix any questions that might be confusing</li>
+                    </ul>
+                </li>
+                <li>
+                    <strong>Add Custom Questions</strong>
+                    Click "+ Add Question" to add your own questions on specific topics the AI might have missed.
+                </li>
+                <li>
+                    <strong>Remove Weak Questions</strong>
+                    Delete any AI-generated questions that don't meet your standards.
+                </li>
+                <li>
+                    <strong>Save the Final Quiz</strong>
+                    You now have a high-quality quiz that was quick to create but customized to your needs!
+                </li>
+            </ol>
+
+            <div class="tip-box">
+                <strong>💡 Why This Works:</strong>
+                AI saves you 90% of the time by generating good questions quickly. You spend 10% of the time polishing them to be perfect for your students. Best of both worlds!
+            </div>
+        </div>
+
+        <!-- Managing Quizzes -->
+        <div class="section">
+            <h2>🗂️ Managing Your Quizzes</h2>
+
+            <h3>Organizing Quizzes</h3>
+            <p>All quizzes are automatically organized by subject and section based on their ID format:</p>
+            <div class="example-box">
+                Format: <code>subject-section-quizname</code>
+                <br><br>
+                Example: <code>reading-books-charlottes-web</code>
+                <br>
+                This quiz appears under: Reading → Books → Charlotte's Web
+            </div>
+
+            <h3>Quiz Actions</h3>
+            <p>For each quiz in the Admin Panel, you can:</p>
+            <ul>
+                <li><strong>Edit:</strong> Modify questions, answers, or quiz details</li>
+                <li><strong>Delete:</strong> Permanently remove the quiz (requires confirmation)</li>
+                <li><strong>View:</strong> See quiz metadata and question count</li>
+            </ul>
+
+            <h3>Deleting Quizzes</h3>
+            <div class="warning-box">
+                <strong>⚠️ Warning:</strong>
+                Deleting a quiz is permanent and cannot be undone. All student results for that quiz will still be preserved in the results database, but students won't be able to take the quiz again.
+            </div>
+        </div>
+
+        <!-- Best Practices -->
+        <div class="section">
+            <h2>⭐ Best Practices</h2>
+
+            <h3>Creating Quality Quizzes</h3>
+            <ul class="checklist">
+                <li>Start with 8-10 questions per quiz (not too long, not too short)</li>
+                <li>Mix easy, medium, and hard questions for variety</li>
+                <li>Cover different aspects: plot, characters, themes, vocabulary</li>
+                <li>Always review AI-generated questions before publishing</li>
+                <li>Test your quiz yourself to catch any errors</li>
+                <li>Update quizzes based on student feedback</li>
+            </ul>
+
+            <h3>Question Writing Tips</h3>
+            <ul class="checklist">
+                <li>Keep questions focused on one concept</li>
+                <li>Use simple, clear language</li>
+                <li>Avoid negative questions ("Which is NOT...")</li>
+                <li>Make all answer options approximately the same length</li>
+                <li>Ensure only one answer is clearly correct</li>
+                <li>Don't use "All of the above" or "None of the above"</li>
+            </ul>
+
+            <h3>Difficulty Guidelines</h3>
+            <p><span class="difficulty-badge difficulty-easy">Easy</span> Questions about basic plot points, main characters, and obvious themes</p>
+            <p><span class="difficulty-badge difficulty-medium">Medium</span> Questions requiring comprehension, character analysis, and understanding of relationships</p>
+            <p><span class="difficulty-badge difficulty-hard">Hard</span> Questions about symbolism, deeper themes, author's purpose, and complex inferences</p>
+        </div>
+
+        <!-- Troubleshooting -->
+        <div class="section">
+            <h2>🔧 Troubleshooting</h2>
+
+            <h3>AI Generation Issues</h3>
+            <p><strong>Problem:</strong> AI generation is taking too long (over 1 minute)</p>
+            <p><strong>Solution:</strong> Refresh the page and try again. If it continues, switch to manual mode.</p>
+
+            <p><strong>Problem:</strong> AI generates inappropriate or irrelevant questions</p>
+            <p><strong>Solution:</strong> Use the "Additional Context" field to guide the AI more specifically. You can also edit or delete poor questions.</p>
+
+            <h3>Saving Issues</h3>
+            <p><strong>Problem:</strong> Quiz won't save</p>
+            <p><strong>Solution:</strong> Check that you've filled in all required fields (quiz title, question text, all 4 answer options, and selected a correct answer for each question).</p>
+
+            <h3>Quiz Not Appearing</h3>
+            <p><strong>Problem:</strong> Saved quiz doesn't appear for students</p>
+            <p><strong>Solution:</strong> Make sure the quiz ID follows the format <code>subject-section-quizname</code>. Check the curriculum structure in Firebase to ensure the subject and section exist.</p>
+        </div>
+
+        <!-- Quick Reference -->
+        <div class="section">
+            <h2>📋 Quick Reference</h2>
+
+            <h3>Keyboard Shortcuts (while editing)</h3>
+            <ul>
+                <li><code>Tab</code> - Move to next field</li>
+                <li><code>Enter</code> - Submit form (when ready to save)</li>
+            </ul>
+
+            <h3>Recommended Quiz Lengths</h3>
+            <ul>
+                <li><strong>Short books (under 100 pages):</strong> 5-8 questions</li>
+                <li><strong>Medium books (100-200 pages):</strong> 8-12 questions</li>
+                <li><strong>Long books (200+ pages):</strong> 12-15 questions</li>
+            </ul>
+
+            <h3>Subject/Section Structure</h3>
+            <div class="example-box">
+                reading-books-quiz-name<br>
+                math-arithmetic-quiz-name<br>
+                science-biology-quiz-name<br>
+                history-ancient-quiz-name
+            </div>
+        </div>
+
+        <div class="help-nav">
+            <button onclick="window.location.href='/teacher'" class="btn btn-primary">← Back to Admin Panel</button>
+        </div>
+    </div>
+</body>
+</html>

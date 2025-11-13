@@ -1,11 +1,12 @@
-// Admin Panel Logic
-const admin = {
+// Teacher Panel Logic
+const teacher = {
     currentUser: null,
     isAdmin: false,
+    isTeacher: false,
     quizzes: [],
     editingQuizId: null,
 
-    // Initialize admin panel
+    // Initialize teacher panel
     init() {
         this.setupAuthListener();
     },
@@ -39,33 +40,43 @@ const admin = {
         'trevor.bainter@gmail.com'
     ],
 
-    // Check if user has admin privileges
+    // Check if user has admin or teacher privileges
     checkAdminStatus() {
         const userEmail = this.currentUser.email;
         this.isAdmin = this.ADMIN_EMAILS.includes(userEmail);
+        this.isTeacher = this.TEACHER_EMAILS.includes(userEmail);
 
-        if (this.isAdmin) {
-            this.showAdminPanel();
-            // Don't load quizzes - that's in teacher panel now
+        if (this.isAdmin || this.isTeacher) {
+            this.showTeacherPanel();
+            this.loadQuizzes();
         } else {
-            this.showUnauthorized('You do not have admin access. Only system administrators can access this panel.');
+            this.showUnauthorized('You do not have access. Only authorized teachers and administrators can access this panel.');
         }
     },
 
-    showAdminPanel() {
+    showTeacherPanel() {
         document.getElementById('auth-check').style.display = 'none';
         document.getElementById('unauthorized').style.display = 'none';
         document.getElementById('admin-panel').style.display = 'block';
 
         // Update user display
-        document.getElementById('admin-user-name').textContent = this.currentUser.displayName || 'Admin';
+        const displayName = this.currentUser.displayName || (this.isAdmin ? 'Admin' : 'Teacher');
+        document.getElementById('admin-user-name').textContent = displayName;
         const userPhoto = document.getElementById('admin-user-photo');
         if (this.currentUser.photoURL) {
             userPhoto.src = this.currentUser.photoURL;
         }
 
-        // Load daily usage stats
-        this.loadDailyUsage();
+        // Show admin panel button only for admins
+        if (this.isAdmin) {
+            const adminPanelBtn = document.getElementById('admin-panel-btn');
+            if (adminPanelBtn) adminPanelBtn.style.display = 'inline-block';
+
+            this.loadDailyUsage();
+        }
+
+        // Check for pre-fill parameters from reading list
+        this.checkForPreFillParams();
     },
 
     checkForPreFillParams() {
@@ -83,7 +94,7 @@ const admin = {
                     document.getElementById('ai-author').value = author;
                 }
                 // Clear URL parameters
-                window.history.replaceState({}, document.title, '/admin');
+                window.history.replaceState({}, document.title, '/teacher');
             }, 500);
         }
     },
@@ -191,8 +202,8 @@ const admin = {
                         <p><strong>${quiz.questions.length}</strong> questions</p>
                     </div>
                     <div class="quiz-item-actions">
-                        <button onclick="admin.editQuiz('${quiz.id}')" class="btn btn-small btn-edit">Edit</button>
-                        <button onclick="admin.deleteQuiz('${quiz.id}', '${quiz.title.replace(/'/g, "\\'")}')" class="btn btn-small btn-danger">Delete</button>
+                        <button onclick="teacher.editQuiz('${quiz.id}')" class="btn btn-small btn-edit">Edit</button>
+                        <button onclick="teacher.deleteQuiz('${quiz.id}', '${quiz.title.replace(/'/g, "\\'")}')" class="btn btn-small btn-danger">Delete</button>
                     </div>
                 </div>
             `;
@@ -396,7 +407,7 @@ const admin = {
         questionDiv.innerHTML = `
             <div class="question-header">
                 <h4>Question ${questionIndex + 1}</h4>
-                <button type="button" onclick="this.closest('.question-item').remove(); admin.renumberQuestions();" class="btn-remove">Remove</button>
+                <button type="button" onclick="this.closest('.question-item').remove(); teacher.renumberQuestions();" class="btn-remove">Remove</button>
             </div>
             <input type="text" class="question-text-input" placeholder="Enter your question" required
                 value="${questionData ? questionData.question : ''}">
@@ -537,5 +548,5 @@ const admin = {
 
 // Initialize admin panel when page loads
 document.addEventListener('DOMContentLoaded', () => {
-    admin.init();
+    teacher.init();
 });

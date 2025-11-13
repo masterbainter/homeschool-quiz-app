@@ -397,33 +397,3 @@
         width: 100%;
     }
 }
-
-/* Admin Overview Cards */
-.admin-card {
-    background: white;
-    padding: 25px;
-    border-radius: 12px;
-    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-    cursor: pointer;
-    transition: all 0.3s;
-    border: 2px solid transparent;
-}
-
-.admin-card:hover {
-    transform: translateY(-4px);
-    box-shadow: 0 4px 16px rgba(102, 126, 234, 0.2);
-    border-color: #667eea;
-}
-
-.admin-card h3 {
-    margin: 0 0 10px 0;
-    color: #667eea;
-    font-size: 1.3em;
-}
-
-.admin-card p {
-    margin: 0;
-    color: #666;
-    font-size: 0.95em;
-    line-height: 1.5;
-}

@@ -57,8 +57,17 @@ const dashboard = {
         adminBtns.forEach(btnId => {
             const btn = document.getElementById(btnId);
             if (btn) {
-                // Show admin button for both admins and teachers
+                // Show teacher/admin button based on role
                 btn.style.display = (this.isAdmin || this.isTeacher) ? 'block' : 'none';
+
+                // Update button text and link
+                if (this.isAdmin) {
+                    btn.textContent = 'Admin Panel';
+                    btn.onclick = () => window.location.href = '/admin';
+                } else if (this.isTeacher) {
+                    btn.textContent = 'Teacher Panel';
+                    btn.onclick = () => window.location.href = '/teacher';
+                }
             }
         });
     },
