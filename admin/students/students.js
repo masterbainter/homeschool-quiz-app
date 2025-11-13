@@ -30,10 +30,11 @@ const students = {
             const database = firebase.database();
 
             // Load all data in parallel
-            const [quizzesSnap, assignmentsSnap, resultsSnap] = await Promise.all([
+            const [quizzesSnap, assignmentsSnap, resultsSnap, usersSnap] = await Promise.all([
                 database.ref('quizzes').once('value'),
                 database.ref('assignments').once('value'),
-                database.ref('quiz-results').once('value')
+                database.ref('quiz-results').once('value'),
+                database.ref('users').once('value')
             ]);
 
             // Process quizzes
@@ -60,8 +61,11 @@ const students = {
                 });
             });
 
-            // Create student profiles
-            this.createStudentProfiles();
+            // Get user profiles
+            const usersData = usersSnap.val() || {};
+
+            // Create student profiles from users collection
+            this.createStudentProfiles(usersData);
 
             // Render
             this.renderStudents();
@@ -75,19 +79,23 @@ const students = {
         }
     },
 
-    createStudentProfiles() {
+    createStudentProfiles(usersData) {
         this.studentUsers = this.STUDENT_EMAILS.map(email => {
-            // Find user ID from results (if they've taken any quizzes)
+            // Find user by email from users collection
+            let userProfile = null;
             let userId = null;
-            let userName = email.split('@')[0]; // Default to email username
 
-            Object.keys(this.results).forEach(uid => {
-                const userResults = this.results[uid];
-                if (userResults.length > 0 && userResults[0].userEmail === email) {
+            Object.keys(usersData).forEach(uid => {
+                if (usersData[uid].email === email) {
+                    userProfile = usersData[uid];
                     userId = uid;
-                    userName = userResults[0].userName || userName;
                 }
             });
+
+            // Use profile data if available
+            const userName = userProfile
+                ? userProfile.displayName
+                : email.split('@')[0];
 
             // Calculate stats
             const userResults = userId ? (this.results[userId] || []) : [];
@@ -106,6 +114,7 @@ const students = {
                 userId: userId || `pending-${email}`,
                 email: email,
                 name: userName,
+                hasProfile: !!userProfile,
                 totalAttempts: totalAttempts,
                 avgScore: avgScore,
                 assigned: userAssignments,
@@ -319,9 +328,9 @@ const students = {
         const student = this.studentUsers.find(s => s.userId === this.selectedStudentId);
         if (!student) return;
 
-        // If student hasn't taken any quizzes yet, we can't assign (no userId)
+        // If student hasn't signed in yet, we can't assign (no userId)
         if (student.userId.startsWith('pending-')) {
-            alert(`${student.name} must take at least one quiz before assignments can be created. Their account will be created automatically when they complete their first quiz.`);
+            alert(`${student.name} hasn't signed in yet. Ask them to sign in to school.bainter.xyz first, then you can assign quizzes.`);
             return;
         }
 

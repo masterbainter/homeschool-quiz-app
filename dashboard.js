@@ -27,6 +27,7 @@ const dashboard = {
 
                 this.currentUser = user;
                 this.checkAdminStatus();
+                this.createUserProfile(); // Create/update user profile
                 this.loadCurriculum();
                 this.showDashboard();
                 this.updateUserDisplay();
@@ -65,6 +66,48 @@ const dashboard = {
             if (btn) {
                 btn.style.display = this.isAdmin ? 'block' : 'none';
             }
+        });
+    },
+
+    // Create or update user profile in Firebase
+    createUserProfile() {
+        if (!this.currentUser) return;
+
+        const database = firebase.database();
+        const userRef = database.ref(`users/${this.currentUser.uid}`);
+
+        // Check if profile exists
+        userRef.once('value').then((snapshot) => {
+            const profile = {
+                uid: this.currentUser.uid,
+                email: this.currentUser.email,
+                displayName: this.currentUser.displayName || this.currentUser.email.split('@')[0],
+                photoURL: this.currentUser.photoURL || null,
+                lastLogin: firebase.database.ServerValue.TIMESTAMP,
+                isAdmin: this.isAdmin
+            };
+
+            if (!snapshot.exists()) {
+                // New user - create profile
+                profile.createdAt = firebase.database.ServerValue.TIMESTAMP;
+                userRef.set(profile).then(() => {
+                    console.log('User profile created');
+                }).catch((error) => {
+                    console.error('Error creating user profile:', error);
+                });
+            } else {
+                // Existing user - update last login and display name
+                userRef.update({
+                    displayName: profile.displayName,
+                    photoURL: profile.photoURL,
+                    lastLogin: profile.lastLogin,
+                    isAdmin: profile.isAdmin
+                }).catch((error) => {
+                    console.error('Error updating user profile:', error);
+                });
+            }
+        }).catch((error) => {
+            console.error('Error checking user profile:', error);
         });
     },
 
