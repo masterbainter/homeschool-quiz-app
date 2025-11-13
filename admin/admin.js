@@ -76,6 +76,29 @@ const admin = {
             const userMgmtBtn = document.getElementById('user-management-btn');
             if (userMgmtBtn) userMgmtBtn.style.display = 'inline-block';
         }
+
+        // Check for pre-fill parameters from reading list
+        this.checkForPreFillParams();
+    },
+
+    checkForPreFillParams() {
+        const params = new URLSearchParams(window.location.search);
+        const bookTitle = params.get('bookTitle');
+        const author = params.get('author');
+        const source = params.get('source');
+
+        if (bookTitle && source === 'reading-list') {
+            // Pre-fill the AI quiz generator
+            setTimeout(() => {
+                this.showAddQuiz();
+                document.getElementById('ai-book-title').value = bookTitle;
+                if (author) {
+                    document.getElementById('ai-author').value = author;
+                }
+                // Clear URL parameters
+                window.history.replaceState({}, document.title, '/admin');
+            }, 500);
+        }
     },
 
     // Load and display daily AI usage

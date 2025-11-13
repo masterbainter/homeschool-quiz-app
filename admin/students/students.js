@@ -39,11 +39,12 @@ const students = {
             const database = firebase.database();
 
             // Load all data in parallel
-            const [quizzesSnap, assignmentsSnap, resultsSnap, usersSnap] = await Promise.all([
+            const [quizzesSnap, assignmentsSnap, resultsSnap, usersSnap, readingSnap] = await Promise.all([
                 database.ref('quizzes').once('value'),
                 database.ref('assignments').once('value'),
                 database.ref('quiz-results').once('value'),
-                database.ref('users').once('value')
+                database.ref('users').once('value'),
+                database.ref('reading-assignments').once('value')
             ]);
 
             // Process quizzes
@@ -72,6 +73,9 @@ const students = {
 
             // Get user profiles
             const usersData = usersSnap.val() || {};
+
+            // Process reading assignments
+            this.readingAssignments = readingSnap.val() || {};
 
             // Create student profiles from users collection
             this.createStudentProfiles(usersData);
@@ -176,11 +180,54 @@ const students = {
         document.getElementById('student-details').style.display = 'block';
         document.getElementById('student-details-name').textContent = `${student.name}'s Progress`;
 
+        // Render reading list
+        this.renderReadingList(student);
+
         // Render assignments
         this.renderAssignments(student);
 
         // Render recent results
         this.renderResults(student);
+    },
+
+    renderReadingList(student) {
+        const container = document.getElementById('reading-list-container');
+        if (!container) return; // Container doesn't exist yet, will add to HTML
+
+        const userBooks = student.userId && this.readingAssignments[student.userId]
+            ? this.readingAssignments[student.userId]
+            : {};
+
+        const booksList = Object.values(userBooks);
+
+        if (booksList.length === 0) {
+            container.innerHTML = '<p style="text-align:center; color:#999; padding:20px;">No books assigned yet. <a href="/admin/books">Assign books from the library</a></p>';
+            return;
+        }
+
+        container.innerHTML = `
+            <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 15px;">
+                ${booksList.map(book => `
+                    <div style="background: white; border-radius: 8px; padding: 15px; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
+                        ${book.coverImage ?
+                            `<img src="${book.coverImage}" style="width: 100%; height: 180px; object-fit: contain; background: #f5f5f5; border-radius: 4px; margin-bottom: 10px;">` :
+                            `<div style="width: 100%; height: 180px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); border-radius: 4px; margin-bottom: 10px; display: flex; align-items: center; justify-content: center; color: white; font-size: 48px;">📖</div>`
+                        }
+                        <h4 style="margin: 0 0 5px 0; font-size: 1em; line-height: 1.3;">${this.escapeHtml(book.bookTitle)}</h4>
+                        <p style="margin: 0 0 10px 0; font-size: 0.85em; color: #666;">${this.escapeHtml(book.author)}</p>
+                        <div style="display: flex; gap: 5px; margin-bottom: 10px;">
+                            <span style="background: ${book.status === 'completed' ? '#d4edda' : book.status === 'reading' ? '#fff3cd' : '#f8d7da'}; color: ${book.status === 'completed' ? '#155724' : book.status === 'reading' ? '#856404' : '#721c24'}; padding: 4px 8px; border-radius: 12px; font-size: 0.75em; font-weight: 600;">
+                                ${book.status === 'completed' ? 'Completed' : book.status === 'reading' ? 'Reading' : 'Assigned'}
+                            </span>
+                            ${book.pageCount ? `<span style="background: #e9ecef; padding: 4px 8px; border-radius: 12px; font-size: 0.75em; color: #666;">${book.pageCount} pages</span>` : ''}
+                        </div>
+                        <button onclick="students.generateQuizForBook('${book.bookId}', '${this.escapeHtml(book.bookTitle)}', '${this.escapeHtml(book.author)}')" class="btn btn-primary" style="width: 100%; padding: 8px; font-size: 0.85em;">
+                            📝 Generate Quiz
+                        </button>
+                    </div>
+                `).join('')}
+            </div>
+        `;
     },
 
     renderAssignments(student) {
@@ -389,6 +436,16 @@ const students = {
         document.getElementById('loading').style.display = 'block';
         document.getElementById('content').style.display = 'none';
         this.loadData();
+    },
+
+    generateQuizForBook(bookId, bookTitle, author) {
+        // Navigate to admin panel with pre-filled book data
+        const params = new URLSearchParams({
+            bookTitle: bookTitle,
+            author: author,
+            source: 'reading-list'
+        });
+        window.location.href = `/admin?${params.toString()}`;
     },
 
     escapeHtml(text) {
