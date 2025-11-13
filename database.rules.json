@@ -78,6 +78,12 @@
     "ai-usage-logs": {
       ".read": "root.child('user-roles/admins').val().contains(auth.token.email)",
       ".write": "root.child('user-roles/admins').val().contains(auth.token.email) || root.child('user-roles/teachers').val().contains(auth.token.email)"
+    },
+
+    // Config - API keys and settings (read by authenticated, write by admins only)
+    "config": {
+      ".read": "auth != null",
+      ".write": "root.child('user-roles/admins').val().contains(auth.token.email)"
     }
   }
 }
