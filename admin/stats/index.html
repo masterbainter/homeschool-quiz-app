@@ -1,0 +1,390 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Usage Statistics - Admin</title>
+    <link rel="stylesheet" href="../../styles.css">
+    <style>
+        .stats-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        .stats-header {
+            text-align: center;
+            margin-bottom: 40px;
+            padding: 30px 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border-radius: 12px;
+        }
+        .stats-nav {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 30px;
+        }
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin-bottom: 40px;
+        }
+        .stat-card {
+            background: white;
+            padding: 25px;
+            border-radius: 12px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            text-align: center;
+        }
+        .stat-value {
+            font-size: 3em;
+            font-weight: bold;
+            color: #667eea;
+            margin: 10px 0;
+        }
+        .stat-label {
+            color: #666;
+            font-size: 1.1em;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+        .stat-sublabel {
+            color: #999;
+            font-size: 0.9em;
+            margin-top: 5px;
+        }
+        .section {
+            background: white;
+            border-radius: 12px;
+            padding: 30px;
+            margin-bottom: 30px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+        .section h2 {
+            color: #667eea;
+            margin-top: 0;
+            padding-bottom: 15px;
+            border-bottom: 2px solid #f0f0f0;
+        }
+        .usage-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+        .usage-table th {
+            background: #f8f9fa;
+            padding: 12px;
+            text-align: left;
+            font-weight: 600;
+            border-bottom: 2px solid #dee2e6;
+        }
+        .usage-table td {
+            padding: 12px;
+            border-bottom: 1px solid #dee2e6;
+        }
+        .usage-table tr:hover {
+            background: #f8f9fa;
+        }
+        .cost-estimate {
+            background: #f0f7ff;
+            border-left: 4px solid #667eea;
+            padding: 15px 20px;
+            margin: 20px 0;
+            border-radius: 4px;
+        }
+        .cost-estimate strong {
+            color: #667eea;
+            font-size: 1.2em;
+        }
+        .loading {
+            text-align: center;
+            padding: 40px;
+            color: #666;
+        }
+        .spinner {
+            border: 3px solid #f3f3f3;
+            border-top: 3px solid #667eea;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 20px;
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        .btn {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 8px;
+            font-size: 1em;
+            cursor: pointer;
+            text-decoration: none;
+            display: inline-block;
+            transition: all 0.3s;
+        }
+        .btn-primary {
+            background: #667eea;
+            color: white;
+        }
+        .btn-primary:hover {
+            background: #5568d3;
+        }
+        .btn-secondary {
+            background: #6c757d;
+            color: white;
+        }
+        .btn-secondary:hover {
+            background: #5a6268;
+        }
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+            color: #999;
+        }
+        .empty-state h3 {
+            color: #666;
+            margin-bottom: 10px;
+        }
+    </style>
+</head>
+<body>
+    <div class="stats-container">
+        <div class="stats-header">
+            <h1>📊 AI Usage Statistics</h1>
+            <p>Track your AI quiz generation usage and costs</p>
+        </div>
+
+        <div class="stats-nav">
+            <button onclick="window.location.href='/admin'" class="btn btn-secondary">← Back to Admin</button>
+            <button onclick="stats.refreshStats()" class="btn btn-primary">🔄 Refresh</button>
+        </div>
+
+        <div id="loading" class="loading">
+            <div class="spinner"></div>
+            <p>Loading statistics...</p>
+        </div>
+
+        <div id="stats-content" style="display: none;">
+            <!-- Summary Cards -->
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="stat-label">Total Generations</div>
+                    <div class="stat-value" id="total-generations">0</div>
+                    <div class="stat-sublabel">All time</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-label">This Month</div>
+                    <div class="stat-value" id="month-generations">0</div>
+                    <div class="stat-sublabel" id="month-label">November 2025</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-label">Total Questions</div>
+                    <div class="stat-value" id="total-questions">0</div>
+                    <div class="stat-sublabel">Generated by AI</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-label">Estimated Cost</div>
+                    <div class="stat-value" id="total-cost">$0.00</div>
+                    <div class="stat-sublabel">This month</div>
+                </div>
+            </div>
+
+            <!-- Cost Breakdown -->
+            <div class="section">
+                <h2>💰 Cost Breakdown (This Month)</h2>
+                <div class="cost-estimate">
+                    <strong>Estimated Monthly Cost: <span id="estimated-cost">$0.00</span></strong>
+                    <p style="margin: 10px 0 0 0;">
+                        Based on <span id="month-tokens-display">0</span> tokens used
+                        (<span id="input-tokens">0</span> input + <span id="output-tokens">0</span> output)
+                    </p>
+                </div>
+                <p><strong>Pricing:</strong> Claude 3.5 Sonnet - $3/million input tokens, $15/million output tokens</p>
+                <p><strong>Average cost per quiz:</strong> <span id="avg-cost">$0.00</span></p>
+            </div>
+
+            <!-- Recent Generations -->
+            <div class="section">
+                <h2>📋 Recent AI Generations</h2>
+                <div id="recent-generations-container">
+                    <!-- Table will be inserted here -->
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-database-compat.js"></script>
+
+    <!-- App Scripts -->
+    <script src="../../firebase-config.js"></script>
+    <script>
+        const stats = {
+            currentUser: null,
+
+            init() {
+                // Check auth
+                firebase.auth().onAuthStateChanged((user) => {
+                    if (!user || user.email !== 'techride.trevor@gmail.com') {
+                        alert('Access denied. Admin only.');
+                        window.location.href = '/admin';
+                        return;
+                    }
+                    this.currentUser = user;
+                    this.loadStats();
+                });
+            },
+
+            async loadStats() {
+                try {
+                    const database = firebase.database();
+                    const logsRef = database.ref('ai-usage-logs');
+
+                    const snapshot = await logsRef.once('value');
+                    const logs = snapshot.val();
+
+                    if (!logs) {
+                        this.showEmpty();
+                        return;
+                    }
+
+                    // Convert to array
+                    const logsArray = Object.keys(logs).map(key => ({
+                        id: key,
+                        ...logs[key]
+                    })).sort((a, b) => b.timestamp - a.timestamp);
+
+                    // Calculate stats
+                    const now = new Date();
+                    const currentMonth = now.getMonth();
+                    const currentYear = now.getFullYear();
+
+                    const monthLogs = logsArray.filter(log => {
+                        const logDate = new Date(log.timestamp);
+                        return logDate.getMonth() === currentMonth &&
+                               logDate.getFullYear() === currentYear;
+                    });
+
+                    // Total stats
+                    const totalGenerations = logsArray.length;
+                    const monthGenerations = monthLogs.length;
+                    const totalQuestions = logsArray.reduce((sum, log) => sum + (log.questionCount || 0), 0);
+
+                    // Token usage this month
+                    const monthInputTokens = monthLogs.reduce((sum, log) => sum + (log.inputTokens || 0), 0);
+                    const monthOutputTokens = monthLogs.reduce((sum, log) => sum + (log.outputTokens || 0), 0);
+
+                    // Cost calculation (Claude 3.5 Sonnet pricing)
+                    const inputCost = (monthInputTokens / 1000000) * 3;
+                    const outputCost = (monthOutputTokens / 1000000) * 15;
+                    const totalCost = inputCost + outputCost;
+                    const avgCost = monthGenerations > 0 ? totalCost / monthGenerations : 0;
+
+                    // Update UI
+                    document.getElementById('total-generations').textContent = totalGenerations;
+                    document.getElementById('month-generations').textContent = monthGenerations;
+                    document.getElementById('total-questions').textContent = totalQuestions;
+                    document.getElementById('total-cost').textContent = '$' + totalCost.toFixed(2);
+                    document.getElementById('estimated-cost').textContent = '$' + totalCost.toFixed(2);
+                    document.getElementById('avg-cost').textContent = '$' + avgCost.toFixed(3);
+                    document.getElementById('month-tokens-display').textContent = (monthInputTokens + monthOutputTokens).toLocaleString();
+                    document.getElementById('input-tokens').textContent = monthInputTokens.toLocaleString();
+                    document.getElementById('output-tokens').textContent = monthOutputTokens.toLocaleString();
+
+                    // Month label
+                    const monthNames = ['January', 'February', 'March', 'April', 'May', 'June',
+                                       'July', 'August', 'September', 'October', 'November', 'December'];
+                    document.getElementById('month-label').textContent = monthNames[currentMonth] + ' ' + currentYear;
+
+                    // Recent generations table
+                    this.renderRecentGenerations(logsArray.slice(0, 20));
+
+                    // Show content
+                    document.getElementById('loading').style.display = 'none';
+                    document.getElementById('stats-content').style.display = 'block';
+
+                } catch (error) {
+                    console.error('Error loading stats:', error);
+                    alert('Failed to load statistics. Please try again.');
+                }
+            },
+
+            renderRecentGenerations(logs) {
+                const container = document.getElementById('recent-generations-container');
+
+                if (logs.length === 0) {
+                    container.innerHTML = '<div class="empty-state"><h3>No generations yet</h3><p>AI quiz generations will appear here.</p></div>';
+                    return;
+                }
+
+                const table = `
+                    <table class="usage-table">
+                        <thead>
+                            <tr>
+                                <th>Date</th>
+                                <th>Book Title</th>
+                                <th>Author</th>
+                                <th>Questions</th>
+                                <th>Difficulty</th>
+                                <th>Tokens</th>
+                                <th>Est. Cost</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            ${logs.map(log => {
+                                const date = new Date(log.timestamp);
+                                const inputTokens = log.inputTokens || 0;
+                                const outputTokens = log.outputTokens || 0;
+                                const cost = ((inputTokens / 1000000) * 3) + ((outputTokens / 1000000) * 15);
+
+                                return `
+                                    <tr>
+                                        <td>${date.toLocaleDateString()} ${date.toLocaleTimeString()}</td>
+                                        <td><strong>${this.escapeHtml(log.bookTitle)}</strong></td>
+                                        <td>${this.escapeHtml(log.author || '-')}</td>
+                                        <td>${log.questionCount || 0}</td>
+                                        <td>${log.difficulty || 'medium'}</td>
+                                        <td>${(inputTokens + outputTokens).toLocaleString()}</td>
+                                        <td>$${cost.toFixed(3)}</td>
+                                    </tr>
+                                `;
+                            }).join('')}
+                        </tbody>
+                    </table>
+                `;
+
+                container.innerHTML = table;
+            },
+
+            showEmpty() {
+                document.getElementById('loading').style.display = 'none';
+                document.getElementById('stats-content').style.display = 'block';
+                document.getElementById('recent-generations-container').innerHTML =
+                    '<div class="empty-state"><h3>No AI generations yet</h3><p>Start generating quizzes to see statistics here.</p></div>';
+            },
+
+            refreshStats() {
+                document.getElementById('loading').style.display = 'block';
+                document.getElementById('stats-content').style.display = 'none';
+                this.loadStats();
+            },
+
+            escapeHtml(text) {
+                const div = document.createElement('div');
+                div.textContent = text;
+                return div.innerHTML;
+            }
+        };
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', () => {
+            stats.init();
+        });
+    </script>
+</body>
+</html>

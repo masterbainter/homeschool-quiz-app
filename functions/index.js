@@ -1,5 +1,9 @@
 const functions = require('firebase-functions');
+const admin = require('firebase-admin');
 const Anthropic = require('@anthropic-ai/sdk');
+
+// Initialize Firebase Admin
+admin.initializeApp();
 
 // Initialize Anthropic with API key from environment
 const anthropic = new Anthropic({
@@ -138,10 +142,33 @@ IMPORTANT:
 
     console.log(`Successfully generated ${quizData.questions.length} questions`);
 
+    // Log usage stats to Firebase for tracking
+    const usageLog = {
+      timestamp: admin.database.ServerValue.TIMESTAMP,
+      userId: context.auth.uid,
+      userEmail: context.auth.token.email,
+      bookTitle: bookTitle,
+      author: author || null,
+      questionCount: quizData.questions.length,
+      difficulty: difficulty,
+      inputTokens: message.usage?.input_tokens || 0,
+      outputTokens: message.usage?.output_tokens || 0,
+      model: 'claude-3-5-sonnet-20241022'
+    };
+
+    // Save to database (don't await to avoid slowing response)
+    admin.database().ref('ai-usage-logs').push(usageLog).catch(err => {
+      console.error('Failed to log usage:', err);
+    });
+
     // Return quiz data
     return {
       success: true,
-      quiz: quizData
+      quiz: quizData,
+      usage: {
+        inputTokens: message.usage?.input_tokens || 0,
+        outputTokens: message.usage?.output_tokens || 0
+      }
     };
 
   } catch (error) {
