@@ -231,6 +231,7 @@ const admin = {
         const author = document.getElementById('ai-author').value.trim();
         const questionCount = parseInt(document.getElementById('ai-question-count').value);
         const difficulty = document.getElementById('ai-difficulty').value;
+        const chapters = document.getElementById('ai-chapters').value.trim();
         const context = document.getElementById('ai-context').value.trim();
 
         if (!bookTitle) {
@@ -251,6 +252,7 @@ const admin = {
                 author,
                 questionCount,
                 difficulty,
+                chapters: chapters || undefined,
                 context: context || undefined,
                 overrideLimit: overrideLimit
             });

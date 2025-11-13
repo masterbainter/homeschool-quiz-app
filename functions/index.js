@@ -77,6 +77,7 @@ exports.generateQuiz = functions.https.onCall(async (data, context) => {
     author,
     questionCount = 8,
     difficulty = 'medium',
+    chapters,
     context: additionalContext,
     overrideLimit = false
   } = data;
@@ -148,16 +149,18 @@ exports.generateQuiz = functions.https.onCall(async (data, context) => {
   }
 
   // Build prompt for Claude
-  const prompt = `Generate a ${difficulty} level quiz for the book "${bookTitle}"${author ? ` by ${author}` : ''} suitable for ages 10-11.
+  const chapterInfo = chapters ? `\n\nFOCUS ON CHAPTERS: ${chapters}\nOnly create questions about content from these specific chapters.` : '';
+
+  const prompt = `Generate a ${difficulty} level quiz for the book "${bookTitle}"${author ? ` by ${author}` : ''} suitable for ages 10-11.${chapterInfo}
 
 ${additionalContext ? `Additional context: ${additionalContext}\n\n` : ''}Create exactly ${questionCount} multiple-choice questions with 4 options each.
 
 Requirements:
-- Questions should test comprehension of key plot points, characters, and themes
+- Questions should test comprehension of key plot points, characters, and themes${chapters ? ` from chapters ${chapters}` : ''}
 - Make questions engaging and age-appropriate
 - Ensure each question has exactly 4 options
 - Mark the correct answer by its index (0-3)
-- Include a brief, kid-friendly description
+- Include a brief, kid-friendly description${chapters ? `\n- Only include content from the specified chapters: ${chapters}` : ''}
 
 Format your response as valid JSON with this exact structure:
 {
