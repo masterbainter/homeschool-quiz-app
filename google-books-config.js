@@ -1,72 +1,86 @@
-// Google Books API Configuration
-// Get your API key from: https://console.cloud.google.com/apis/credentials
+// Google Books API Configuration - Secure Version
+// Uses Firebase Remote Config to store API key
 
 const GOOGLE_BOOKS_CONFIG = {
-    // TODO: Replace with your actual Google Books API key
-    // Get one from: https://console.cloud.google.com/apis/credentials
-    // Enable the "Books API" in Google Cloud Console
-    apiKey: 'YOUR_GOOGLE_BOOKS_API_KEY_HERE',
-    baseUrl: 'https://www.googleapis.com/books/v1'
-};
+    apiKey: null, // Will be loaded from Firebase
+    baseUrl: 'https://www.googleapis.com/books/v1',
 
-// Google Books API Helper Functions
-const GoogleBooksAPI = {
-    // Search for books by query (title, author, ISBN, etc.)
-    async searchBooks(query, maxResults = 20) {
+    // Load API key from Firebase Remote Config
+    async loadApiKey() {
+        if (this.apiKey) return this.apiKey;
+
         try {
-            const url = `${GOOGLE_BOOKS_CONFIG.baseUrl}/volumes?q=${encodeURIComponent(query)}&maxResults=${maxResults}&key=${GOOGLE_BOOKS_CONFIG.apiKey}`;
-            const response = await fetch(url);
+            const database = firebase.database();
+            const snapshot = await database.ref('config/googleBooksApiKey').once('value');
+            this.apiKey = snapshot.val();
 
-            if (!response.ok) {
-                throw new Error(`Google Books API error: ${response.status}`);
+            if (!this.apiKey) {
+                console.warn('Google Books API key not found in Firebase config');
             }
 
-            const data = await response.json();
-            return this.formatSearchResults(data);
+            return this.apiKey;
         } catch (error) {
-            console.error('Error searching books:', error);
-            throw error;
+            console.error('Error loading Google Books API key:', error);
+            return null;
         }
     },
 
-    // Search by ISBN specifically
+    isConfigured() {
+        return this.apiKey && this.apiKey !== 'YOUR_GOOGLE_BOOKS_API_KEY_HERE';
+    }
+};
+
+const GoogleBooksAPI = {
+    async searchBooks(query, maxResults = 20) {
+        // Ensure API key is loaded
+        await GOOGLE_BOOKS_CONFIG.loadApiKey();
+
+        if (!GOOGLE_BOOKS_CONFIG.isConfigured()) {
+            throw new Error('Google Books API key not configured');
+        }
+
+        const url = `${GOOGLE_BOOKS_CONFIG.baseUrl}/volumes?q=${encodeURIComponent(query)}&maxResults=${maxResults}&key=${GOOGLE_BOOKS_CONFIG.apiKey}`;
+
+        const response = await fetch(url);
+        if (!response.ok) {
+            throw new Error(`Google Books API error: ${response.statusText}`);
+        }
+
+        const data = await response.json();
+        return this.formatSearchResults(data);
+    },
+
     async searchByISBN(isbn) {
         return this.searchBooks(`isbn:${isbn}`, 1);
     },
 
-    // Get book details by Google Books ID
-    async getBookDetails(volumeId) {
-        try {
-            const url = `${GOOGLE_BOOKS_CONFIG.baseUrl}/volumes/${volumeId}?key=${GOOGLE_BOOKS_CONFIG.apiKey}`;
-            const response = await fetch(url);
+    async getBookDetails(bookId) {
+        await GOOGLE_BOOKS_CONFIG.loadApiKey();
 
-            if (!response.ok) {
-                throw new Error(`Google Books API error: ${response.status}`);
-            }
+        const url = `${GOOGLE_BOOKS_CONFIG.baseUrl}/volumes/${bookId}?key=${GOOGLE_BOOKS_CONFIG.apiKey}`;
+        const response = await fetch(url);
 
-            const data = await response.json();
-            return this.formatBookDetails(data);
-        } catch (error) {
-            console.error('Error fetching book details:', error);
-            throw error;
+        if (!response.ok) {
+            throw new Error(`Google Books API error: ${response.statusText}`);
         }
+
+        const data = await response.json();
+        return this.formatBookDetails(data);
     },
 
-    // Format search results into a cleaner structure
     formatSearchResults(data) {
-        if (!data.items || data.items.length === 0) {
+        if (!data.items) {
             return [];
         }
 
         return data.items.map(item => this.formatBookDetails(item));
     },
 
-    // Format a single book's data
     formatBookDetails(item) {
         const volumeInfo = item.volumeInfo || {};
         const imageLinks = volumeInfo.imageLinks || {};
 
-        // Get ISBN (prefer ISBN-13, fallback to ISBN-10)
+        // Extract ISBN
         let isbn = null;
         if (volumeInfo.industryIdentifiers) {
             const isbn13 = volumeInfo.industryIdentifiers.find(id => id.type === 'ISBN_13');
@@ -79,7 +93,7 @@ const GoogleBooksAPI = {
             title: volumeInfo.title || 'Unknown Title',
             subtitle: volumeInfo.subtitle || null,
             authors: volumeInfo.authors || [],
-            authorName: (volumeInfo.authors || []).join(', ') || 'Unknown Author',
+            authorName: volumeInfo.authors ? volumeInfo.authors.join(', ') : 'Unknown Author',
             publisher: volumeInfo.publisher || null,
             publishedDate: volumeInfo.publishedDate || null,
             description: volumeInfo.description || null,
@@ -91,15 +105,12 @@ const GoogleBooksAPI = {
             language: volumeInfo.language || 'en',
             coverImage: imageLinks.thumbnail || imageLinks.smallThumbnail || null,
             coverImageLarge: imageLinks.large || imageLinks.medium || imageLinks.thumbnail || null,
-            previewLink: volumeInfo.previewLink || null,
-            infoLink: volumeInfo.infoLink || null
+            infoLink: volumeInfo.infoLink || null,
+            previewLink: volumeInfo.previewLink || null
         };
     },
 
-    // Helper to clean and validate API key
     isConfigured() {
-        return GOOGLE_BOOKS_CONFIG.apiKey &&
-               GOOGLE_BOOKS_CONFIG.apiKey !== 'YOUR_GOOGLE_BOOKS_API_KEY_HERE' &&
-               GOOGLE_BOOKS_CONFIG.apiKey.length > 10;
+        return GOOGLE_BOOKS_CONFIG.isConfigured();
     }
 };
