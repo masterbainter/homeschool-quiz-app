@@ -8,7 +8,10 @@ const students = {
     selectedStudentId: null,
 
     ADMIN_EMAILS: [
-        'techride.trevor@gmail.com',
+        'techride.trevor@gmail.com'
+    ],
+
+    TEACHER_EMAILS: [
         'iyoko.bainter@gmail.com',
         'trevor.bainter@gmail.com'
     ],
@@ -19,10 +22,10 @@ const students = {
     ],
 
     init() {
-        // Check auth
+        // Check auth - both admins and teachers can access
         firebase.auth().onAuthStateChanged((user) => {
-            if (!user || !this.ADMIN_EMAILS.includes(user.email)) {
-                alert('Access denied. Admin only.');
+            if (!user || !(this.ADMIN_EMAILS.includes(user.email) || this.TEACHER_EMAILS.includes(user.email))) {
+                alert('Access denied. Admin or teacher access required.');
                 window.location.href = '/admin';
                 return;
             }

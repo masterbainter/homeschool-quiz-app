@@ -28,21 +28,28 @@ const admin = {
         });
     },
 
-    // List of admin emails
+    // List of admin emails (full access)
     ADMIN_EMAILS: [
-        'techride.trevor@gmail.com',
+        'techride.trevor@gmail.com'
+    ],
+
+    // List of teacher emails (all features except usage override/viewing)
+    TEACHER_EMAILS: [
         'iyoko.bainter@gmail.com',
         'trevor.bainter@gmail.com'
     ],
 
-    // Check if user has admin privileges
+    // Check if user has admin or teacher privileges
     checkAdminStatus() {
-        if (this.ADMIN_EMAILS.includes(this.currentUser.email)) {
-            this.isAdmin = true;
+        const userEmail = this.currentUser.email;
+        this.isAdmin = this.ADMIN_EMAILS.includes(userEmail);
+        this.isTeacher = this.TEACHER_EMAILS.includes(userEmail);
+
+        if (this.isAdmin || this.isTeacher) {
             this.showAdminPanel();
             this.loadQuizzes();
         } else {
-            this.showUnauthorized('You do not have admin access. Only authorized administrators can access this panel.');
+            this.showUnauthorized('You do not have access. Only authorized administrators and teachers can access this panel.');
         }
     },
 
@@ -58,8 +65,10 @@ const admin = {
             userPhoto.src = this.currentUser.photoURL;
         }
 
-        // Load daily usage stats
-        this.loadDailyUsage();
+        // Load daily usage stats (only for admins, not teachers)
+        if (this.isAdmin) {
+            this.loadDailyUsage();
+        }
     },
 
     // Load and display daily AI usage
@@ -244,6 +253,7 @@ const admin = {
             }
 
             const quizData = result.data.quiz;
+            const warning = result.data.warning;
 
             // Hide AI section, show manual form with AI-generated data
             this.switchToManual();
@@ -268,7 +278,16 @@ const admin = {
             `;
             form.insertBefore(notice, form.firstChild);
 
-            alert('Quiz generated successfully! Review and edit as needed before saving.');
+            // Show teacher warning if present
+            if (warning) {
+                alert(
+                    `✨ Quiz generated successfully!\n\n` +
+                    `⚠️ USAGE WARNING:\n${warning.message}\n\n` +
+                    `Review and edit the quiz as needed before saving.`
+                );
+            } else {
+                alert('Quiz generated successfully! Review and edit as needed before saving.');
+            }
 
         } catch (error) {
             console.error('AI generation error:', error);
@@ -278,19 +297,29 @@ const admin = {
                 document.getElementById('generate-btn').disabled = false;
                 document.getElementById('ai-loading').style.display = 'none';
 
-                // Show confirmation dialog for admin override
-                const confirmed = confirm(
-                    `⚠️ DAILY LIMIT REACHED\n\n` +
-                    `${error.message}\n\n` +
-                    `As the admin (${this.currentUser.email}), you can override this limit.\n\n` +
-                    `Do you want to generate this quiz anyway?\n\n` +
-                    `Click OK to override the limit, or Cancel to stop.`
-                );
+                // Only admins can override, not teachers
+                if (this.isAdmin) {
+                    // Show confirmation dialog for admin override
+                    const confirmed = confirm(
+                        `⚠️ DAILY LIMIT REACHED\n\n` +
+                        `${error.message}\n\n` +
+                        `As the admin (${this.currentUser.email}), you can override this limit.\n\n` +
+                        `Do you want to generate this quiz anyway?\n\n` +
+                        `Click OK to override the limit, or Cancel to stop.`
+                    );
 
-                if (confirmed) {
-                    // Retry with override
-                    console.log('Admin approved rate limit override');
-                    this.generateQuizWithAI(true);
+                    if (confirmed) {
+                        // Retry with override
+                        console.log('Admin approved rate limit override');
+                        this.generateQuizWithAI(true);
+                    }
+                } else {
+                    // Teachers cannot override
+                    alert(
+                        `⚠️ DAILY LIMIT REACHED\n\n` +
+                        `${error.message}\n\n` +
+                        `Please contact the admin (techride.trevor@gmail.com) if you need to generate more quizzes today.`
+                    );
                 }
                 return;
             }

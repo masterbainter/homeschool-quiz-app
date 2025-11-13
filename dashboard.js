@@ -39,9 +39,13 @@ const dashboard = {
         });
     },
 
-    // List of admin emails
+    // List of admin emails (full access including usage override)
     ADMIN_EMAILS: [
-        'techride.trevor@gmail.com',
+        'techride.trevor@gmail.com'
+    ],
+
+    // List of teacher emails (all admin features except usage override/viewing)
+    TEACHER_EMAILS: [
         'iyoko.bainter@gmail.com',
         'trevor.bainter@gmail.com'
     ],
@@ -56,15 +60,20 @@ const dashboard = {
     isAllowedUser(email) {
         const ALLOWED_EMAILS = [
             ...this.ADMIN_EMAILS,
+            ...this.TEACHER_EMAILS,
             ...this.STUDENT_EMAILS
         ];
 
         return ALLOWED_EMAILS.includes(email.toLowerCase());
     },
 
-    // Check if user is admin
+    // Check if user is admin or teacher
     checkAdminStatus() {
-        this.isAdmin = this.ADMIN_EMAILS.includes(this.currentUser.email);
+        const userEmail = this.currentUser.email;
+        this.isAdmin = this.ADMIN_EMAILS.includes(userEmail);
+        this.isTeacher = this.TEACHER_EMAILS.includes(userEmail);
+
+        // Both admins and teachers see admin button
         this.updateAdminButton();
     },
 
@@ -73,7 +82,8 @@ const dashboard = {
         adminBtns.forEach(btnId => {
             const btn = document.getElementById(btnId);
             if (btn) {
-                btn.style.display = this.isAdmin ? 'block' : 'none';
+                // Show admin button for both admins and teachers
+                btn.style.display = (this.isAdmin || this.isTeacher) ? 'block' : 'none';
             }
         });
     },

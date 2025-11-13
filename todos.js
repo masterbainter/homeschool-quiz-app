@@ -54,16 +54,23 @@ const todos = {
 
     // List of admin emails
     ADMIN_EMAILS: [
-        'techride.trevor@gmail.com',
+        'techride.trevor@gmail.com'
+    ],
+
+    // List of teacher emails
+    TEACHER_EMAILS: [
         'iyoko.bainter@gmail.com',
         'trevor.bainter@gmail.com'
     ],
 
-    // Check if user is admin
+    // Check if user is admin or teacher
     checkAdminStatus() {
-        this.isAdmin = this.ADMIN_EMAILS.includes(this.currentUser.email);
+        const userEmail = this.currentUser.email;
+        this.isAdmin = this.ADMIN_EMAILS.includes(userEmail);
+        this.isTeacher = this.TEACHER_EMAILS.includes(userEmail);
 
-        if (this.isAdmin) {
+        // Both admins and teachers can view all todos
+        if (this.isAdmin || this.isTeacher) {
             document.getElementById('admin-controls').style.display = 'block';
             this.loadAllTodos();
         } else {

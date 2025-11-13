@@ -10,9 +10,12 @@ const anthropic = new Anthropic({
   apiKey: functions.config().anthropic?.key || process.env.ANTHROPIC_API_KEY
 });
 
-// Admin emails for authorization
+// Role-based authorization
 const ADMIN_EMAILS = [
-  'techride.trevor@gmail.com',
+  'techride.trevor@gmail.com'
+];
+
+const TEACHER_EMAILS = [
   'iyoko.bainter@gmail.com',
   'trevor.bainter@gmail.com'
 ];
@@ -30,11 +33,15 @@ exports.generateQuiz = functions.https.onCall(async (data, context) => {
     );
   }
 
-  // Verify user is admin
-  if (!ADMIN_EMAILS.includes(context.auth.token.email)) {
+  const userEmail = context.auth.token.email;
+  const isAdmin = ADMIN_EMAILS.includes(userEmail);
+  const isTeacher = TEACHER_EMAILS.includes(userEmail);
+
+  // Verify user is admin or teacher
+  if (!isAdmin && !isTeacher) {
     throw new functions.https.HttpsError(
       'permission-denied',
-      'Only admin can generate quizzes'
+      'Only admin and teachers can generate quizzes'
     );
   }
 
@@ -66,6 +73,7 @@ exports.generateQuiz = functions.https.onCall(async (data, context) => {
 
   // Check daily rate limit (5 quizzes per 24 hours)
   const DAILY_LIMIT = 5;
+  const TEACHER_WARNING_THRESHOLD = 2;
   const now = Date.now();
   const oneDayAgo = now - (24 * 60 * 60 * 1000);
 
@@ -80,18 +88,33 @@ exports.generateQuiz = functions.https.onCall(async (data, context) => {
     const recentLogs = logsSnapshot.val();
     const recentCount = recentLogs ? Object.keys(recentLogs).length : 0;
 
-    // If limit exceeded and no override, check with admin
-    if (recentCount >= DAILY_LIMIT && !overrideLimit) {
+    // Teachers cannot override the limit
+    if (isTeacher && overrideLimit) {
       throw new functions.https.HttpsError(
-        'resource-exhausted',
-        `Daily limit of ${DAILY_LIMIT} quiz generations reached (${recentCount} generated in last 24 hours). Admin approval required to continue.`
+        'permission-denied',
+        'Teachers cannot override the daily limit. Please contact techride.trevor@gmail.com if you need more quizzes today.'
       );
     }
 
-    console.log(`Rate limit check: ${recentCount}/${DAILY_LIMIT} quizzes in last 24h${overrideLimit ? ' (OVERRIDE ACTIVE)' : ''}`);
+    // Warning for teachers at 2 quizzes
+    if (isTeacher && recentCount >= TEACHER_WARNING_THRESHOLD) {
+      console.log(`Teacher warning: ${userEmail} has generated ${recentCount}/${DAILY_LIMIT} quizzes today`);
+      // Return a warning object that the client can display
+      // We'll include this in the success response
+    }
+
+    // If limit exceeded and no override, block request
+    if (recentCount >= DAILY_LIMIT && !overrideLimit) {
+      throw new functions.https.HttpsError(
+        'resource-exhausted',
+        `Daily limit of ${DAILY_LIMIT} quiz generations reached (${recentCount} generated in last 24 hours). ${isAdmin ? 'Admin approval required to continue.' : 'Please contact techride.trevor@gmail.com to generate more quizzes today.'}`
+      );
+    }
+
+    console.log(`Rate limit check: ${recentCount}/${DAILY_LIMIT} quizzes in last 24h${overrideLimit ? ' (OVERRIDE ACTIVE)' : ''}${isTeacher ? ' (TEACHER)' : ''}`);
   } catch (error) {
     // If it's our rate limit error, re-throw it
-    if (error.code === 'resource-exhausted') {
+    if (error.code === 'resource-exhausted' || error.code === 'permission-denied') {
       throw error;
     }
     // Otherwise log and continue (don't block on rate limit check failure)
@@ -200,8 +223,16 @@ IMPORTANT:
       console.error('Failed to log usage:', err);
     });
 
-    // Return quiz data
-    return {
+    // Get updated count for teacher warning
+    const logsSnapshot = await admin.database()
+      .ref('ai-usage-logs')
+      .orderByChild('timestamp')
+      .startAt(oneDayAgo)
+      .once('value');
+    const updatedCount = logsSnapshot.val() ? Object.keys(logsSnapshot.val()).length : 0;
+
+    // Return quiz data with optional teacher warning
+    const response = {
       success: true,
       quiz: quizData,
       usage: {
@@ -209,6 +240,17 @@ IMPORTANT:
         outputTokens: message.usage?.output_tokens || 0
       }
     };
+
+    // Add warning for teachers at or above threshold
+    if (isTeacher && updatedCount >= TEACHER_WARNING_THRESHOLD) {
+      response.warning = {
+        message: `You have generated ${updatedCount} out of ${DAILY_LIMIT} quizzes today. Please contact techride.trevor@gmail.com if you need to generate more than ${DAILY_LIMIT} quizzes in a 24-hour period.`,
+        count: updatedCount,
+        limit: DAILY_LIMIT
+      };
+    }
+
+    return response;
 
   } catch (error) {
     console.error('Error generating quiz:', error);
