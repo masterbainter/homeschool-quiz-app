@@ -143,6 +143,128 @@ const dashboard = {
 
             this.renderSubjects();
         });
+
+        // Load assigned quizzes for students (not admin)
+        if (!this.isAdmin) {
+            this.loadAssignedQuizzes();
+        }
+    },
+
+    // Load quizzes assigned to current student
+    loadAssignedQuizzes() {
+        const database = firebase.database();
+
+        // Listen for assignments
+        database.ref(`assignments/${this.currentUser.uid}`).on('value', async (assignmentsSnap) => {
+            const assignments = assignmentsSnap.val();
+
+            if (!assignments || Object.keys(assignments).length === 0) {
+                document.getElementById('assigned-quizzes-section').style.display = 'none';
+                return;
+            }
+
+            // Get all quizzes
+            const quizzesSnap = await database.ref('quizzes').once('value');
+            const allQuizzes = quizzesSnap.val() || {};
+
+            // Get student's results
+            const resultsSnap = await database.ref('quiz-results')
+                .orderByChild('userId')
+                .equalTo(this.currentUser.uid)
+                .once('value');
+            const results = resultsSnap.val() || {};
+
+            // Build assigned quiz cards
+            const assignedQuizzes = Object.keys(assignments).map(quizId => {
+                const quiz = allQuizzes[quizId];
+                if (!quiz) return null;
+
+                // Find best result for this quiz
+                const quizResults = Object.values(results).filter(r => r.quizId === quizId);
+                const bestResult = quizResults.length > 0
+                    ? quizResults.reduce((best, r) => r.percentage > best.percentage ? r : best)
+                    : null;
+
+                return {
+                    id: quizId,
+                    title: quiz.title,
+                    description: quiz.description || '',
+                    questionCount: quiz.questions.length,
+                    bestScore: bestResult ? bestResult.percentage : null,
+                    attempts: quizResults.length,
+                    assignedDate: assignments[quizId].assignedDate
+                };
+            }).filter(q => q !== null);
+
+            // Render assigned quizzes
+            const grid = document.getElementById('assigned-quizzes-grid');
+            if (assignedQuizzes.length > 0) {
+                grid.innerHTML = assignedQuizzes.map(quiz => {
+                    const statusClass = quiz.bestScore === null ? 'not-started' :
+                                       quiz.bestScore >= 80 ? 'completed' : 'in-progress';
+                    const statusText = quiz.bestScore === null ? 'Not Started' :
+                                      `${quiz.bestScore}% (${quiz.attempts} attempt${quiz.attempts > 1 ? 's' : ''})`;
+
+                    return `
+                        <div class="quiz-card assignment-card" onclick="window.location.href='/${quiz.id.replace(/-/g, '/')}'">
+                            <div style="display: flex; justify-content: space-between; align-items: start; margin-bottom: 10px;">
+                                <h3>${this.escapeHtml(quiz.title)}</h3>
+                                <span class="status-badge status-${statusClass}" style="font-size: 0.8em; padding: 4px 10px;">
+                                    ${statusText}
+                                </span>
+                            </div>
+                            <p style="color: #666; margin: 10px 0;">${quiz.questionCount} questions</p>
+                            <p style="color: #999; font-size: 0.85em; margin-top: 10px;">
+                                Assigned: ${new Date(quiz.assignedDate).toLocaleDateString()}
+                            </p>
+                        </div>
+                    `;
+                }).join('');
+
+                // Add CSS for assignment cards if not already present
+                if (!document.getElementById('assignment-card-styles')) {
+                    const style = document.createElement('style');
+                    style.id = 'assignment-card-styles';
+                    style.textContent = `
+                        .assignment-card {
+                            border: 2px solid #667eea;
+                            position: relative;
+                        }
+                        .assignment-card::before {
+                            content: '📌';
+                            position: absolute;
+                            top: 10px;
+                            right: 10px;
+                            font-size: 1.2em;
+                        }
+                        .status-badge {
+                            display: inline-block;
+                            padding: 4px 12px;
+                            border-radius: 12px;
+                            font-size: 0.85em;
+                            font-weight: 600;
+                        }
+                        .status-completed {
+                            background: #d4edda;
+                            color: #155724;
+                        }
+                        .status-in-progress {
+                            background: #fff3cd;
+                            color: #856404;
+                        }
+                        .status-not-started {
+                            background: #f8d7da;
+                            color: #721c24;
+                        }
+                    `;
+                    document.head.appendChild(style);
+                }
+
+                document.getElementById('assigned-quizzes-section').style.display = 'block';
+            } else {
+                document.getElementById('assigned-quizzes-section').style.display = 'none';
+            }
+        });
     },
 
     // Create default curriculum structure

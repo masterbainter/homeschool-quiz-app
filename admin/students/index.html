@@ -1,0 +1,318 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Student Progress - Admin</title>
+    <link rel="stylesheet" href="../../styles.css">
+    <style>
+        .students-container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        .students-header {
+            text-align: center;
+            margin-bottom: 40px;
+            padding: 30px 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border-radius: 12px;
+        }
+        .students-nav {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 30px;
+        }
+        .section {
+            background: white;
+            border-radius: 12px;
+            padding: 30px;
+            margin-bottom: 30px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+        .section h2 {
+            color: #667eea;
+            margin-top: 0;
+            padding-bottom: 15px;
+            border-bottom: 2px solid #f0f0f0;
+        }
+        .student-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+            margin-top: 20px;
+        }
+        .student-card {
+            background: white;
+            border: 2px solid #e0e0e0;
+            border-radius: 12px;
+            padding: 20px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        .student-card:hover {
+            border-color: #667eea;
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.2);
+        }
+        .student-card.selected {
+            border-color: #667eea;
+            background: #f0f7ff;
+        }
+        .student-name {
+            font-size: 1.3em;
+            font-weight: bold;
+            color: #333;
+            margin-bottom: 8px;
+        }
+        .student-email {
+            color: #666;
+            font-size: 0.9em;
+            margin-bottom: 15px;
+        }
+        .student-stats {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 10px;
+            margin-top: 15px;
+        }
+        .stat-box {
+            text-align: center;
+            padding: 10px;
+            background: #f8f9fa;
+            border-radius: 6px;
+        }
+        .stat-value {
+            font-size: 1.5em;
+            font-weight: bold;
+            color: #667eea;
+        }
+        .stat-label {
+            font-size: 0.8em;
+            color: #666;
+            margin-top: 4px;
+        }
+        .assignments-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+        .assignments-table th {
+            background: #f8f9fa;
+            padding: 12px;
+            text-align: left;
+            font-weight: 600;
+            border-bottom: 2px solid #dee2e6;
+        }
+        .assignments-table td {
+            padding: 12px;
+            border-bottom: 1px solid #dee2e6;
+        }
+        .assignments-table tr:hover {
+            background: #f8f9fa;
+        }
+        .status-badge {
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 12px;
+            font-size: 0.85em;
+            font-weight: 600;
+        }
+        .status-completed {
+            background: #d4edda;
+            color: #155724;
+        }
+        .status-in-progress {
+            background: #fff3cd;
+            color: #856404;
+        }
+        .status-not-started {
+            background: #f8d7da;
+            color: #721c24;
+        }
+        .assign-btn {
+            background: #28a745;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 1em;
+        }
+        .assign-btn:hover {
+            background: #218838;
+        }
+        .btn {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 8px;
+            font-size: 1em;
+            cursor: pointer;
+            text-decoration: none;
+            display: inline-block;
+            transition: all 0.3s;
+        }
+        .btn-primary {
+            background: #667eea;
+            color: white;
+        }
+        .btn-primary:hover {
+            background: #5568d3;
+        }
+        .btn-secondary {
+            background: #6c757d;
+            color: white;
+        }
+        .btn-secondary:hover {
+            background: #5a6268;
+        }
+        .loading {
+            text-align: center;
+            padding: 40px;
+            color: #666;
+        }
+        .spinner {
+            border: 3px solid #f3f3f3;
+            border-top: 3px solid #667eea;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 20px;
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+            color: #999;
+        }
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.5);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+        }
+        .modal.active {
+            display: flex;
+        }
+        .modal-content {
+            background: white;
+            border-radius: 12px;
+            padding: 30px;
+            max-width: 600px;
+            width: 90%;
+            max-height: 80vh;
+            overflow-y: auto;
+        }
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+        .modal-close {
+            background: none;
+            border: none;
+            font-size: 1.5em;
+            cursor: pointer;
+            color: #666;
+        }
+        .quiz-checkbox {
+            margin: 10px 0;
+            padding: 10px;
+            background: #f8f9fa;
+            border-radius: 6px;
+        }
+        .quiz-checkbox label {
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .quiz-checkbox input[type="checkbox"] {
+            width: 18px;
+            height: 18px;
+        }
+    </style>
+</head>
+<body>
+    <div class="students-container">
+        <div class="students-header">
+            <h1>👨‍🎓 Student Progress Tracker</h1>
+            <p>Assign quizzes and monitor student performance</p>
+        </div>
+
+        <div class="students-nav">
+            <button onclick="window.location.href='/admin'" class="btn btn-secondary">← Back to Admin</button>
+            <button onclick="students.refresh()" class="btn btn-primary">🔄 Refresh</button>
+        </div>
+
+        <div id="loading" class="loading">
+            <div class="spinner"></div>
+            <p>Loading student data...</p>
+        </div>
+
+        <div id="content" style="display: none;">
+            <!-- Student Cards -->
+            <div class="section">
+                <h2>📚 Students</h2>
+                <div id="students-grid" class="student-grid">
+                    <!-- Student cards will be inserted here -->
+                </div>
+            </div>
+
+            <!-- Selected Student Details -->
+            <div id="student-details" class="section" style="display: none;">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+                    <h2 id="student-details-name">Student Progress</h2>
+                    <button onclick="students.showAssignModal()" class="assign-btn">+ Assign Quizzes</button>
+                </div>
+
+                <div id="assignments-container">
+                    <!-- Assignments table will be inserted here -->
+                </div>
+
+                <h3 style="margin-top: 30px;">📊 Recent Quiz Results</h3>
+                <div id="results-container">
+                    <!-- Results table will be inserted here -->
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Assignment Modal -->
+    <div id="assign-modal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Assign Quizzes to <span id="modal-student-name"></span></h2>
+                <button class="modal-close" onclick="students.closeAssignModal()">×</button>
+            </div>
+            <div id="quiz-list-modal">
+                <!-- Quiz checkboxes will be inserted here -->
+            </div>
+            <div style="margin-top: 20px; display: flex; gap: 10px; justify-content: flex-end;">
+                <button onclick="students.closeAssignModal()" class="btn btn-secondary">Cancel</button>
+                <button onclick="students.saveAssignments()" class="btn btn-primary">Save Assignments</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-database-compat.js"></script>
+
+    <!-- App Scripts -->
+    <script src="../../firebase-config.js"></script>
+    <script src="students.js"></script>
+</body>
+</html>
