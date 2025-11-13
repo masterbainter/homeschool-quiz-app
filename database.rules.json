@@ -36,6 +36,30 @@
       }
     },
 
+    // Reading assignments - admins/teachers can write, students can only read/update their own status
+    "reading-assignments": {
+      "$userId": {
+        ".read": "auth != null && (auth.uid == $userId || root.child('user-roles/admins').val().contains(auth.token.email) || root.child('user-roles/teachers').val().contains(auth.token.email))",
+        "$bookId": {
+          // Allow teachers/admins to write entire book record
+          ".write": "root.child('user-roles/admins').val().contains(auth.token.email) || root.child('user-roles/teachers').val().contains(auth.token.email)",
+          // Allow students to only update status of their own books
+          "status": {
+            ".write": "auth != null && auth.uid == $userId"
+          },
+          "currentChapter": {
+            ".write": "auth != null && auth.uid == $userId"
+          }
+        }
+      }
+    },
+
+    // Books cache - read by all authenticated, write by admins/teachers
+    "books-cache": {
+      ".read": "auth != null",
+      ".write": "root.child('user-roles/admins').val().contains(auth.token.email) || root.child('user-roles/teachers').val().contains(auth.token.email)"
+    },
+
     // Todos - users can manage their own, admins/teachers can read all
     "todos": {
       "$userId": {
