@@ -53,11 +53,16 @@ const books = {
             const roles = RolesLoader.roles;
             const studentEmails = roles.students || [];
 
+            console.log('Loading students...');
+            console.log('Student emails from roles:', studentEmails);
+            console.log('Users in database:', Object.keys(usersData).length);
+
             // Create student list from users matching student emails
             this.students = [];
             Object.keys(usersData).forEach(uid => {
                 const user = usersData[uid];
                 if (studentEmails.includes(user.email)) {
+                    console.log('Found student with profile:', user.email);
                     this.students.push({
                         userId: uid,
                         name: user.displayName || user.email.split('@')[0],
@@ -70,6 +75,7 @@ const books = {
             studentEmails.forEach(email => {
                 const exists = this.students.some(s => s.email === email);
                 if (!exists) {
+                    console.log('Adding pending student:', email);
                     this.students.push({
                         userId: `pending-${email}`,
                         name: email.split('@')[0],
@@ -78,6 +84,9 @@ const books = {
                     });
                 }
             });
+
+            console.log('Total students loaded:', this.students.length);
+            console.log('Students:', this.students);
 
         } catch (error) {
             console.error('Error loading students:', error);
