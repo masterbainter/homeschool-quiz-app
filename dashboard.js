@@ -39,14 +39,24 @@ const dashboard = {
         });
     },
 
+    // List of admin emails
+    ADMIN_EMAILS: [
+        'techride.trevor@gmail.com',
+        'iyoko.bainter@gmail.com',
+        'trevor.bainter@gmail.com'
+    ],
+
+    // List of student emails
+    STUDENT_EMAILS: [
+        'madmaxmadadax@gmail.com',
+        'sakurasaurusjade@gmail.com'
+    ],
+
     // List of allowed emails (you can edit this list)
     isAllowedUser(email) {
         const ALLOWED_EMAILS = [
-            'techride.trevor@gmail.com',  // Admin
-            'iyoko.bainter@gmail.com',    // Admin
-            'trevor.bainter@gmail.com',   // Admin
-            'madmaxmadadax@gmail.com',    // Student
-            'sakurasaurusjade@gmail.com', // Student
+            ...this.ADMIN_EMAILS,
+            ...this.STUDENT_EMAILS
         ];
 
         return ALLOWED_EMAILS.includes(email.toLowerCase());
@@ -54,8 +64,7 @@ const dashboard = {
 
     // Check if user is admin
     checkAdminStatus() {
-        const ADMIN_EMAIL = 'techride.trevor@gmail.com';
-        this.isAdmin = (this.currentUser.email === ADMIN_EMAIL);
+        this.isAdmin = this.ADMIN_EMAILS.includes(this.currentUser.email);
         this.updateAdminButton();
     },
 

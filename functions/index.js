@@ -10,8 +10,12 @@ const anthropic = new Anthropic({
   apiKey: functions.config().anthropic?.key || process.env.ANTHROPIC_API_KEY
 });
 
-// Admin email for authorization
-const ADMIN_EMAIL = 'techride.trevor@gmail.com';
+// Admin emails for authorization
+const ADMIN_EMAILS = [
+  'techride.trevor@gmail.com',
+  'iyoko.bainter@gmail.com',
+  'trevor.bainter@gmail.com'
+];
 
 /**
  * Cloud Function to generate quiz questions using Claude AI
@@ -27,7 +31,7 @@ exports.generateQuiz = functions.https.onCall(async (data, context) => {
   }
 
   // Verify user is admin
-  if (context.auth.token.email !== ADMIN_EMAIL) {
+  if (!ADMIN_EMAILS.includes(context.auth.token.email)) {
     throw new functions.https.HttpsError(
       'permission-denied',
       'Only admin can generate quizzes'

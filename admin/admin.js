@@ -28,17 +28,21 @@ const admin = {
         });
     },
 
+    // List of admin emails
+    ADMIN_EMAILS: [
+        'techride.trevor@gmail.com',
+        'iyoko.bainter@gmail.com',
+        'trevor.bainter@gmail.com'
+    ],
+
     // Check if user has admin privileges
     checkAdminStatus() {
-        // Only allow specific email address
-        const ADMIN_EMAIL = 'techride.trevor@gmail.com';
-
-        if (this.currentUser.email === ADMIN_EMAIL) {
+        if (this.ADMIN_EMAILS.includes(this.currentUser.email)) {
             this.isAdmin = true;
             this.showAdminPanel();
             this.loadQuizzes();
         } else {
-            this.showUnauthorized('You do not have admin access. Only ' + ADMIN_EMAIL + ' can access this panel.');
+            this.showUnauthorized('You do not have admin access. Only authorized administrators can access this panel.');
         }
     },
 

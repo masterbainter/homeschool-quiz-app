@@ -52,10 +52,16 @@ const todos = {
         });
     },
 
+    // List of admin emails
+    ADMIN_EMAILS: [
+        'techride.trevor@gmail.com',
+        'iyoko.bainter@gmail.com',
+        'trevor.bainter@gmail.com'
+    ],
+
     // Check if user is admin
     checkAdminStatus() {
-        const ADMIN_EMAIL = 'techride.trevor@gmail.com';
-        this.isAdmin = (this.currentUser.email === ADMIN_EMAIL);
+        this.isAdmin = this.ADMIN_EMAILS.includes(this.currentUser.email);
 
         if (this.isAdmin) {
             document.getElementById('admin-controls').style.display = 'block';

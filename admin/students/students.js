@@ -7,6 +7,12 @@ const students = {
     results: {},
     selectedStudentId: null,
 
+    ADMIN_EMAILS: [
+        'techride.trevor@gmail.com',
+        'iyoko.bainter@gmail.com',
+        'trevor.bainter@gmail.com'
+    ],
+
     STUDENT_EMAILS: [
         'madmaxmadadax@gmail.com',
         'sakurasaurusjade@gmail.com'
@@ -15,7 +21,7 @@ const students = {
     init() {
         // Check auth
         firebase.auth().onAuthStateChanged((user) => {
-            if (!user || user.email !== 'techride.trevor@gmail.com') {
+            if (!user || !this.ADMIN_EMAILS.includes(user.email)) {
                 alert('Access denied. Admin only.');
                 window.location.href = '/admin';
                 return;
