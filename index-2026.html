@@ -1,0 +1,320 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes">
+
+    <!-- PWA Essentials -->
+    <meta name="theme-color" content="#4d9e93">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="HomeQuiz">
+
+    <!-- SEO & Social -->
+    <title>Homeschool Learning Hub - Your Personalized Curriculum</title>
+    <meta name="description" content="Beautiful, calm homeschool quiz and progress tracking for families. Track lessons, view progress, and celebrate achievements.">
+
+    <!-- PWA Manifest -->
+    <link rel="manifest" href="/manifest.json">
+
+    <!-- Icons -->
+    <link rel="icon" type="image/png" sizes="32x32" href="/icons/icon-32x32.png">
+    <link rel="apple-touch-icon" href="/icons/icon-192x192.png">
+
+    <!-- Preload critical assets -->
+    <link rel="preconnect" href="https://www.gstatic.com">
+    <link rel="preconnect" href="https://firebasestorage.googleapis.com">
+
+    <!-- Stylesheets - Critical CSS inline, rest loaded async -->
+    <style>
+        /* Critical inline CSS for instant paint */
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI', system-ui, sans-serif;
+            background: #f8faf9;
+            color: #1a1f1d;
+            line-height: 1.6;
+            -webkit-font-smoothing: antialiased;
+        }
+        .loading-screen {
+            position: fixed;
+            inset: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: linear-gradient(135deg, #f8faf9 0%, #e8f5f2 100%);
+            z-index: 9999;
+            transition: opacity 0.3s ease, visibility 0.3s ease;
+        }
+        .loading-screen.hidden {
+            opacity: 0;
+            visibility: hidden;
+        }
+        .loading-spinner {
+            width: 48px;
+            height: 48px;
+            border: 4px solid rgba(77, 158, 147, 0.2);
+            border-top-color: #4d9e93;
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+        }
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+    </style>
+
+    <!-- Main stylesheets loaded async -->
+    <link rel="stylesheet" href="/design-system-2026.css" media="print" onload="this.media='all'">
+    <link rel="stylesheet" href="/bento-dashboard.css" media="print" onload="this.media='all'">
+    <noscript>
+        <link rel="stylesheet" href="/design-system-2026.css">
+        <link rel="stylesheet" href="/bento-dashboard.css">
+    </noscript>
+</head>
+<body>
+    <!-- Skip to main content for accessibility -->
+    <a href="#main-content" class="skip-to-content">Skip to main content</a>
+
+    <!-- Loading Screen -->
+    <div class="loading-screen" id="loading-screen" role="status" aria-live="polite">
+        <div class="loading-spinner" aria-label="Loading"></div>
+    </div>
+
+    <!-- Main App Container -->
+    <div id="app" role="main">
+        <!-- Auth Section - Sign In -->
+        <div id="auth-section" style="display: none;">
+            <div class="auth-container">
+                <div class="auth-card">
+                    <!-- Logo/Branding -->
+                    <div class="auth-logo">
+                        <div class="logo-icon">📚</div>
+                        <h1 class="logo-text">HomeQuiz</h1>
+                        <p class="logo-tagline">Your calm learning companion</p>
+                    </div>
+
+                    <!-- Sign In Form -->
+                    <div class="auth-content">
+                        <h2 class="auth-title">Welcome Back!</h2>
+                        <p class="auth-description">Sign in to continue your learning journey</p>
+
+                        <button onclick="dashboard.login()" class="btn btn-primary btn-lg auth-button">
+                            <svg width="20" height="20" viewBox="0 0 20 20" fill="currentColor" style="margin-right: 12px;">
+                                <path fill="#fff" d="M18.34 8.89H10v3.33h4.78c-.21 1.11-.82 1.64-1.78 2.27v2.23h2.89c2.43-2.24 3.45-5.54 3.45-6.54 0-.63-.06-.73-.17-1.31z"></path>
+                                <path fill="#fff" d="M10 18.89c2.4 0 4.41-.8 5.89-2.16l-2.89-2.23c-.8.54-1.82.86-3 .86-2.3 0-4.26-1.56-4.96-3.65H2.04v2.3A8.89 8.89 0 0 0 10 18.89z"></path>
+                                <path fill="#fff" d="M5.04 11.71a5.33 5.33 0 0 1 0-3.38V6.03H2.04a9.89 9.89 0 0 0 0 7.98l3-2.3z"></path>
+                                <path fill="#fff" d="M10 4.64c1.3 0 2.48.44 3.4 1.33l2.56-2.56A8.89 8.89 0 0 0 2.04 6.01l3 2.3c.7-2.09 2.66-3.65 4.96-3.65z"></path>
+                            </svg>
+                            Sign in with Google
+                        </button>
+
+                        <div class="auth-features">
+                            <div class="feature-item">
+                                <span class="feature-icon">✓</span>
+                                <span>Track your progress</span>
+                            </div>
+                            <div class="feature-item">
+                                <span class="feature-icon">✓</span>
+                                <span>Work offline</span>
+                            </div>
+                            <div class="feature-item">
+                                <span class="feature-icon">✓</span>
+                                <span>Celebrate achievements</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Background decoration -->
+                <div class="auth-background">
+                    <div class="auth-blob auth-blob-1"></div>
+                    <div class="auth-blob auth-blob-2"></div>
+                    <div class="auth-blob auth-blob-3"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Main Dashboard - Bento Layout -->
+        <div id="dashboard-section" style="display: none;">
+            <!-- App Header with Navigation -->
+            <header class="app-header" id="app-header">
+                <div class="app-header-content">
+                    <!-- Logo -->
+                    <div class="app-logo">
+                        <span class="app-logo-icon">📚</span>
+                        <span class="app-logo-text">HomeQuiz</span>
+                    </div>
+
+                    <!-- User Profile -->
+                    <div class="app-user-profile">
+                        <img id="user-avatar" class="user-avatar" src="" alt="User avatar">
+                        <div class="user-info">
+                            <div class="user-name" id="user-name-header"></div>
+                            <div class="user-role" id="user-role"></div>
+                        </div>
+
+                        <!-- Settings/Menu Dropdown -->
+                        <button class="btn-icon" onclick="toggleUserMenu()" aria-label="User menu">
+                            <svg width="20" height="20" viewBox="0 0 20 20" fill="currentColor">
+                                <path d="M10 6a2 2 0 110-4 2 2 0 010 4zM10 12a2 2 0 110-4 2 2 0 010 4zM10 18a2 2 0 110-4 2 2 0 010 4z"/>
+                            </svg>
+                        </button>
+                    </div>
+                </div>
+            </header>
+
+            <!-- Bento Dashboard Container -->
+            <main id="main-content" class="main-content">
+                <div id="bento-container"></div>
+            </main>
+
+            <!-- Bottom Navigation (Mobile) -->
+            <nav class="bottom-nav" id="bottom-nav">
+                <a href="/" class="nav-item active" aria-label="Home">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
+                        <path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/>
+                    </svg>
+                    <span>Home</span>
+                </a>
+                <a href="/subjects" class="nav-item" aria-label="Subjects">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
+                        <path d="M21 5c-1.11-.35-2.33-.5-3.5-.5-1.95 0-4.05.4-5.5 1.5-1.45-1.1-3.55-1.5-5.5-1.5S2.45 4.9 1 6v14.65c0 .25.25.5.5.5.1 0 .15-.05.25-.05C3.1 20.45 5.05 20 6.5 20c1.95 0 4.05.4 5.5 1.5 1.35-.85 3.8-1.5 5.5-1.5 1.65 0 3.35.3 4.75 1.05.1.05.15.05.25.05.25 0 .5-.25.5-.5V6c-.6-.45-1.25-.75-2-1zm0 13.5c-1.1-.35-2.3-.5-3.5-.5-1.7 0-4.15.65-5.5 1.5V8c1.35-.85 3.8-1.5 5.5-1.5 1.2 0 2.4.15 3.5.5v11.5z"/>
+                    </svg>
+                    <span>Subjects</span>
+                </a>
+                <a href="/todos" class="nav-item" aria-label="To-Do">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
+                        <path d="M19 3h-4.18C14.4 1.84 13.3 1 12 1c-1.3 0-2.4.84-2.82 2H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-7 0c.55 0 1 .45 1 1s-.45 1-1 1-1-.45-1-1 .45-1 1-1zm2 14H7v-2h7v2zm3-4H7v-2h10v2zm0-4H7V7h10v2z"/>
+                    </svg>
+                    <span>To-Do</span>
+                </a>
+                <a href="/reading-list" class="nav-item" aria-label="Reading">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
+                        <path d="M18 2H6c-1.1 0-2 .9-2 2v16c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zM6 4h5v8l-2.5-1.5L6 12V4z"/>
+                    </svg>
+                    <span>Reading</span>
+                </a>
+            </nav>
+        </div>
+    </div>
+
+    <!-- User Menu Dropdown (hidden by default) -->
+    <div class="user-menu-dropdown" id="user-menu" style="display: none;">
+        <div class="user-menu-content">
+            <button class="user-menu-item" onclick="toggleTheme()">
+                <svg width="20" height="20" viewBox="0 0 20 20" fill="currentColor">
+                    <path d="M10 2a1 1 0 011 1v1a1 1 0 11-2 0V3a1 1 0 011-1zm4 8a4 4 0 11-8 0 4 4 0 018 0zm-.464 4.95l.707.707a1 1 0 001.414-1.414l-.707-.707a1 1 0 00-1.414 1.414zm2.12-10.607a1 1 0 010 1.414l-.706.707a1 1 0 11-1.414-1.414l.707-.707a1 1 0 011.414 0zM17 11a1 1 0 100-2h-1a1 1 0 100 2h1zm-7 4a1 1 0 011 1v1a1 1 0 11-2 0v-1a1 1 0 011-1zM5.05 6.464A1 1 0 106.465 5.05l-.708-.707a1 1 0 00-1.414 1.414l.707.707zm1.414 8.486l-.707.707a1 1 0 01-1.414-1.414l.707-.707a1 1 0 011.414 1.414zM4 11a1 1 0 100-2H3a1 1 0 000 2h1z"/>
+                </svg>
+                <span>Toggle Dark Mode</span>
+            </button>
+
+            <button class="user-menu-item" onclick="toggleDyslexicFont()">
+                <svg width="20" height="20" viewBox="0 0 20 20" fill="currentColor">
+                    <path d="M11 3H5a2 2 0 00-2 2v10a2 2 0 002 2h6a2 2 0 002-2V5a2 2 0 00-2-2zm-1 12H6v-2h4v2zm3-4H6V9h7v2zm0-4H6V5h7v2z"/>
+                </svg>
+                <span>Dyslexic Font</span>
+            </button>
+
+            <button class="user-menu-item" onclick="toggleReducedMotion()">
+                <svg width="20" height="20" viewBox="0 0 20 20" fill="currentColor">
+                    <path d="M10 18a8 8 0 100-16 8 8 0 000 16zM9.555 7.168A1 1 0 008 8v4a1 1 0 001.555.832l3-2a1 1 0 000-1.664l-3-2z"/>
+                </svg>
+                <span>Reduce Motion</span>
+            </button>
+
+            <div class="user-menu-divider"></div>
+
+            <button class="user-menu-item" onclick="window.location.href='/teacher'" id="teacher-link" style="display: none;">
+                <svg width="20" height="20" viewBox="0 0 20 20" fill="currentColor">
+                    <path d="M13 6a3 3 0 11-6 0 3 3 0 016 0zM18 8a2 2 0 11-4 0 2 2 0 014 0zM14 15a4 4 0 00-8 0v3h8v-3zM6 8a2 2 0 11-4 0 2 2 0 014 0zM16 18v-3a5.972 5.972 0 00-.75-2.906A3.005 3.005 0 0119 15v3h-3zM4.75 12.094A5.973 5.973 0 004 15v3H1v-3a3 3 0 013.75-2.906z"/>
+                </svg>
+                <span>Teacher Panel</span>
+            </button>
+
+            <button class="user-menu-item" onclick="window.location.href='/admin'" id="admin-link" style="display: none;">
+                <svg width="20" height="20" viewBox="0 0 20 20" fill="currentColor">
+                    <path fill-rule="evenodd" d="M11.49 3.17c-.38-1.56-2.6-1.56-2.98 0a1.532 1.532 0 01-2.286.948c-1.372-.836-2.942.734-2.106 2.106.54.886.061 2.042-.947 2.287-1.561.379-1.561 2.6 0 2.978a1.532 1.532 0 01.947 2.287c-.836 1.372.734 2.942 2.106 2.106a1.532 1.532 0 012.287.947c.379 1.561 2.6 1.561 2.978 0a1.533 1.533 0 012.287-.947c1.372.836 2.942-.734 2.106-2.106a1.533 1.533 0 01.947-2.287c1.561-.379 1.561-2.6 0-2.978a1.532 1.532 0 01-.947-2.287c.836-1.372-.734-2.942-2.106-2.106a1.532 1.532 0 01-2.287-.947zM10 13a3 3 0 100-6 3 3 0 000 6z" clip-rule="evenodd"/>
+                </svg>
+                <span>Admin Panel</span>
+            </button>
+
+            <div class="user-menu-divider"></div>
+
+            <button class="user-menu-item user-menu-item-danger" onclick="dashboard.logout()">
+                <svg width="20" height="20" viewBox="0 0 20 20" fill="currentColor">
+                    <path fill-rule="evenodd" d="M3 3a1 1 0 00-1 1v12a1 1 0 001 1h12a1 1 0 001-1V4a1 1 0 00-1-1H3zm11 4.414l-4.293 4.293a1 1 0 01-1.414 0L4 7.414 5.414 6l3.293 3.293L13.586 6 15 7.414z" clip-rule="evenodd"/>
+                </svg>
+                <span>Sign Out</span>
+            </button>
+        </div>
+    </div>
+
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-database-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-functions-compat.js"></script>
+
+    <!-- App Scripts -->
+    <script src="/firebase-config.js"></script>
+    <script src="/roles-loader.js"></script>
+    <script src="/toast.js"></script>
+    <script src="/env-indicator.js"></script>
+    <script src="/pwa-installer.js"></script>
+    <script src="/bento-dashboard.js"></script>
+    <script src="/dashboard-2026.js"></script>
+
+    <!-- Hide loading screen once everything is loaded -->
+    <script>
+        window.addEventListener('load', () => {
+            setTimeout(() => {
+                document.getElementById('loading-screen').classList.add('hidden');
+            }, 500);
+        });
+
+        // User menu toggle
+        function toggleUserMenu() {
+            const menu = document.getElementById('user-menu');
+            menu.style.display = menu.style.display === 'none' ? 'block' : 'none';
+        }
+
+        // Close menu when clicking outside
+        document.addEventListener('click', (e) => {
+            const menu = document.getElementById('user-menu');
+            const button = e.target.closest('[onclick="toggleUserMenu()"]');
+            if (!button && !menu.contains(e.target)) {
+                menu.style.display = 'none';
+            }
+        });
+
+        // Theme toggles
+        function toggleTheme() {
+            const html = document.documentElement;
+            const currentTheme = html.getAttribute('data-theme');
+            html.setAttribute('data-theme', currentTheme === 'dark' ? 'light' : 'dark');
+            localStorage.setItem('theme', html.getAttribute('data-theme'));
+        }
+
+        function toggleDyslexicFont() {
+            document.body.classList.toggle('dyslexic-font');
+            localStorage.setItem('dyslexic-font', document.body.classList.contains('dyslexic-font'));
+        }
+
+        function toggleReducedMotion() {
+            document.body.classList.toggle('reduced-motion');
+            localStorage.setItem('reduced-motion', document.body.classList.contains('reduced-motion'));
+        }
+
+        // Load preferences
+        if (localStorage.getItem('theme')) {
+            document.documentElement.setAttribute('data-theme', localStorage.getItem('theme'));
+        }
+        if (localStorage.getItem('dyslexic-font') === 'true') {
+            document.body.classList.add('dyslexic-font');
+        }
+        if (localStorage.getItem('reduced-motion') === 'true') {
+            document.body.classList.add('reduced-motion');
+        }
+    </script>
+</body>
+</html>

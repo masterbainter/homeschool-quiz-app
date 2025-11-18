@@ -19,18 +19,6 @@ const subject = {
         this.setupAuthListener();
     },
 
-    // List of allowed emails
-    isAllowedUser(email) {
-        const ALLOWED_EMAILS = [
-            'techride.trevor@gmail.com',
-            'iyoko.bainter@gmail.com',
-            'trevor.bainter@gmail.com',
-            'madmaxmadadax@gmail.com',
-            'sakurasaurusjade@gmail.com',
-        ];
-        return ALLOWED_EMAILS.includes(email.toLowerCase());
-    },
-
     // Firebase Authentication Listener
     setupAuthListener() {
         if (!firebase.apps.length) {
@@ -38,10 +26,15 @@ const subject = {
             return;
         }
 
-        firebase.auth().onAuthStateChanged((user) => {
+        firebase.auth().onAuthStateChanged(async (user) => {
             if (user) {
-                // Check if user is allowed
-                if (!this.isAllowedUser(user.email)) {
+                // Load roles AFTER user is authenticated
+                await RolesLoader.load();
+
+                // Check if user is allowed using RolesLoader
+                if (!RolesLoader.isAllowedUser(user.email)) {
+                    console.error('Access denied for:', user.email);
+                    console.log('Current roles:', RolesLoader.roles);
                     alert('Access denied. This account is not authorized.');
                     firebase.auth().signOut();
                     window.location.href = '/';

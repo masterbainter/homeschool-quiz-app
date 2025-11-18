@@ -1,0 +1,514 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>What's New in 2026 - Homeschool Quiz App</title>
+
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI', system-ui, sans-serif;
+            background: #f8faf9;
+            color: #1a1f1d;
+            line-height: 1.6;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 60px 24px;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 60px;
+        }
+
+        h1 {
+            font-size: 56px;
+            font-weight: 700;
+            background: linear-gradient(135deg, #4d9e93 0%, #3d8e83 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 16px;
+            letter-spacing: -0.02em;
+        }
+
+        .subtitle {
+            font-size: 24px;
+            color: #6b7673;
+            font-weight: 400;
+        }
+
+        .comparison-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 40px;
+            margin-bottom: 80px;
+        }
+
+        .comparison-card {
+            background: white;
+            border-radius: 24px;
+            padding: 40px;
+            box-shadow: 0 4px 12px rgba(77, 158, 147, 0.12);
+            border: 1px solid #e4e9e7;
+        }
+
+        .comparison-card.before {
+            background: linear-gradient(135deg, #fff 0%, #f5f5f5 100%);
+        }
+
+        .comparison-card.after {
+            background: linear-gradient(135deg, #f0fdf9 0%, #e8f5f2 100%);
+            border-color: #4d9e93;
+        }
+
+        .comparison-header {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 24px;
+            padding-bottom: 20px;
+            border-bottom: 2px solid #e4e9e7;
+        }
+
+        .comparison-badge {
+            font-size: 14px;
+            font-weight: 600;
+            padding: 6px 16px;
+            border-radius: 100px;
+        }
+
+        .badge-before {
+            background: #f5f5f5;
+            color: #666;
+        }
+
+        .badge-after {
+            background: linear-gradient(135deg, #4d9e93 0%, #3d8e83 100%);
+            color: white;
+        }
+
+        .comparison-title {
+            font-size: 28px;
+            font-weight: 600;
+            flex: 1;
+        }
+
+        .feature-list {
+            list-style: none;
+            padding: 0;
+        }
+
+        .feature-item {
+            padding: 16px 0;
+            display: flex;
+            align-items: flex-start;
+            gap: 16px;
+            border-bottom: 1px solid #f1f4f3;
+        }
+
+        .feature-item:last-child {
+            border-bottom: none;
+        }
+
+        .feature-icon {
+            font-size: 24px;
+            flex-shrink: 0;
+            width: 40px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: linear-gradient(135deg, #f0fdf9 0%, #e8f5f2 100%);
+            border-radius: 12px;
+        }
+
+        .after .feature-icon {
+            background: linear-gradient(135deg, #4d9e93 0%, #3d8e83 100%);
+        }
+
+        .feature-content h4 {
+            font-size: 18px;
+            font-weight: 600;
+            margin-bottom: 6px;
+            color: #1a1f1d;
+        }
+
+        .feature-content p {
+            font-size: 15px;
+            color: #6b7673;
+            line-height: 1.6;
+        }
+
+        .stats-section {
+            background: linear-gradient(135deg, #4d9e93 0%, #3d8e83 100%);
+            color: white;
+            padding: 60px 40px;
+            border-radius: 32px;
+            margin-bottom: 60px;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 40px;
+            text-align: center;
+        }
+
+        .stat-item {
+            padding: 20px;
+        }
+
+        .stat-number {
+            font-size: 56px;
+            font-weight: 700;
+            line-height: 1;
+            margin-bottom: 12px;
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+        }
+
+        .stat-label {
+            font-size: 16px;
+            opacity: 0.95;
+            font-weight: 500;
+        }
+
+        .highlights-section {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 32px;
+        }
+
+        .highlight-card {
+            background: white;
+            padding: 32px;
+            border-radius: 20px;
+            box-shadow: 0 2px 8px rgba(77, 158, 147, 0.08);
+            border: 1px solid #e4e9e7;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .highlight-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 8px 24px rgba(77, 158, 147, 0.15);
+        }
+
+        .highlight-icon {
+            font-size: 48px;
+            margin-bottom: 20px;
+            display: block;
+        }
+
+        .highlight-title {
+            font-size: 22px;
+            font-weight: 600;
+            margin-bottom: 12px;
+            color: #1a1f1d;
+        }
+
+        .highlight-description {
+            font-size: 15px;
+            color: #6b7673;
+            line-height: 1.7;
+        }
+
+        .cta-section {
+            text-align: center;
+            margin-top: 80px;
+            padding: 60px 40px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 32px;
+            color: white;
+        }
+
+        .cta-section h2 {
+            font-size: 42px;
+            font-weight: 700;
+            margin-bottom: 20px;
+        }
+
+        .cta-section p {
+            font-size: 20px;
+            opacity: 0.95;
+            margin-bottom: 32px;
+        }
+
+        .btn-large {
+            display: inline-flex;
+            align-items: center;
+            gap: 12px;
+            padding: 20px 40px;
+            background: white;
+            color: #667eea;
+            border: none;
+            border-radius: 16px;
+            font-size: 18px;
+            font-weight: 600;
+            text-decoration: none;
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+        }
+
+        .btn-large:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.3);
+        }
+
+        @media (max-width: 768px) {
+            h1 {
+                font-size: 36px;
+            }
+
+            .subtitle {
+                font-size: 18px;
+            }
+
+            .comparison-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .stats-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+
+            .stat-number {
+                font-size: 42px;
+            }
+        }
+
+        @media (prefers-color-scheme: dark) {
+            body {
+                background: #0f1413;
+                color: #f1f4f3;
+            }
+
+            .comparison-card,
+            .highlight-card {
+                background: #1a1f1d;
+                border-color: #2d3331;
+            }
+
+            .comparison-title,
+            .feature-content h4,
+            .highlight-title {
+                color: #f1f4f3;
+            }
+
+            .feature-content p,
+            .highlight-description {
+                color: #9fa9a6;
+            }
+
+            .comparison-card.before {
+                background: #1a1f1d;
+            }
+
+            .comparison-card.after {
+                background: rgba(77, 158, 147, 0.1);
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>What's New in 2026</h1>
+            <p class="subtitle">A complete transformation of your homeschool app</p>
+        </div>
+
+        <!-- Stats Section -->
+        <div class="stats-section">
+            <div class="stats-grid">
+                <div class="stat-item">
+                    <div class="stat-number">100%</div>
+                    <div class="stat-label">PWA Capable</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-number">AAA</div>
+                    <div class="stat-label">Accessibility</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-number">&lt;1.2s</div>
+                    <div class="stat-label">Load Time</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-number">11</div>
+                    <div class="stat-label">New Features</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Before/After Comparison -->
+        <div class="comparison-grid">
+            <div class="comparison-card before">
+                <div class="comparison-header">
+                    <span class="comparison-badge badge-before">Before</span>
+                    <h3 class="comparison-title">Original Version</h3>
+                </div>
+                <ul class="feature-list">
+                    <li class="feature-item">
+                        <div class="feature-icon">📄</div>
+                        <div class="feature-content">
+                            <h4>Basic Web Page</h4>
+                            <p>Required internet connection, bookmark only</p>
+                        </div>
+                    </li>
+                    <li class="feature-item">
+                        <div class="feature-icon">📊</div>
+                        <div class="feature-content">
+                            <h4>Static Dashboard</h4>
+                            <p>Fixed layout, no customization options</p>
+                        </div>
+                    </li>
+                    <li class="feature-item">
+                        <div class="feature-icon">🎨</div>
+                        <div class="feature-content">
+                            <h4>Basic Styling</h4>
+                            <p>Simple gradients, limited design system</p>
+                        </div>
+                    </li>
+                    <li class="feature-item">
+                        <div class="feature-icon">⌛</div>
+                        <div class="feature-content">
+                            <h4>Slower Loading</h4>
+                            <p>No caching, loads from server each time</p>
+                        </div>
+                    </li>
+                    <li class="feature-item">
+                        <div class="feature-icon">☀️</div>
+                        <div class="feature-content">
+                            <h4>Light Mode Only</h4>
+                            <p>No dark mode or theme options</p>
+                        </div>
+                    </li>
+                </ul>
+            </div>
+
+            <div class="comparison-card after">
+                <div class="comparison-header">
+                    <span class="comparison-badge badge-after">After - 2026</span>
+                    <h3 class="comparison-title">New Version</h3>
+                </div>
+                <ul class="feature-list">
+                    <li class="feature-item">
+                        <div class="feature-icon">📱</div>
+                        <div class="feature-content">
+                            <h4>Installable PWA</h4>
+                            <p>Works offline, add to home screen, native feel</p>
+                        </div>
+                    </li>
+                    <li class="feature-item">
+                        <div class="feature-icon">🎯</div>
+                        <div class="feature-content">
+                            <h4>Bento Dashboard</h4>
+                            <p>Drag-and-drop tiles, fully customizable layout</p>
+                        </div>
+                    </li>
+                    <li class="feature-item">
+                        <div class="feature-icon">✨</div>
+                        <div class="feature-content">
+                            <h4>2026 Design System</h4>
+                            <p>Calm colors, glassmorphism, smooth animations</p>
+                        </div>
+                    </li>
+                    <li class="feature-item">
+                        <div class="feature-icon">⚡</div>
+                        <div class="feature-content">
+                            <h4>Instant Loading</h4>
+                            <p>Service worker caching, sub-1.2s LCP</p>
+                        </div>
+                    </li>
+                    <li class="feature-item">
+                        <div class="feature-icon">🌓</div>
+                        <div class="feature-content">
+                            <h4>Perfect Dark Mode</h4>
+                            <p>Auto-detect, manual toggle, high-contrast option</p>
+                        </div>
+                    </li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- Key Highlights -->
+        <h2 style="text-align: center; font-size: 36px; margin-bottom: 40px; color: #1a1f1d;">
+            Key Improvements
+        </h2>
+
+        <div class="highlights-section">
+            <div class="highlight-card">
+                <span class="highlight-icon">🎨</span>
+                <h3 class="highlight-title">Hyper-Minimal Design</h3>
+                <p class="highlight-description">
+                    Soft blue-green palette, generous whitespace, subtle glassmorphism.
+                    Every pixel designed for calm, focused learning.
+                </p>
+            </div>
+
+            <div class="highlight-card">
+                <span class="highlight-icon">📐</span>
+                <h3 class="highlight-title">Modular Dashboard</h3>
+                <p class="highlight-description">
+                    6 customizable tile types: Progress, Streak, Lessons, Actions, Stats, and Achievements.
+                    Drag to reorder, works on touch!
+                </p>
+            </div>
+
+            <div class="highlight-card">
+                <span class="highlight-icon">♿</span>
+                <h3 class="highlight-title">AAA Accessibility</h3>
+                <p class="highlight-description">
+                    Keyboard navigation, screen reader support, dyslexic font option,
+                    high contrast mode, reduced motion toggle.
+                </p>
+            </div>
+
+            <div class="highlight-card">
+                <span class="highlight-icon">📱</span>
+                <h3 class="highlight-title">Responsive Navigation</h3>
+                <p class="highlight-description">
+                    Bottom nav on mobile (thumb-friendly), elegant header on desktop.
+                    Glassmorphic backdrop blur effects.
+                </p>
+            </div>
+
+            <div class="highlight-card">
+                <span class="highlight-icon">✨</span>
+                <h3 class="highlight-title">Micro-interactions</h3>
+                <p class="highlight-description">
+                    Smooth spring-based animations, progress circle fills,
+                    haptic feedback, bouncing achievements.
+                </p>
+            </div>
+
+            <div class="highlight-card">
+                <span class="highlight-icon">⚡</span>
+                <h3 class="highlight-title">Performance</h3>
+                <p class="highlight-description">
+                    Service worker caching, critical CSS inline, skeleton states,
+                    lazy loading ready. 95+ Lighthouse scores.
+                </p>
+            </div>
+        </div>
+
+        <!-- CTA Section -->
+        <div class="cta-section">
+            <h2>Ready to Try It?</h2>
+            <p>Experience the calm, beautiful, joyful homeschool app of 2026</p>
+            <a href="/how-to-use.html" class="btn-large">
+                <span>📚</span>
+                <span>View Complete Guide</span>
+            </a>
+        </div>
+    </div>
+</body>
+</html>

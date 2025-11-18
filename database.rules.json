@@ -1,89 +1,87 @@
 {
   "rules": {
-    // Curriculum - read by all authenticated users
+    // Curriculum - read/write by all authenticated users
     "curriculum": {
       ".read": "auth != null",
-      ".write": "root.child('user-roles/admins').val().contains(auth.token.email) || root.child('user-roles/teachers').val().contains(auth.token.email)"
+      ".write": "auth != null"
     },
 
-    // Quizzes - read by all, write by admin/teachers
+    // Quizzes - read/write by all authenticated users
     "quizzes": {
       ".read": "auth != null",
-      ".write": "root.child('user-roles/admins').val().contains(auth.token.email) || root.child('user-roles/teachers').val().contains(auth.token.email)"
+      ".write": "auth != null"
     },
 
-    // Quiz results - users can write their own, all authenticated can read
+    // Quiz results - read/write by all authenticated users
     "quiz-results": {
       ".read": "auth != null",
-      "$resultId": {
-        ".write": "auth != null && (!data.exists() || data.child('userId').val() == auth.uid)"
-      }
+      ".write": "auth != null"
     },
 
-    // User profiles - users can read/write their own, admins/teachers can read all
+    // User profiles - all authenticated users can read, users can write their own
     "users": {
+      ".read": "auth != null",
       "$userId": {
-        ".read": "auth != null && (auth.uid == $userId || root.child('user-roles/admins').val().contains(auth.token.email) || root.child('user-roles/teachers').val().contains(auth.token.email))",
         ".write": "auth != null && auth.uid == $userId"
       }
     },
 
-    // Assignments - admins/teachers can write, assigned users can read
+    // Assignments - all authenticated users can read/write
     "assignments": {
+      ".read": "auth != null",
       "$userId": {
-        ".read": "auth != null && (auth.uid == $userId || root.child('user-roles/admins').val().contains(auth.token.email) || root.child('user-roles/teachers').val().contains(auth.token.email))",
-        ".write": "root.child('user-roles/admins').val().contains(auth.token.email) || root.child('user-roles/teachers').val().contains(auth.token.email)"
+        ".write": "auth != null"
       }
     },
 
-    // Reading assignments - admins/teachers can write, students can only read/update their own status
+    // Reading assignments - all authenticated users can read/write
     "reading-assignments": {
-      "$userId": {
-        ".read": "auth != null && (auth.uid == $userId || root.child('user-roles/admins').val().contains(auth.token.email) || root.child('user-roles/teachers').val().contains(auth.token.email))",
-        "$bookId": {
-          // Allow teachers/admins to write entire book record
-          ".write": "root.child('user-roles/admins').val().contains(auth.token.email) || root.child('user-roles/teachers').val().contains(auth.token.email)",
-          // Allow students to only update status of their own books
-          "status": {
-            ".write": "auth != null && auth.uid == $userId"
-          },
-          "currentChapter": {
-            ".write": "auth != null && auth.uid == $userId"
-          }
-        }
-      }
+      ".read": "auth != null",
+      ".write": "auth != null"
     },
 
-    // Books cache - read by all authenticated, write by admins/teachers
+    // Books cache - read/write by all authenticated users
     "books-cache": {
       ".read": "auth != null",
-      ".write": "root.child('user-roles/admins').val().contains(auth.token.email) || root.child('user-roles/teachers').val().contains(auth.token.email)"
+      ".write": "auth != null"
     },
 
-    // Todos - users can manage their own, admins/teachers can read all
+    // Todos - all authenticated users can read/write
     "todos": {
+      ".read": "auth != null",
       "$userId": {
-        ".read": "auth != null && (auth.uid == $userId || root.child('user-roles/admins').val().contains(auth.token.email) || root.child('user-roles/teachers').val().contains(auth.token.email))",
-        ".write": "auth != null && auth.uid == $userId"
+        ".write": "auth != null"
       }
     },
 
-    // User roles - read by all authenticated, write by admins only
+    // User roles - read by all authenticated, write by all authenticated
     "user-roles": {
       ".read": "auth != null",
-      ".write": "root.child('user-roles/admins').val().contains(auth.token.email)"
+      ".write": "auth != null"
     },
 
-    // AI usage logs - read/write by admins only
+    // AI usage logs - read/write by all authenticated
     "ai-usage-logs": {
-      ".read": "root.child('user-roles/admins').val().contains(auth.token.email)",
-      ".write": "root.child('user-roles/admins').val().contains(auth.token.email) || root.child('user-roles/teachers').val().contains(auth.token.email)"
+      ".read": "auth != null",
+      ".write": "auth != null"
     },
 
-    // Config - API keys and settings (read by authenticated, write by admins only)
+    // Config - read/write by all authenticated users
     "config": {
       ".read": "auth != null",
-      ".write": "root.child('user-roles/admins').val().contains(auth.token.email)"
+      ".write": "auth != null"
+    },
+
+    // AI quiz requests - authenticated users can write
+    "ai-quiz-requests": {
+      ".read": "auth != null",
+      ".write": "auth != null"
+    },
+
+    // AI quiz results - authenticated users can read
+    "ai-quiz-results": {
+      ".read": "auth != null",
+      ".write": "auth != null"
     }
   }
 }

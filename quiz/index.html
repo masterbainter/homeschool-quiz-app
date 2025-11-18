@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quizzes - Homeschool App</title>
+
+    <!-- Favicon & PWA -->
+    <link rel="icon" type="image/png" href="/icons/icon-192x192.png">
+    <link rel="manifest" href="/manifest.json">
+    <meta name="theme-color" content="#4d9e93">
+
+    <!-- 2026 Design System -->
+    <link rel="stylesheet" href="/design-system-2026.css" media="print" onload="this.media='all'">
+    <link rel="stylesheet" href="/app-chrome-2026.css" media="print" onload="this.media='all'">
+    <noscript>
+        <link rel="stylesheet" href="/design-system-2026.css">
+        <link rel="stylesheet" href="/app-chrome-2026.css">
+    </noscript>
+
+    <!-- Critical CSS for instant paint -->
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI', system-ui, sans-serif;
+            background: var(--color-background, #f8faf9);
+            color: var(--color-text-primary, #1a1f1d);
+            line-height: 1.6;
+            -webkit-font-smoothing: antialiased;
+        }
+    </style>
+</head>
+<body>
+    <!-- App Header (Desktop) -->
+    <header class="app-header" style="display: none;" id="app-header">
+        <div class="header-content">
+            <div class="header-left">
+                <button onclick="window.location.href='/'" class="btn-icon" aria-label="Home">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path>
+                        <polyline points="9 22 9 12 15 12 15 22"></polyline>
+                    </svg>
+                </button>
+                <h1 class="header-title">📚 Quizzes</h1>
+            </div>
+            <div class="header-right">
+                <div class="user-menu" id="user-menu-header" style="display: none;">
+                    <img id="header-user-photo" src="" alt="Profile" class="user-avatar">
+                    <span id="header-user-name"></span>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <div class="app-container">
+
+        <main class="main-content">
+            <div id="app">
+                <!-- Login/User Section -->
+                <div id="auth-section" class="auth-section">
+                    <div class="auth-card">
+                        <div class="auth-header">
+                            <h1 class="auth-title">📚 Book Quizzes</h1>
+                            <p class="auth-subtitle">Test your knowledge on books you've read</p>
+                        </div>
+                        <div id="login-form" class="auth-form">
+                            <p class="auth-message">Sign in with your Google account to start learning!</p>
+                            <button onclick="app.login()" class="btn-google">
+                                <svg width="18" height="18" viewBox="0 0 18 18" style="vertical-align: middle; margin-right: 10px;">
+                                    <path fill="#4285F4" d="M16.51 8H8.98v3h4.3c-.18 1-.74 1.48-1.6 2.04v2.01h2.6a7.8 7.8 0 0 0 2.38-5.88c0-.57-.05-.66-.15-1.18z"></path>
+                                    <path fill="#34A853" d="M8.98 17c2.16 0 3.97-.72 5.3-1.94l-2.6-2a4.8 4.8 0 0 1-7.18-2.54H1.83v2.07A8 8 0 0 0 8.98 17z"></path>
+                                    <path fill="#FBBC05" d="M4.5 10.52a4.8 4.8 0 0 1 0-3.04V5.41H1.83a8 8 0 0 0 0 7.18l2.67-2.07z"></path>
+                                    <path fill="#EA4335" d="M8.98 4.18c1.17 0 2.23.4 3.06 1.2l2.3-2.3A8 8 0 0 0 1.83 5.4L4.5 7.49a4.77 4.77 0 0 1 4.48-3.3z"></path>
+                                </svg>
+                                Sign in with Google
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Quiz Selection -->
+                <div id="quiz-selection" class="section" style="display: none;">
+                    <div class="section-header">
+                        <h2 class="section-title">Choose a Book Quiz</h2>
+                        <p class="section-subtitle">Select a book to test your knowledge</p>
+                    </div>
+                    <div id="quiz-list" class="card-grid">
+                        <!-- Quiz buttons will be populated here -->
+                    </div>
+                </div>
+
+                <!-- Quiz Section -->
+                <div id="quiz-section" class="section" style="display: none;">
+                    <div class="card">
+                        <div class="quiz-progress-header">
+                            <h2 id="quiz-title" class="section-title"></h2>
+                            <div class="progress-bar-container">
+                                <div class="progress-bar">
+                                    <div id="progress" class="progress-fill"></div>
+                                </div>
+                                <p class="progress-text">Question <span id="current-question">1</span> of <span id="total-questions">0</span></p>
+                            </div>
+                        </div>
+
+                        <div id="question-container" class="question-container">
+                            <h3 id="question-text" class="question-text"></h3>
+                            <div id="answers" class="answers-grid">
+                                <!-- Answer buttons will be populated here -->
+                            </div>
+                        </div>
+
+                        <div class="quiz-actions">
+                            <button id="back-btn" onclick="app.backToQuizzes()" class="btn-secondary">
+                                ← Back to Quizzes
+                            </button>
+                            <button id="next-btn" onclick="app.nextQuestion()" class="btn-primary" style="display: none;">
+                                Next Question →
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Results Section -->
+                <div id="results-section" class="section" style="display: none;">
+                    <div class="card results-card-container">
+                        <div class="results-header">
+                            <h2 class="section-title">Quiz Complete! 🎉</h2>
+                        </div>
+                        <div class="results-score-card">
+                            <div class="score-circle">
+                                <svg viewBox="0 0 140 140" class="score-svg">
+                                    <circle class="score-circle-bg" cx="70" cy="70" r="60"/>
+                                    <circle id="score-circle-fill" class="score-circle-fill" cx="70" cy="70" r="60"/>
+                                </svg>
+                                <div class="score-text">
+                                    <div class="score-value"><span id="score">0</span>/<span id="total">0</span></div>
+                                    <div class="score-label" id="percentage">0%</div>
+                                </div>
+                            </div>
+                            <p id="feedback-message" class="feedback-message"></p>
+                        </div>
+                        <div class="results-actions">
+                            <button onclick="app.retakeQuiz()" class="btn-primary">
+                                🔄 Try Again
+                            </button>
+                            <button onclick="app.backToQuizzes()" class="btn-secondary">
+                                ← Choose Another Quiz
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+
+    </div>
+
+    <!-- Bottom Navigation (Mobile) -->
+    <nav class="bottom-nav" id="bottom-nav" style="display: none;">
+        <a href="/" class="nav-item">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path>
+            </svg>
+            <span>Home</span>
+        </a>
+        <a href="/subjects" class="nav-item">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"></path>
+                <path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"></path>
+            </svg>
+            <span>Subjects</span>
+        </a>
+        <a href="/todos" class="nav-item">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <polyline points="9 11 12 14 22 4"></polyline>
+                <path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"></path>
+            </svg>
+            <span>To-Do</span>
+        </a>
+        <a href="/quiz" class="nav-item active">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path>
+                <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"></path>
+            </svg>
+            <span>Quizzes</span>
+        </a>
+    </nav>
+
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-database-compat.js"></script>
+
+    <!-- App Scripts -->
+    <script src="/firebase-config.js"></script>
+    <script src="/roles-loader.js"></script>
+    <script src="/toast.js"></script>
+    <script src="/quiz.js"></script>
+
+    <!-- Show navigation when logged in -->
+    <script>
+        firebase.auth().onAuthStateChanged((user) => {
+            if (user) {
+                document.getElementById('app-header').style.display = 'block';
+                document.getElementById('bottom-nav').style.display = 'flex';
+                document.getElementById('user-menu-header').style.display = 'flex';
+                document.getElementById('header-user-photo').src = user.photoURL || '';
+                document.getElementById('header-user-name').textContent = user.displayName || 'Student';
+            }
+        });
+    </script>
+</body>
+</html>

@@ -3,57 +3,141 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Subject - Homeschool Learning Hub</title>
-    <link rel="stylesheet" href="styles.css">
-    <link rel="stylesheet" href="dashboard-styles.css">
-    <link rel="stylesheet" href="subject-styles.css">
+    <title>Subject - Homeschool App</title>
+
+    <!-- Favicon & PWA -->
+    <link rel="icon" type="image/png" href="/icons/icon-192x192.png">
+    <link rel="manifest" href="/manifest.json">
+    <meta name="theme-color" content="#4d9e93">
+
+    <!-- 2026 Design System -->
+    <link rel="stylesheet" href="/design-system-2026.css" media="print" onload="this.media='all'">
+    <link rel="stylesheet" href="/app-chrome-2026.css" media="print" onload="this.media='all'">
+    <noscript>
+        <link rel="stylesheet" href="/design-system-2026.css">
+        <link rel="stylesheet" href="/app-chrome-2026.css">
+    </noscript>
+
+    <!-- Critical CSS for instant paint -->
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI', system-ui, sans-serif;
+            background: var(--color-background, #f8faf9);
+            color: var(--color-text-primary, #1a1f1d);
+            line-height: 1.6;
+            -webkit-font-smoothing: antialiased;
+        }
+    </style>
 </head>
 <body>
-    <div class="container">
-        <header id="subject-header">
-            <h1><span id="subject-icon">📖</span> <span id="subject-title">Loading...</span></h1>
-            <p class="subtitle" id="subject-description">Please wait...</p>
-        </header>
-
-        <div id="app">
-            <!-- Loading State -->
-            <div id="loading-section" class="section">
-                <h2>Loading...</h2>
-                <p>Please wait while we load your content.</p>
+    <!-- App Header (Desktop) -->
+    <header class="app-header" id="app-header">
+        <div class="header-content">
+            <div class="header-left">
+                <button onclick="window.location.href='/'" class="btn-icon" aria-label="Home">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path>
+                        <polyline points="9 22 9 12 15 12 15 22"></polyline>
+                    </svg>
+                </button>
+                <h1 class="header-title">
+                    <span id="subject-icon">📖</span>
+                    <span id="subject-title">Loading...</span>
+                </h1>
             </div>
-
-            <!-- Not Found State -->
-            <div id="not-found-section" class="section" style="display: none;">
-                <h2>⚠️ Subject Not Found</h2>
-                <p>This subject doesn't exist or hasn't been enabled yet.</p>
-                <button onclick="window.location.href='/'" class="btn btn-primary">← Back to Dashboard</button>
-            </div>
-
-            <!-- Subject Content -->
-            <div id="subject-section" style="display: none;">
-                <!-- User Bar -->
-                <div class="section user-bar">
-                    <button onclick="window.location.href='/'" class="btn btn-secondary">← Back to Dashboard</button>
-                    <div class="user-profile-small">
-                        <img id="user-photo" src="" alt="Profile" class="user-photo-small">
-                        <span id="user-name"></span>
-                    </div>
-                </div>
-
-                <!-- Sections Grid -->
-                <div class="section">
-                    <h2>Choose a Section</h2>
-                    <div id="sections-grid" class="sections-grid">
-                        <!-- Sections will be loaded dynamically -->
-                    </div>
-                    <div id="empty-sections" class="empty-state" style="display: none;">
-                        <h3>No sections available yet</h3>
-                        <p>Your teacher is still setting up this subject.</p>
-                    </div>
+            <div class="header-right">
+                <div class="user-menu" id="user-menu-header">
+                    <img id="header-user-photo" src="" alt="Profile" class="user-avatar">
+                    <span id="header-user-name"></span>
                 </div>
             </div>
         </div>
+    </header>
+
+    <div class="app-container">
+        <main class="main-content">
+            <div id="app">
+                <!-- Loading State -->
+                <div id="loading-section" class="section">
+                    <div class="card loading-card">
+                        <div class="loading-spinner"></div>
+                        <h2 class="loading-title">Loading...</h2>
+                        <p class="loading-subtitle">Please wait while we load your content.</p>
+                    </div>
+                </div>
+
+                <!-- Not Found State -->
+                <div id="not-found-section" class="section" style="display: none;">
+                    <div class="card empty-state-card">
+                        <div class="empty-icon">⚠️</div>
+                        <h2 class="empty-title">Subject Not Found</h2>
+                        <p class="empty-description">This subject doesn't exist or hasn't been enabled yet.</p>
+                        <button onclick="window.location.href='/'" class="btn-primary">
+                            ← Back to Dashboard
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Subject Content -->
+                <div id="subject-section" style="display: none;">
+                    <!-- Subject Header -->
+                    <div class="section">
+                        <div class="page-header">
+                            <p class="page-subtitle" id="subject-description">Loading description...</p>
+                        </div>
+                    </div>
+
+                    <!-- Sections Grid -->
+                    <div class="section">
+                        <div class="section-header">
+                            <h2 class="section-title">Choose a Section</h2>
+                            <p class="section-subtitle">Select a topic to explore</p>
+                        </div>
+                        <div id="sections-grid" class="card-grid">
+                            <!-- Sections will be loaded dynamically -->
+                        </div>
+                        <div id="empty-sections" class="card empty-state-card" style="display: none;">
+                            <div class="empty-icon">📚</div>
+                            <h3 class="empty-title">No sections available yet</h3>
+                            <p class="empty-description">Your teacher is still setting up this subject.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
     </div>
+
+    <!-- Bottom Navigation (Mobile) -->
+    <nav class="bottom-nav" id="bottom-nav">
+        <a href="/" class="nav-item">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path>
+            </svg>
+            <span>Home</span>
+        </a>
+        <a href="/subject.html" class="nav-item active">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"></path>
+                <path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"></path>
+            </svg>
+            <span>Subjects</span>
+        </a>
+        <a href="/todos.html" class="nav-item">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <polyline points="9 11 12 14 22 4"></polyline>
+                <path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"></path>
+            </svg>
+            <span>To-Do</span>
+        </a>
+        <a href="/quiz.html" class="nav-item">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path>
+                <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"></path>
+            </svg>
+            <span>Quizzes</span>
+        </a>
+    </nav>
 
     <!-- Firebase SDK -->
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
@@ -62,6 +146,18 @@
 
     <!-- App Scripts -->
     <script src="firebase-config.js"></script>
+    <script src="roles-loader.js"></script>
+    <script src="toast.js"></script>
     <script src="subject.js"></script>
+
+    <!-- Update user display -->
+    <script>
+        firebase.auth().onAuthStateChanged((user) => {
+            if (user) {
+                document.getElementById('header-user-photo').src = user.photoURL || '';
+                document.getElementById('header-user-name').textContent = user.displayName || 'Student';
+            }
+        });
+    </script>
 </body>
 </html>

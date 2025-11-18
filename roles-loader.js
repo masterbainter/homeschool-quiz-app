@@ -22,9 +22,10 @@ const RolesLoader = {
             const rolesData = snapshot.val();
 
             if (rolesData) {
-                this.roles.admins = rolesData.admins || ['techride.trevor@gmail.com'];
-                this.roles.teachers = rolesData.teachers || [];
-                this.roles.students = rolesData.students || [];
+                // Normalize all emails to lowercase for consistent comparison
+                this.roles.admins = (rolesData.admins || ['techride.trevor@gmail.com']).map(e => e.toLowerCase());
+                this.roles.teachers = (rolesData.teachers || []).map(e => e.toLowerCase());
+                this.roles.students = (rolesData.students || []).map(e => e.toLowerCase());
             } else {
                 // Use defaults if no roles in database yet
                 this.roles.admins = ['techride.trevor@gmail.com'];

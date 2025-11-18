@@ -15,6 +15,16 @@ const app = {
     init() {
         // Get URL parameters
         const urlParams = new URLSearchParams(window.location.search);
+
+        // Check if this is a direct quiz ID (for reading quizzes)
+        const directQuizId = urlParams.get('id');
+        if (directQuizId) {
+            this.directQuizId = directQuizId;
+            this.setupAuthListener();
+            return;
+        }
+
+        // Otherwise use the traditional subject/section/quiz structure
         this.subjectId = urlParams.get('subject');
         this.sectionId = urlParams.get('section');
         this.quizId = urlParams.get('quiz');
@@ -27,18 +37,6 @@ const app = {
         this.setupAuthListener();
     },
 
-    // List of allowed emails
-    isAllowedUser(email) {
-        const ALLOWED_EMAILS = [
-            'techride.trevor@gmail.com',
-            'iyoko.bainter@gmail.com',
-            'trevor.bainter@gmail.com',
-            'madmaxmadadax@gmail.com',
-            'sakurasaurusjade@gmail.com',
-        ];
-        return ALLOWED_EMAILS.includes(email.toLowerCase());
-    },
-
     // Firebase Authentication Listener
     setupAuthListener() {
         if (!firebase.apps.length) {
@@ -46,10 +44,15 @@ const app = {
             return;
         }
 
-        firebase.auth().onAuthStateChanged((user) => {
+        firebase.auth().onAuthStateChanged(async (user) => {
             if (user) {
-                // Check if user is allowed
-                if (!this.isAllowedUser(user.email)) {
+                // Load roles AFTER user is authenticated
+                await RolesLoader.load();
+
+                // Check if user is allowed using RolesLoader
+                if (!RolesLoader.isAllowedUser(user.email)) {
+                    console.error('Access denied for:', user.email);
+                    console.log('Current roles:', RolesLoader.roles);
                     alert('Access denied. This account is not authorized.');
                     firebase.auth().signOut();
                     window.location.href = '/';
@@ -70,24 +73,13 @@ const app = {
         });
     },
 
-    // List of admin emails
-    ADMIN_EMAILS: [
-        'techride.trevor@gmail.com'
-    ],
-
-    // List of teacher emails
-    TEACHER_EMAILS: [
-        'iyoko.bainter@gmail.com',
-        'trevor.bainter@gmail.com'
-    ],
-
     // Check if user is admin or teacher
     checkAdminStatus() {
         if (!this.currentUser) return;
 
         const userEmail = this.currentUser.email;
-        this.isAdmin = this.ADMIN_EMAILS.includes(userEmail);
-        this.isTeacher = this.TEACHER_EMAILS.includes(userEmail);
+        this.isAdmin = RolesLoader.isAdmin(userEmail);
+        this.isTeacher = RolesLoader.isTeacher(userEmail);
         this.updateAdminButton();
     },
 
@@ -157,6 +149,32 @@ const app = {
     // Load Quizzes from Firebase
     loadQuizzes() {
         const database = firebase.database();
+
+        // If this is a direct quiz ID (for reading quizzes), load it directly
+        if (this.directQuizId) {
+            database.ref(`quizzes/${this.directQuizId}`).once('value')
+                .then((snapshot) => {
+                    const quizData = snapshot.val();
+                    if (quizData) {
+                        const quiz = {
+                            id: this.directQuizId,
+                            ...quizData
+                        };
+                        this.startQuiz(quiz);
+                    } else {
+                        alert('Quiz not found');
+                        window.location.href = '/';
+                    }
+                })
+                .catch((error) => {
+                    console.error('Error loading quiz:', error);
+                    alert('Error loading quiz');
+                    window.location.href = '/';
+                });
+            return;
+        }
+
+        // Otherwise, load quizzes by subject/section
         database.ref('quizzes').once('value')
             .then((snapshot) => {
                 const quizzesData = snapshot.val();

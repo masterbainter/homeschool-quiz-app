@@ -23,7 +23,7 @@ const dashboard = {
 
                 // Check if user is allowed
                 if (!RolesLoader.isAllowedUser(user.email)) {
-                    alert('Access denied. This account is not authorized to use this app.\n\nPlease contact your teacher.');
+                    Toast.error('Access denied. This account is not authorized to use this app. Please contact your teacher.', 6000);
                     firebase.auth().signOut();
                     return;
                 }
@@ -120,7 +120,7 @@ const dashboard = {
         firebase.auth().signInWithPopup(provider)
             .catch((error) => {
                 console.error('Authentication error:', error);
-                alert('Sign in failed. Please try again.');
+                Toast.error('Sign in failed. Please try again.');
             });
     },
 
@@ -165,6 +165,9 @@ const dashboard = {
 
     // Load Curriculum from Firebase
     loadCurriculum() {
+        // Show loading skeleton
+        this.showSubjectsLoading();
+
         const database = firebase.database();
         database.ref('curriculum').on('value', (snapshot) => {
             const curriculumData = snapshot.val();
@@ -197,6 +200,20 @@ const dashboard = {
         }
     },
 
+    // Show loading skeleton for subjects
+    showSubjectsLoading() {
+        const subjectsGrid = document.getElementById('subjects-grid');
+        subjectsGrid.style.display = 'grid';
+        subjectsGrid.innerHTML = Array(6).fill(0).map(() => `
+            <div class="skeleton-card">
+                <div class="skeleton skeleton-circle" style="width: 48px; height: 48px; margin: 0 auto var(--space-4);"></div>
+                <div class="skeleton skeleton-text" style="height: 24px; width: 60%; margin: 0 auto var(--space-2);"></div>
+                <div class="skeleton skeleton-text" style="height: 16px; width: 80%; margin: 0 auto var(--space-2);"></div>
+                <div class="skeleton skeleton-text" style="height: 16px; width: 70%; margin: 0 auto;"></div>
+            </div>
+        `).join('');
+    },
+
     // Load reading assignments for current student
     loadReadingList() {
         const database = firebase.database();
@@ -223,13 +240,14 @@ const dashboard = {
                     <div class="book-card" onclick="dashboard.updateBookStatus('${book.bookId}', '${book.status}')">
                         ${book.coverImage ?
                             `<img src="${book.coverImage}" alt="${this.escapeHtml(book.bookTitle)}" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
-                             <div class="book-cover-placeholder" style="display:none;">📖</div>` :
-                            `<div class="book-cover-placeholder">📖</div>`
+                             <div class="book-cover-placeholder" style="display:none;"><svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg></div>` :
+                            `<div class="book-cover-placeholder"><svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg></div>`
                         }
                         <h3>${this.escapeHtml(book.bookTitle)}</h3>
                         <p>${this.escapeHtml(book.author)}</p>
                         <span class="book-status ${statusClass}">${statusText}</span>
                         ${book.pageCount ? `<p style="font-size: 0.85em; color: #999;">${book.pageCount} pages</p>` : ''}
+                        <p style="font-size: 0.85em; color: #999; margin-top: 10px;">Click to mark as ${book.status === 'assigned' ? 'Reading' : book.status === 'reading' ? 'Completed' : 'Assigned'}</p>
                     </div>
                 `;
             }).join('');
@@ -251,9 +269,12 @@ const dashboard = {
 
         database.ref(`reading-assignments/${this.currentUser.uid}/${bookId}/status`)
             .set(newStatus)
+            .then(() => {
+                Toast.success(`Book marked as ${newStatus}`);
+            })
             .catch((error) => {
                 console.error('Error updating book status:', error);
-                alert('Failed to update status. Please try again.');
+                Toast.error('Failed to update status. Please try again.');
             });
     },
 
@@ -312,8 +333,13 @@ const dashboard = {
                     const statusText = quiz.bestScore === null ? 'Not Started' :
                                       `${quiz.bestScore}% (${quiz.attempts} attempt${quiz.attempts > 1 ? 's' : ''})`;
 
+                    // Determine URL based on quiz type
+                    const quizUrl = quiz.id.startsWith('reading-')
+                        ? `/quiz.html?id=${quiz.id}`
+                        : `/${quiz.id.replace(/-/g, '/')}`;
+
                     return `
-                        <div class="quiz-card assignment-card" onclick="window.location.href='/${quiz.id.replace(/-/g, '/')}'">
+                        <div class="quiz-card assignment-card" onclick="window.location.href='${quizUrl}'">
                             <div style="display: flex; justify-content: space-between; align-items: start; margin-bottom: 10px;">
                                 <h3>${this.escapeHtml(quiz.title)}</h3>
                                 <span class="status-badge status-${statusClass}" style="font-size: 0.8em; padding: 4px 10px;">
@@ -334,15 +360,21 @@ const dashboard = {
                     style.id = 'assignment-card-styles';
                     style.textContent = `
                         .assignment-card {
-                            border: 2px solid #667eea;
+                            border: 2px solid var(--color-primary);
                             position: relative;
+                            background: var(--color-primary-light);
                         }
-                        .assignment-card::before {
-                            content: '📌';
+                        .assignment-card::after {
+                            content: 'Assigned';
                             position: absolute;
-                            top: 10px;
-                            right: 10px;
-                            font-size: 1.2em;
+                            top: var(--space-2);
+                            right: var(--space-2);
+                            font-size: 0.65rem;
+                            font-weight: 600;
+                            color: var(--color-primary);
+                            background: white;
+                            padding: var(--space-1) var(--space-2);
+                            border-radius: var(--radius-full);
                         }
                         .status-badge {
                             display: inline-block;
@@ -427,10 +459,14 @@ const dashboard = {
                 key => sections[key].enabled !== false
             ).length;
 
+            // Map subject icons to text initials instead of emojis
+            const iconText = subject.icon && subject.icon.length <= 2 ? subject.icon :
+                           (subject.title ? subject.title.substring(0, 2).toUpperCase() : 'SU');
+
             return `
                 <div class="subject-card ${subject.color || 'reading'} ${subject.enabled ? '' : 'disabled'}"
                      onclick="dashboard.goToSubject('${subject.id}')">
-                    <span class="subject-icon">${subject.icon || '📖'}</span>
+                    <div class="subject-icon">${iconText}</div>
                     <h3 class="subject-title">${this.escapeHtml(subject.title)}</h3>
                     <p class="subject-description">${this.escapeHtml(subject.description || '')}</p>
                     <p class="subject-sections-count">${sectionCount} ${sectionCount === 1 ? 'section' : 'sections'} available</p>

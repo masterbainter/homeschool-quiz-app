@@ -18,9 +18,11 @@ const teacher = {
             return;
         }
 
-        firebase.auth().onAuthStateChanged((user) => {
+        firebase.auth().onAuthStateChanged(async (user) => {
             if (user) {
                 this.currentUser = user;
+                // Load roles from Firebase first
+                await RolesLoader.load();
                 this.checkAdminStatus();
             } else {
                 // Not logged in, redirect to main app
@@ -29,22 +31,11 @@ const teacher = {
         });
     },
 
-    // List of admin emails (full access)
-    ADMIN_EMAILS: [
-        'techride.trevor@gmail.com'
-    ],
-
-    // List of teacher emails (all features except usage override/viewing)
-    TEACHER_EMAILS: [
-        'iyoko.bainter@gmail.com',
-        'trevor.bainter@gmail.com'
-    ],
-
     // Check if user has admin or teacher privileges
     checkAdminStatus() {
         const userEmail = this.currentUser.email;
-        this.isAdmin = this.ADMIN_EMAILS.includes(userEmail);
-        this.isTeacher = this.TEACHER_EMAILS.includes(userEmail);
+        this.isAdmin = RolesLoader.isAdmin(userEmail);
+        this.isTeacher = RolesLoader.isTeacher(userEmail);
 
         if (this.isAdmin || this.isTeacher) {
             this.showTeacherPanel();
@@ -165,10 +156,12 @@ const teacher = {
         database.ref('quizzes').on('value', (snapshot) => {
             const quizzesData = snapshot.val();
             if (quizzesData) {
-                this.quizzes = Object.keys(quizzesData).map(key => ({
-                    id: key,
-                    ...quizzesData[key]
-                }));
+                this.quizzes = Object.keys(quizzesData)
+                    .map(key => ({
+                        id: key,
+                        ...quizzesData[key]
+                    }))
+                    .filter(quiz => !quiz.archived); // Filter out archived quizzes
             } else {
                 this.quizzes = [];
             }
@@ -194,15 +187,16 @@ const teacher = {
         this.quizzes.forEach(quiz => {
             const quizItem = document.createElement('div');
             quizItem.className = 'quiz-item';
+            quizItem.style.cursor = 'pointer';
             quizItem.innerHTML = `
-                <div class="quiz-item-header">
+                <div class="quiz-item-header" onclick="teacher.showQuizDetails('${quiz.id}')">
                     <div class="quiz-item-info">
                         <h3>${quiz.title}</h3>
                         <p>${quiz.description || 'No description'}</p>
                         <p><strong>${quiz.questions.length}</strong> questions</p>
                     </div>
-                    <div class="quiz-item-actions">
-                        <button onclick="teacher.editQuiz('${quiz.id}')" class="btn btn-small btn-edit">Edit</button>
+                    <div class="quiz-item-actions" onclick="event.stopPropagation()">
+                        <button onclick="teacher.showQuizDetails('${quiz.id}')" class="btn btn-small" style="background: #667eea;">View Details</button>
                         <button onclick="teacher.deleteQuiz('${quiz.id}', '${quiz.title.replace(/'/g, "\\'")}')" class="btn btn-small btn-danger">Delete</button>
                     </div>
                 </div>
@@ -256,7 +250,7 @@ const teacher = {
         const context = document.getElementById('ai-context').value.trim();
 
         if (!bookTitle) {
-            alert('Please enter a book title');
+            Toast.warning('Please enter a book title');
             return;
         }
 
@@ -310,13 +304,9 @@ const teacher = {
 
             // Show teacher warning if present
             if (warning) {
-                alert(
-                    `✨ Quiz generated successfully!\n\n` +
-                    `⚠️ USAGE WARNING:\n${warning.message}\n\n` +
-                    `Review and edit the quiz as needed before saving.`
-                );
+                Toast.warning(`${warning.message} Review and edit before saving.`, 8000);
             } else {
-                alert('Quiz generated successfully! Review and edit as needed before saving.');
+                Toast.success('Quiz generated successfully! Review and edit as needed before saving.', 6000);
             }
 
         } catch (error) {
@@ -345,11 +335,7 @@ const teacher = {
                     }
                 } else {
                     // Teachers cannot override
-                    alert(
-                        `⚠️ DAILY LIMIT REACHED\n\n` +
-                        `${error.message}\n\n` +
-                        `Please contact the admin (techride.trevor@gmail.com) if you need to generate more quizzes today.`
-                    );
+                    Toast.error(`${error.message} Please contact the admin (techride.trevor@gmail.com) if you need to generate more quizzes today.`, 10000);
                 }
                 return;
             }
@@ -367,7 +353,7 @@ const teacher = {
                 errorMessage += error.message || 'Please try again or use manual entry.';
             }
 
-            alert(errorMessage);
+            Toast.error(errorMessage, 6000);
             this.switchToManual();
         } finally {
             document.getElementById('generate-btn').disabled = false;
@@ -377,9 +363,17 @@ const teacher = {
 
     // Edit existing quiz
     editQuiz(quizId) {
-        const quiz = this.quizzes.find(q => q.id === quizId);
-        if (!quiz) return;
+        console.log('Edit quiz clicked:', quizId);
+        console.log('Available quizzes:', this.quizzes.map(q => q.id));
 
+        const quiz = this.quizzes.find(q => q.id === quizId);
+        if (!quiz) {
+            console.error('Quiz not found:', quizId);
+            Toast.error('Quiz not found. Please refresh the page and try again.');
+            return;
+        }
+
+        console.log('Editing quiz:', quiz);
         this.editingQuizId = quizId;
         document.getElementById('form-title').textContent = 'Edit Quiz';
         document.getElementById('quiz-title').value = quiz.title;
@@ -392,6 +386,9 @@ const teacher = {
         quiz.questions.forEach((question, index) => {
             this.addQuestion(question);
         });
+
+        // Show manual form (not AI generator) for editing
+        this.showManualForm();
 
         document.getElementById('quiz-form-section').style.display = 'block';
         document.getElementById('quiz-form-section').scrollIntoView({ behavior: 'smooth' });
@@ -483,7 +480,7 @@ const teacher = {
         });
 
         if (questions.length === 0) {
-            alert('Please add at least one question!');
+            Toast.warning('Please add at least one question!');
             return;
         }
 
@@ -511,12 +508,12 @@ const teacher = {
 
         savePromise
             .then(() => {
-                alert(this.editingQuizId ? 'Quiz updated successfully!' : 'Quiz created successfully!');
+                Toast.success(this.editingQuizId ? 'Quiz updated successfully!' : 'Quiz created successfully!');
                 this.cancelEdit();
             })
             .catch((error) => {
                 console.error('Error saving quiz:', error);
-                alert('Error saving quiz. Please try again.');
+                Toast.error('Error saving quiz. Please try again.');
             });
     },
 
@@ -529,11 +526,11 @@ const teacher = {
         const database = firebase.database();
         database.ref(`quizzes/${quizId}`).remove()
             .then(() => {
-                alert('Quiz deleted successfully!');
+                Toast.success('Quiz deleted successfully!');
             })
             .catch((error) => {
                 console.error('Error deleting quiz:', error);
-                alert('Error deleting quiz. Please try again.');
+                Toast.error('Error deleting quiz. Please try again.');
             });
     },
 
@@ -543,6 +540,186 @@ const teacher = {
         document.getElementById('quiz-form-section').style.display = 'none';
         document.getElementById('quiz-form').reset();
         window.scrollTo({ top: 0, behavior: 'smooth' });
+    },
+
+    // Show quiz details modal
+    async showQuizDetails(quizId) {
+        const quiz = this.quizzes.find(q => q.id === quizId);
+        if (!quiz) {
+            Toast.error('Quiz not found');
+            return;
+        }
+
+        this.selectedQuizId = quizId;
+
+        // Set quiz info in modal
+        document.getElementById('modal-quiz-title').textContent = quiz.title;
+        document.getElementById('modal-quiz-description').textContent = quiz.description || 'No description';
+        document.getElementById('modal-quiz-questions').textContent = `${quiz.questions.length} questions`;
+
+        // Render quiz preview
+        this.renderQuizPreview(quiz);
+
+        // Load assignments
+        await this.loadQuizAssignments(quizId);
+
+        // Show modal
+        document.getElementById('quiz-details-modal').classList.add('active');
+    },
+
+    // Render quiz preview
+    renderQuizPreview(quiz) {
+        const previewContainer = document.getElementById('modal-quiz-preview');
+
+        const questionsHtml = quiz.questions.map((q, index) => {
+            const correctOption = q.options[q.correctAnswer];
+            return `
+                <div style="background: white; padding: 15px; border: 1px solid #ddd; border-radius: 8px; margin-bottom: 15px;">
+                    <p style="font-weight: 600; color: #333; margin: 0 0 10px 0;">
+                        ${index + 1}. ${this.escapeHtml(q.question)}
+                    </p>
+                    <div style="padding-left: 15px;">
+                        ${q.options.map((option, optIndex) => {
+                            const isCorrect = optIndex === q.correctAnswer;
+                            return `
+                                <div style="padding: 5px 0; color: ${isCorrect ? '#27ae60' : '#666'};">
+                                    ${String.fromCharCode(65 + optIndex)}. ${this.escapeHtml(option)}
+                                    ${isCorrect ? ' ✓' : ''}
+                                </div>
+                            `;
+                        }).join('')}
+                    </div>
+                    <p style="margin: 10px 0 0 0; padding: 8px; background: #e8f5e9; border-radius: 4px; font-size: 0.85em; color: #27ae60;">
+                        <strong>Correct Answer:</strong> ${String.fromCharCode(65 + q.correctAnswer)}. ${this.escapeHtml(correctOption)}
+                    </p>
+                </div>
+            `;
+        }).join('');
+
+        previewContainer.innerHTML = questionsHtml;
+    },
+
+    // Load quiz assignments
+    async loadQuizAssignments(quizId) {
+        const database = firebase.database();
+        const assignmentsContainer = document.getElementById('modal-assigned-students');
+        assignmentsContainer.innerHTML = '<p style="color: #999;">Loading...</p>';
+
+        try {
+            // Get all users
+            const usersSnapshot = await database.ref('users').once('value');
+            const users = usersSnapshot.val() || {};
+
+            // Get all assignments
+            const assignmentsSnapshot = await database.ref('assignments').once('value');
+            const allAssignments = assignmentsSnapshot.val() || {};
+
+            // Find students with this quiz assigned
+            const assignedStudents = [];
+            Object.keys(allAssignments).forEach(userId => {
+                const userAssignments = allAssignments[userId];
+                if (userAssignments && userAssignments[quizId]) {
+                    const user = users[userId];
+                    assignedStudents.push({
+                        userId: userId,
+                        name: user ? (user.displayName || user.email) : 'Unknown User',
+                        email: user ? user.email : '',
+                        assignedDate: userAssignments[quizId].assignedDate
+                    });
+                }
+            });
+
+            // Render student list
+            if (assignedStudents.length === 0) {
+                assignmentsContainer.innerHTML = '<p style="color: #999; font-style: italic;">No students assigned yet</p>';
+            } else {
+                assignmentsContainer.innerHTML = assignedStudents.map(student => `
+                    <div style="display: flex; justify-content: space-between; align-items: center; padding: 12px; background: white; border: 1px solid #ddd; border-radius: 6px; margin-bottom: 8px;">
+                        <div>
+                            <strong>${this.escapeHtml(student.name)}</strong>
+                            <p style="margin: 5px 0 0 0; font-size: 0.85em; color: #666;">
+                                Assigned: ${new Date(student.assignedDate).toLocaleDateString()}
+                            </p>
+                        </div>
+                        <button onclick="teacher.unassignStudent('${student.userId}', '${this.selectedQuizId}', '${this.escapeHtml(student.name)}')"
+                                class="btn btn-small btn-danger">
+                            Unassign
+                        </button>
+                    </div>
+                `).join('');
+            }
+        } catch (error) {
+            console.error('Error loading assignments:', error);
+            assignmentsContainer.innerHTML = '<p style="color: #e74c3c;">Error loading assignments</p>';
+        }
+    },
+
+    // Unassign student from quiz
+    async unassignStudent(userId, quizId, studentName) {
+        if (!confirm(`Unassign this quiz from ${studentName}?`)) {
+            return;
+        }
+
+        try {
+            const database = firebase.database();
+            await database.ref(`assignments/${userId}/${quizId}`).remove();
+
+            Toast.success(`Quiz unassigned from ${studentName}`);
+
+            // Reload assignments in modal
+            await this.loadQuizAssignments(quizId);
+        } catch (error) {
+            console.error('Error unassigning student:', error);
+            Toast.error('Failed to unassign student. Please try again.');
+        }
+    },
+
+    // Edit quiz from modal
+    editQuizFromModal() {
+        this.closeQuizDetailsModal();
+        this.editQuiz(this.selectedQuizId);
+    },
+
+    // Archive quiz
+    async archiveQuiz() {
+        const quiz = this.quizzes.find(q => q.id === this.selectedQuizId);
+        if (!quiz) return;
+
+        if (!confirm(`Archive "${quiz.title}"?\n\nArchived quizzes will be hidden from the main list but students can still take assigned quizzes.`)) {
+            return;
+        }
+
+        try {
+            const database = firebase.database();
+
+            // Add archived flag to quiz
+            await database.ref(`quizzes/${this.selectedQuizId}/archived`).set(true);
+            await database.ref(`quizzes/${this.selectedQuizId}/archivedDate`).set(new Date().toISOString());
+
+            Toast.success(`"${quiz.title}" has been archived`);
+
+            this.closeQuizDetailsModal();
+
+            // Reload quizzes (will filter out archived ones)
+            this.loadQuizzes();
+        } catch (error) {
+            console.error('Error archiving quiz:', error);
+            Toast.error('Failed to archive quiz. Please try again.');
+        }
+    },
+
+    // Close quiz details modal
+    closeQuizDetailsModal() {
+        document.getElementById('quiz-details-modal').classList.remove('active');
+        this.selectedQuizId = null;
+    },
+
+    // Helper: Escape HTML
+    escapeHtml(text) {
+        if (!text) return '';
+        const div = document.createElement('div');
+        div.textContent = text;
+        return div.innerHTML;
     }
 };
 

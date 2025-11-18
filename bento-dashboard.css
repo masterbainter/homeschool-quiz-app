@@ -1,0 +1,647 @@
+/**
+ * ============================================
+ * BENTO DASHBOARD - Modular Grid System
+ * ============================================
+ *
+ * Beautiful, responsive, drag-and-drop dashboard
+ * Inspired by Apple's Bento Box design
+ * Perfect auto-reflow on mobile
+ */
+
+/* ==========================================
+   DASHBOARD CONTAINER
+   ========================================== */
+
+.bento-dashboard {
+  width: 100%;
+  max-width: var(--container-2xl);
+  margin: 0 auto;
+  padding: var(--space-6);
+  min-height: 100vh;
+}
+
+.bento-header {
+  margin-bottom: var(--space-8);
+  animation: fade-in-up 0.6s var(--ease-smooth) backwards;
+}
+
+.bento-welcome {
+  font-size: var(--text-4xl);
+  font-weight: var(--font-bold);
+  color: var(--color-text-primary);
+  margin-bottom: var(--space-2);
+  letter-spacing: -0.02em;
+}
+
+.bento-subtitle {
+  font-size: var(--text-lg);
+  color: var(--color-text-secondary);
+  font-weight: var(--font-normal);
+}
+
+/* ==========================================
+   BENTO GRID - CSS Grid Layout
+   ========================================== */
+
+.bento-grid {
+  display: grid;
+  gap: var(--space-4);
+  grid-template-columns: repeat(12, 1fr);
+  grid-auto-rows: minmax(120px, auto);
+  position: relative;
+}
+
+/* Tablet layout */
+@media (max-width: 1024px) {
+  .bento-grid {
+    grid-template-columns: repeat(6, 1fr);
+    gap: var(--space-3);
+  }
+}
+
+/* Mobile layout */
+@media (max-width: 640px) {
+  .bento-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: var(--space-3);
+  }
+
+  .bento-dashboard {
+    padding: var(--space-4);
+  }
+}
+
+/* ==========================================
+   BENTO TILE - Base Component
+   ========================================== */
+
+.bento-tile {
+  background: var(--color-surface);
+  border-radius: var(--radius-2xl);
+  padding: var(--space-6);
+  box-shadow: var(--shadow-md);
+  border: 1px solid var(--color-border);
+  position: relative;
+  overflow: hidden;
+  transition: all var(--transition-base);
+  cursor: pointer;
+  user-select: none;
+  display: flex;
+  flex-direction: column;
+  animation: fade-in-up 0.6s var(--ease-smooth) backwards;
+}
+
+.bento-tile:hover {
+  box-shadow: var(--shadow-lg);
+  transform: translateY(-4px);
+  border-color: var(--color-primary-500);
+}
+
+.bento-tile:active {
+  transform: scale(0.98);
+}
+
+/* Dragging state */
+.bento-tile.dragging {
+  opacity: 0.5;
+  cursor: grabbing;
+  transform: rotate(2deg) scale(1.05);
+  box-shadow: var(--shadow-2xl);
+  z-index: var(--z-modal);
+}
+
+.bento-tile.drag-over {
+  border: 2px dashed var(--color-primary-500);
+  background-color: var(--color-primary-50);
+}
+
+/* ==========================================
+   TILE SIZES - Grid Spans
+   ========================================== */
+
+/* Small tiles - 1x1 */
+.tile-small {
+  grid-column: span 2;
+  grid-row: span 1;
+}
+
+/* Medium tiles - 2x1 */
+.tile-medium {
+  grid-column: span 4;
+  grid-row: span 1;
+}
+
+/* Large tiles - 2x2 */
+.tile-large {
+  grid-column: span 4;
+  grid-row: span 2;
+}
+
+/* Wide tiles - 3x1 */
+.tile-wide {
+  grid-column: span 6;
+  grid-row: span 1;
+}
+
+/* Hero tiles - 3x2 */
+.tile-hero {
+  grid-column: span 6;
+  grid-row: span 2;
+}
+
+/* Full width tiles */
+.tile-full {
+  grid-column: span 12;
+  grid-row: span 1;
+}
+
+/* Responsive tile sizes */
+@media (max-width: 1024px) {
+  .tile-small { grid-column: span 2; }
+  .tile-medium { grid-column: span 3; }
+  .tile-large { grid-column: span 3; grid-row: span 2; }
+  .tile-wide { grid-column: span 6; }
+  .tile-hero { grid-column: span 6; grid-row: span 2; }
+  .tile-full { grid-column: span 6; }
+}
+
+@media (max-width: 640px) {
+  .tile-small,
+  .tile-medium,
+  .tile-large,
+  .tile-wide,
+  .tile-hero,
+  .tile-full {
+    grid-column: span 2;
+    grid-row: span 1;
+  }
+
+  /* Keep hero tiles taller on mobile */
+  .tile-hero {
+    grid-row: span 2;
+  }
+}
+
+/* ==========================================
+   TILE HEADER
+   ========================================== */
+
+.tile-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: var(--space-4);
+}
+
+.tile-title {
+  font-size: var(--text-lg);
+  font-weight: var(--font-semibold);
+  color: var(--color-text-primary);
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+.tile-icon {
+  font-size: var(--text-2xl);
+  flex-shrink: 0;
+}
+
+.tile-actions {
+  display: flex;
+  gap: var(--space-2);
+}
+
+.tile-drag-handle {
+  cursor: grab;
+  padding: var(--space-2);
+  color: var(--color-text-tertiary);
+  border-radius: var(--radius-md);
+  transition: all var(--transition-fast);
+  touch-action: none;
+}
+
+.tile-drag-handle:hover {
+  background-color: var(--color-overlay);
+  color: var(--color-text-secondary);
+}
+
+.tile-drag-handle:active {
+  cursor: grabbing;
+}
+
+/* ==========================================
+   TILE CONTENT
+   ========================================== */
+
+.tile-content {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+/* ==========================================
+   PROGRESS TILE - Circular Progress
+   ========================================== */
+
+.progress-tile .tile-content {
+  align-items: center;
+  justify-content: center;
+}
+
+.progress-circle {
+  position: relative;
+  width: 120px;
+  height: 120px;
+}
+
+.progress-circle svg {
+  transform: rotate(-90deg);
+  width: 100%;
+  height: 100%;
+}
+
+.progress-circle-bg {
+  fill: none;
+  stroke: var(--color-neutral-200);
+  stroke-width: 8;
+}
+
+.progress-circle-fill {
+  fill: none;
+  stroke: var(--color-primary-500);
+  stroke-width: 8;
+  stroke-linecap: round;
+  stroke-dasharray: 377; /* 2 * PI * 60 */
+  stroke-dashoffset: 377;
+  transition: stroke-dashoffset 1s var(--ease-smooth);
+}
+
+.progress-text {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  text-align: center;
+}
+
+.progress-percentage {
+  font-size: var(--text-3xl);
+  font-weight: var(--font-bold);
+  color: var(--color-text-primary);
+  line-height: 1;
+}
+
+.progress-label {
+  font-size: var(--text-sm);
+  color: var(--color-text-secondary);
+  margin-top: var(--space-1);
+}
+
+/* ==========================================
+   STREAK TILE - Gamification
+   ========================================== */
+
+.streak-tile {
+  background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
+  border-color: #fbbf24;
+}
+
+.streak-tile:hover {
+  border-color: #f59e0b;
+}
+
+.streak-number {
+  font-size: var(--text-5xl);
+  font-weight: var(--font-bold);
+  background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  line-height: 1;
+  margin-bottom: var(--space-2);
+}
+
+.streak-label {
+  font-size: var(--text-lg);
+  color: #92400e;
+  font-weight: var(--font-medium);
+}
+
+.streak-flames {
+  display: flex;
+  gap: var(--space-1);
+  margin-top: var(--space-3);
+  font-size: var(--text-2xl);
+}
+
+/* ==========================================
+   TODAY'S LESSONS TILE - Task List
+   ========================================== */
+
+.lessons-list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+}
+
+.lesson-item {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  padding: var(--space-3);
+  background: var(--color-neutral-50);
+  border-radius: var(--radius-lg);
+  transition: all var(--transition-fast);
+}
+
+.lesson-item:hover {
+  background: var(--color-neutral-100);
+  transform: translateX(4px);
+}
+
+.lesson-checkbox {
+  width: 20px;
+  height: 20px;
+  border: 2px solid var(--color-neutral-400);
+  border-radius: 50%;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all var(--transition-base);
+}
+
+.lesson-item.completed .lesson-checkbox {
+  background: var(--color-success-500);
+  border-color: var(--color-success-500);
+}
+
+.lesson-item.completed .lesson-checkbox::after {
+  content: "✓";
+  color: white;
+  font-size: var(--text-sm);
+  font-weight: var(--font-bold);
+}
+
+.lesson-info {
+  flex: 1;
+  min-width: 0;
+}
+
+.lesson-title {
+  font-size: var(--text-base);
+  font-weight: var(--font-medium);
+  color: var(--color-text-primary);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.lesson-item.completed .lesson-title {
+  text-decoration: line-through;
+  color: var(--color-text-tertiary);
+}
+
+.lesson-subject {
+  font-size: var(--text-sm);
+  color: var(--color-text-secondary);
+}
+
+/* ==========================================
+   STATS TILE - Key Metrics
+   ========================================== */
+
+.stats-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: var(--space-4);
+}
+
+.stat-item {
+  text-align: center;
+}
+
+.stat-value {
+  font-size: var(--text-3xl);
+  font-weight: var(--font-bold);
+  color: var(--color-text-primary);
+  line-height: 1;
+  margin-bottom: var(--space-1);
+}
+
+.stat-label {
+  font-size: var(--text-sm);
+  color: var(--color-text-secondary);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+/* ==========================================
+   QUICK ACTIONS TILE - CTA Buttons
+   ========================================== */
+
+.quick-actions {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+}
+
+.quick-action-btn {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  padding: var(--space-4);
+  background: var(--color-neutral-50);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  font-size: var(--text-base);
+  font-weight: var(--font-medium);
+  color: var(--color-text-primary);
+  transition: all var(--transition-base);
+  cursor: pointer;
+}
+
+.quick-action-btn:hover {
+  background: var(--color-primary-50);
+  border-color: var(--color-primary-500);
+  transform: translateX(4px);
+}
+
+.quick-action-icon {
+  font-size: var(--text-2xl);
+}
+
+/* ==========================================
+   ACHIEVEMENT TILE - Celebration
+   ========================================== */
+
+.achievement-tile {
+  background: linear-gradient(135deg, #dbeafe 0%, #bfdbfe 100%);
+  border-color: #60a5fa;
+}
+
+.achievement-badge {
+  font-size: 64px;
+  text-align: center;
+  margin-bottom: var(--space-3);
+  animation: badge-bounce 0.8s var(--ease-spring);
+}
+
+@keyframes badge-bounce {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.1); }
+}
+
+.achievement-title {
+  font-size: var(--text-xl);
+  font-weight: var(--font-bold);
+  color: #1e40af;
+  text-align: center;
+  margin-bottom: var(--space-2);
+}
+
+.achievement-description {
+  font-size: var(--text-sm);
+  color: #3b82f6;
+  text-align: center;
+}
+
+/* ==========================================
+   CALENDAR TILE - Upcoming Events
+   ========================================== */
+
+.calendar-events {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+.calendar-event {
+  display: flex;
+  gap: var(--space-3);
+  padding: var(--space-3);
+  border-left: 3px solid var(--color-primary-500);
+  background: var(--color-neutral-50);
+  border-radius: 0 var(--radius-md) var(--radius-md) 0;
+}
+
+.event-date {
+  font-size: var(--text-sm);
+  font-weight: var(--font-semibold);
+  color: var(--color-primary-500);
+  min-width: 60px;
+}
+
+.event-title {
+  font-size: var(--text-base);
+  color: var(--color-text-primary);
+}
+
+/* ==========================================
+   ANIMATIONS - Smooth Entry
+   ========================================== */
+
+@keyframes fade-in-up {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Stagger animation for tiles */
+.bento-tile:nth-child(1) { animation-delay: 0.05s; }
+.bento-tile:nth-child(2) { animation-delay: 0.1s; }
+.bento-tile:nth-child(3) { animation-delay: 0.15s; }
+.bento-tile:nth-child(4) { animation-delay: 0.2s; }
+.bento-tile:nth-child(5) { animation-delay: 0.25s; }
+.bento-tile:nth-child(6) { animation-delay: 0.3s; }
+.bento-tile:nth-child(7) { animation-delay: 0.35s; }
+.bento-tile:nth-child(8) { animation-delay: 0.4s; }
+
+/* ==========================================
+   EMPTY STATE
+   ========================================== */
+
+.bento-empty {
+  grid-column: 1 / -1;
+  text-align: center;
+  padding: var(--space-12);
+  color: var(--color-text-secondary);
+}
+
+.empty-icon {
+  font-size: 64px;
+  margin-bottom: var(--space-4);
+  opacity: 0.5;
+}
+
+.empty-title {
+  font-size: var(--text-2xl);
+  font-weight: var(--font-semibold);
+  color: var(--color-text-primary);
+  margin-bottom: var(--space-2);
+}
+
+.empty-description {
+  font-size: var(--text-lg);
+  color: var(--color-text-secondary);
+  margin-bottom: var(--space-6);
+}
+
+/* ==========================================
+   LOADING STATES
+   ========================================== */
+
+.tile-skeleton {
+  background: linear-gradient(
+    90deg,
+    var(--color-neutral-100) 25%,
+    var(--color-neutral-50) 50%,
+    var(--color-neutral-100) 75%
+  );
+  background-size: 200% 100%;
+  animation: skeleton-pulse 1.5s ease-in-out infinite;
+  min-height: 200px;
+}
+
+/* ==========================================
+   DARK MODE OVERRIDES
+   ========================================== */
+
+@media (prefers-color-scheme: dark) {
+  .lesson-item,
+  .quick-action-btn,
+  .calendar-event {
+    background: var(--color-neutral-800);
+  }
+
+  .lesson-item:hover {
+    background: var(--color-neutral-700);
+  }
+
+  .streak-tile {
+    background: linear-gradient(135deg, #78350f 0%, #451a03 100%);
+  }
+
+  .streak-label {
+    color: #fef3c7;
+  }
+
+  .achievement-tile {
+    background: linear-gradient(135deg, #1e3a8a 0%, #1e40af 100%);
+  }
+
+  .achievement-title {
+    color: #bfdbfe;
+  }
+
+  .achievement-description {
+    color: #93c5fd;
+  }
+}

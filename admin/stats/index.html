@@ -223,18 +223,29 @@
 
     <!-- App Scripts -->
     <script src="../../firebase-config.js"></script>
+    <script src="../../roles-loader.js"></script>
     <script>
         const stats = {
             currentUser: null,
 
             init() {
                 // Check auth
-                firebase.auth().onAuthStateChanged((user) => {
-                    if (!user || user.email !== 'techride.trevor@gmail.com') {
+                firebase.auth().onAuthStateChanged(async (user) => {
+                    if (!user) {
                         alert('Access denied. Admin only.');
                         window.location.href = '/admin';
                         return;
                     }
+
+                    // Load roles from Firebase
+                    await RolesLoader.load();
+
+                    if (!RolesLoader.isAdmin(user.email)) {
+                        alert('Access denied. Admin only.');
+                        window.location.href = '/admin';
+                        return;
+                    }
+
                     this.currentUser = user;
                     this.loadStats();
                 });

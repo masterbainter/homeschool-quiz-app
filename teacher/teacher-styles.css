@@ -1,33 +1,33 @@
-/* Admin-specific styles */
+/* Teacher Panel - Modern 2025 Design */
 
 .admin-nav {
     display: flex;
     justify-content: space-between;
     align-items: center;
     flex-wrap: wrap;
-    gap: 15px;
+    gap: var(--space-3);
 }
 
 .admin-user-info {
     display: flex;
     align-items: center;
-    gap: 10px;
+    gap: var(--space-2);
 }
 
 .user-photo-small {
     width: 40px;
     height: 40px;
-    border-radius: 50%;
-    border: 2px solid #667eea;
+    border-radius: var(--radius-full);
+    border: 2px solid var(--color-border);
 }
 
 .section-header {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    margin-bottom: 20px;
+    margin-bottom: var(--space-5);
     flex-wrap: wrap;
-    gap: 15px;
+    gap: var(--space-3);
 }
 
 .section-header h2 {
@@ -37,114 +37,93 @@
 /* Quiz List */
 .admin-quiz-list {
     display: grid;
-    gap: 15px;
+    gap: var(--space-3);
 }
 
 .quiz-item {
-    background: #f9f9f9;
-    padding: 20px;
-    border-radius: 10px;
-    border: 2px solid #e0e0e0;
-    transition: all 0.3s;
+    background: var(--color-surface);
+    padding: var(--space-4);
+    border-radius: var(--radius-lg);
+    border: 1px solid var(--color-border);
+    transition: all var(--transition-base);
+    box-shadow: var(--shadow-sm);
 }
 
 .quiz-item:hover {
-    border-color: #667eea;
-    box-shadow: 0 3px 10px rgba(102, 126, 234, 0.1);
+    border-color: var(--color-primary);
+    box-shadow: var(--shadow-md);
+    transform: translateY(-1px);
 }
 
 .quiz-item-header {
     display: flex;
     justify-content: space-between;
     align-items: flex-start;
-    margin-bottom: 10px;
+    margin-bottom: var(--space-2);
 }
 
 .quiz-item-info h3 {
-    color: #667eea;
-    margin-bottom: 5px;
+    color: var(--color-text-primary);
+    margin-bottom: var(--space-1);
+    font-weight: 600;
 }
 
 .quiz-item-info p {
-    color: #666;
-    font-size: 0.9em;
-    margin-bottom: 5px;
+    color: var(--color-text-secondary);
+    font-size: 0.875rem;
+    margin-bottom: var(--space-1);
 }
 
 .quiz-item-actions {
     display: flex;
-    gap: 10px;
+    gap: var(--space-2);
 }
 
 .btn-small {
-    padding: 8px 16px;
-    font-size: 0.9em;
+    padding: var(--space-2) var(--space-3);
+    font-size: 0.875rem;
 }
 
-.btn-danger {
-    background: #f44336;
-    color: white;
-}
+/* Use design-system.css button variants instead of custom styles */
 
-.btn-danger:hover {
-    background: #d32f2f;
-}
-
-.btn-edit {
-    background: #667eea;
-    color: white;
-}
-
-.btn-edit:hover {
-    background: #5568d3;
-}
-
-.btn-admin {
-    background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
-    color: white;
-}
-
-.btn-admin:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 5px 15px rgba(245, 87, 108, 0.4);
-}
-
-/* Form Styles */
+/* Form Styles - use design-system.css form inputs */
 .form-group {
-    margin-bottom: 20px;
+    margin-bottom: var(--space-4);
 }
 
 .form-group label {
     display: block;
-    margin-bottom: 8px;
-    color: #333;
+    margin-bottom: var(--space-2);
+    color: var(--color-text-primary);
     font-weight: 600;
+    font-size: 0.875rem;
 }
 
-.form-group input[type="text"],
-.form-group textarea {
+.form-group select {
     width: 100%;
-    padding: 12px;
-    font-size: 1em;
-    border: 2px solid #e0e0e0;
-    border-radius: 8px;
-    transition: border-color 0.3s;
-    font-family: inherit;
+    padding: var(--space-3);
+    font-size: 1rem;
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-md);
+    transition: all var(--transition-fast);
+    font-family: var(--font-sans);
+    background: var(--color-surface);
+    color: var(--color-text-primary);
 }
 
-.form-group input:focus,
-.form-group textarea:focus {
+.form-group select:focus {
     outline: none;
-    border-color: #667eea;
+    border-color: var(--color-primary);
+    box-shadow: 0 0 0 3px var(--color-primary-light);
 }
 
 /* Question Builder */
 .question-item {
-    background: #f9f9f9;
-    padding: 20px;
-    border-radius: 10px;
-    margin-bottom: 15px;
-    border: 2px solid #e0e0e0;
+    background: var(--color-surface-secondary);
+    padding: var(--space-4);
+    border-radius: var(--radius-lg);
+    margin-bottom: var(--space-3);
+    border: 1px solid var(--color-border);
     position: relative;
 }
 
@@ -152,75 +131,60 @@
     display: flex;
     justify-content: space-between;
     align-items: center;
-    margin-bottom: 15px;
+    margin-bottom: var(--space-3);
 }
 
 .question-header h4 {
-    color: #667eea;
+    color: var(--color-text-primary);
     margin: 0;
-}
-
-.btn-remove {
-    background: #f44336;
-    color: white;
-    padding: 6px 12px;
-    font-size: 0.85em;
-    border: none;
-    border-radius: 5px;
-    cursor: pointer;
-}
-
-.btn-remove:hover {
-    background: #d32f2f;
+    font-weight: 600;
 }
 
 .question-text-input {
     width: 100%;
-    padding: 10px;
-    margin-bottom: 15px;
-    font-size: 1em;
-    border: 2px solid #e0e0e0;
-    border-radius: 8px;
+    padding: var(--space-3);
+    margin-bottom: var(--space-3);
+    font-size: 1rem;
 }
 
 .options-container {
     display: grid;
-    gap: 10px;
-    margin-bottom: 10px;
+    gap: var(--space-2);
+    margin-bottom: var(--space-2);
 }
 
 .option-input-group {
     display: flex;
-    gap: 10px;
+    gap: var(--space-2);
     align-items: center;
 }
 
 .option-input-group input[type="radio"] {
     cursor: pointer;
-    width: 20px;
-    height: 20px;
+    width: 18px;
+    height: 18px;
+    accent-color: var(--color-primary);
 }
 
 .option-input-group input[type="text"] {
     flex: 1;
-    padding: 10px;
-    font-size: 1em;
-    border: 2px solid #e0e0e0;
-    border-radius: 8px;
+    padding: var(--space-2);
+    font-size: 1rem;
 }
 
 .option-label {
     font-weight: 600;
-    color: #666;
+    color: var(--color-text-secondary);
     min-width: 80px;
+    font-size: 0.875rem;
 }
 
 .form-actions {
     display: flex;
-    gap: 15px;
-    margin-top: 30px;
-    padding-top: 20px;
-    border-top: 2px solid #e0e0e0;
+    gap: var(--space-3);
+    margin-top: var(--space-6);
+    padding-top: var(--space-4);
+    border-top: 1px solid var(--color-border);
 }
 
 /* Auth styles */
@@ -297,21 +261,23 @@
 
 /* AI Generation Styles */
 .ai-section {
-    background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
-    padding: 30px;
-    border-radius: 15px;
-    margin-bottom: 20px;
+    background: var(--color-primary-light);
+    padding: var(--space-6);
+    border-radius: var(--radius-lg);
+    margin-bottom: var(--space-4);
+    border: 1px solid var(--color-border);
 }
 
 .ai-section h3 {
-    color: #667eea;
-    margin-bottom: 10px;
-    font-size: 1.5em;
+    color: var(--color-primary);
+    margin-bottom: var(--space-2);
+    font-size: 1.25rem;
+    font-weight: 600;
 }
 
 .ai-description {
-    color: #666;
-    margin-bottom: 25px;
+    color: var(--color-text-secondary);
+    margin-bottom: var(--space-5);
     line-height: 1.6;
 }
 
@@ -322,69 +288,76 @@
 
 .ai-actions {
     display: flex;
-    gap: 15px;
-    margin-top: 25px;
+    gap: var(--space-3);
+    margin-top: var(--space-5);
 }
 
 .ai-loading {
     text-align: center;
-    padding: 30px;
-    background: white;
-    border-radius: 10px;
-    margin-top: 20px;
+    padding: var(--space-6);
+    background: var(--color-surface);
+    border-radius: var(--radius-lg);
+    margin-top: var(--space-4);
 }
 
+/* Use design-system.css spinner */
 .spinner {
-    border: 4px solid #f3f3f3;
-    border-top: 4px solid #667eea;
-    border-radius: 50%;
-    width: 50px;
-    height: 50px;
+    width: 48px;
+    height: 48px;
+    margin: 0 auto var(--space-3);
+    border: 3px solid var(--color-border);
+    border-top-color: var(--color-primary);
+    border-radius: var(--radius-full);
     animation: spin 1s linear infinite;
-    margin: 0 auto 15px;
 }
 
 @keyframes spin {
-    0% { transform: rotate(0deg); }
-    100% { transform: rotate(360deg); }
+    to { transform: rotate(360deg); }
 }
 
 .ai-loading p {
-    color: #666;
-    font-size: 1.1em;
+    color: var(--color-text-secondary);
+    font-size: 1rem;
 }
 
 .form-header {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    margin-bottom: 20px;
-    padding-bottom: 15px;
-    border-bottom: 2px solid #e0e0e0;
+    margin-bottom: var(--space-4);
+    padding-bottom: var(--space-3);
+    border-bottom: 1px solid var(--color-border);
 }
 
 .form-header h3 {
     margin: 0;
-    color: #667eea;
+    color: var(--color-text-primary);
+    font-weight: 600;
 }
 
 .ai-preview-notice {
-    background: #fff3cd;
-    border: 2px solid #ffc107;
-    border-radius: 10px;
-    padding: 15px;
-    margin-bottom: 20px;
+    background: var(--color-warning-light);
+    border: 1px solid var(--color-warning);
+    border-radius: var(--radius-lg);
+    padding: var(--space-4);
+    margin-bottom: var(--space-4);
 }
 
 .ai-preview-notice h4 {
-    color: #856404;
-    margin-bottom: 8px;
+    color: var(--color-warning);
+    margin-bottom: var(--space-2);
+    font-weight: 600;
 }
 
 .ai-preview-notice p {
-    color: #856404;
+    color: var(--color-warning);
     margin: 0;
-    font-size: 0.95em;
+    font-size: 0.875rem;
+}
+
+/* Modals - use design-system.css modal styles */
+.modal-body {
+    color: var(--color-text-primary);
 }
 
 /* Responsive */
@@ -395,5 +368,10 @@
 
     .ai-actions button {
         width: 100%;
+    }
+
+    .modal-content {
+        padding: 20px;
+        max-width: 95%;
     }
 }

@@ -57,7 +57,8 @@ const books = {
             this.students = [];
             Object.keys(usersData).forEach(uid => {
                 const user = usersData[uid];
-                if (studentEmails.includes(user.email)) {
+                // Case-insensitive email comparison
+                if (user.email && studentEmails.includes(user.email.toLowerCase())) {
                     this.students.push({
                         userId: uid,
                         name: user.displayName || user.email.split('@')[0],
@@ -68,7 +69,8 @@ const books = {
 
             // Also add pending students (who haven't signed in yet)
             studentEmails.forEach(email => {
-                const exists = this.students.some(s => s.email === email);
+                // Case-insensitive check for existing students
+                const exists = this.students.some(s => s.email.toLowerCase() === email.toLowerCase());
                 if (!exists) {
                     this.students.push({
                         userId: `pending-${email}`,

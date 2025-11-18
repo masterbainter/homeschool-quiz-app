@@ -1,0 +1,575 @@
+/**
+ * ============================================
+ * HOMESCHOOL QUIZ APP - DESIGN SYSTEM 2026
+ * ============================================
+ *
+ * Calm, minimal, joyful educational interface
+ * Following 2025-2026 best practices:
+ * - Generous whitespace
+ * - Soft, nature-inspired color palette
+ * - AAA accessibility
+ * - Perfect dark mode
+ * - Subtle glassmorphism
+ * - Smooth micro-interactions
+ */
+
+/* ==========================================
+   CSS CUSTOM PROPERTIES - DESIGN TOKENS
+   ========================================== */
+
+:root {
+  /* ===== CALM COLOR PALETTE ===== */
+  /* Primary: Soft Blue-Green (Calming, trustworthy) */
+  --color-primary-50: #f0fdf9;
+  --color-primary-100: #ccfbef;
+  --color-primary-200: #99f6e0;
+  --color-primary-300: #5fe9ce;
+  --color-primary-400: #2dd4b8;
+  --color-primary-500: #4d9e93;  /* Main brand color */
+  --color-primary-600: #3d8e83;
+  --color-primary-700: #2f7a71;
+  --color-primary-800: #26615a;
+  --color-primary-900: #1e4d48;
+
+  /* Neutral: Warm grays for calm reading */
+  --color-neutral-50: #f8faf9;
+  --color-neutral-100: #f1f4f3;
+  --color-neutral-200: #e4e9e7;
+  --color-neutral-300: #d1d8d6;
+  --color-neutral-400: #9fa9a6;
+  --color-neutral-500: #6b7673;
+  --color-neutral-600: #535d5a;
+  --color-neutral-700: #3f4744;
+  --color-neutral-800: #2d3331;
+  --color-neutral-900: #1a1f1d;
+
+  /* Success: Soft Green (encouraging, growth) */
+  --color-success-50: #f0fdf4;
+  --color-success-100: #dcfce7;
+  --color-success-500: #22c55e;
+  --color-success-600: #16a34a;
+
+  /* Warning: Warm Amber (attention, gentle) */
+  --color-warning-50: #fffbeb;
+  --color-warning-100: #fef3c7;
+  --color-warning-500: #f59e0b;
+  --color-warning-600: #d97706;
+
+  /* Error: Soft Red (clear but not alarming) */
+  --color-error-50: #fef2f2;
+  --color-error-100: #fee2e2;
+  --color-error-500: #ef4444;
+  --color-error-600: #dc2626;
+
+  /* ===== SEMANTIC TOKENS ===== */
+  --color-background: var(--color-neutral-50);
+  --color-surface: #ffffff;
+  --color-surface-raised: #ffffff;
+  --color-overlay: rgba(29, 47, 44, 0.05);
+
+  --color-text-primary: var(--color-neutral-900);
+  --color-text-secondary: var(--color-neutral-600);
+  --color-text-tertiary: var(--color-neutral-500);
+  --color-text-inverse: var(--color-neutral-50);
+
+  --color-border: var(--color-neutral-200);
+  --color-border-hover: var(--color-neutral-300);
+  --color-border-focus: var(--color-primary-500);
+
+  /* ===== TYPOGRAPHY ===== */
+  /* Font families */
+  --font-primary: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI', system-ui, sans-serif;
+  --font-reading: 'Georgia', 'Cambria', 'Times New Roman', serif;
+  --font-mono: 'SF Mono', 'Monaco', 'Cascadia Code', 'Courier New', monospace;
+
+  /* Dyslexia-friendly option */
+  --font-dyslexic: 'OpenDyslexic', 'Comic Sans MS', sans-serif;
+
+  /* Font sizes - Generous, readable scale */
+  --text-xs: 0.75rem;     /* 12px */
+  --text-sm: 0.875rem;    /* 14px */
+  --text-base: 1rem;      /* 16px */
+  --text-lg: 1.125rem;    /* 18px */
+  --text-xl: 1.25rem;     /* 20px */
+  --text-2xl: 1.5rem;     /* 24px */
+  --text-3xl: 1.875rem;   /* 30px */
+  --text-4xl: 2.25rem;    /* 36px */
+  --text-5xl: 3rem;       /* 48px */
+
+  /* Line heights - Increased for readability */
+  --leading-tight: 1.25;
+  --leading-normal: 1.6;
+  --leading-relaxed: 1.8;
+  --leading-loose: 2;
+
+  /* Font weights */
+  --font-normal: 400;
+  --font-medium: 500;
+  --font-semibold: 600;
+  --font-bold: 700;
+
+  /* ===== SPACING SCALE ===== */
+  /* 4px base unit for consistency */
+  --space-0: 0;
+  --space-px: 1px;
+  --space-0-5: 0.125rem;  /* 2px */
+  --space-1: 0.25rem;     /* 4px */
+  --space-2: 0.5rem;      /* 8px */
+  --space-3: 0.75rem;     /* 12px */
+  --space-4: 1rem;        /* 16px */
+  --space-5: 1.25rem;     /* 20px */
+  --space-6: 1.5rem;      /* 24px */
+  --space-8: 2rem;        /* 32px */
+  --space-10: 2.5rem;     /* 40px */
+  --space-12: 3rem;       /* 48px */
+  --space-16: 4rem;       /* 64px */
+  --space-20: 5rem;       /* 80px */
+  --space-24: 6rem;       /* 96px */
+
+  /* ===== BORDER RADIUS ===== */
+  --radius-none: 0;
+  --radius-sm: 0.375rem;    /* 6px */
+  --radius-md: 0.5rem;      /* 8px */
+  --radius-lg: 0.75rem;     /* 12px */
+  --radius-xl: 1rem;        /* 16px */
+  --radius-2xl: 1.5rem;     /* 24px */
+  --radius-3xl: 2rem;       /* 32px */
+  --radius-full: 9999px;
+
+  /* ===== SHADOWS - Soft, Natural ===== */
+  --shadow-xs: 0 1px 2px 0 rgba(77, 158, 147, 0.05);
+  --shadow-sm: 0 2px 4px 0 rgba(77, 158, 147, 0.08);
+  --shadow-md: 0 4px 12px 0 rgba(77, 158, 147, 0.12);
+  --shadow-lg: 0 8px 24px 0 rgba(77, 158, 147, 0.15);
+  --shadow-xl: 0 12px 40px 0 rgba(77, 158, 147, 0.18);
+  --shadow-2xl: 0 20px 60px 0 rgba(77, 158, 147, 0.22);
+
+  /* Colored shadows for interactive elements */
+  --shadow-primary: 0 4px 12px 0 rgba(77, 158, 147, 0.25);
+  --shadow-success: 0 4px 12px 0 rgba(34, 197, 94, 0.25);
+  --shadow-warning: 0 4px 12px 0 rgba(245, 158, 11, 0.25);
+  --shadow-error: 0 4px 12px 0 rgba(239, 68, 68, 0.25);
+
+  /* ===== GLASSMORPHISM ===== */
+  --glass-background: rgba(255, 255, 255, 0.7);
+  --glass-border: rgba(255, 255, 255, 0.3);
+  --glass-shadow: 0 8px 32px 0 rgba(77, 158, 147, 0.1);
+  --glass-blur: blur(12px);
+
+  /* ===== TRANSITIONS & ANIMATIONS ===== */
+  --transition-fast: 150ms cubic-bezier(0.4, 0, 0.2, 1);
+  --transition-base: 250ms cubic-bezier(0.4, 0, 0.2, 1);
+  --transition-slow: 350ms cubic-bezier(0.4, 0, 0.2, 1);
+  --transition-bounce: 500ms cubic-bezier(0.34, 1.56, 0.64, 1);
+
+  /* Spring physics for natural motion */
+  --ease-spring: cubic-bezier(0.34, 1.56, 0.64, 1);
+  --ease-smooth: cubic-bezier(0.4, 0, 0.2, 1);
+  --ease-in-out: cubic-bezier(0.645, 0.045, 0.355, 1);
+
+  /* ===== Z-INDEX SCALE ===== */
+  --z-base: 0;
+  --z-dropdown: 1000;
+  --z-sticky: 1100;
+  --z-fixed: 1200;
+  --z-modal-backdrop: 1300;
+  --z-modal: 1400;
+  --z-popover: 1500;
+  --z-toast: 1600;
+  --z-tooltip: 1700;
+
+  /* ===== CONTAINER WIDTHS ===== */
+  --container-sm: 640px;
+  --container-md: 768px;
+  --container-lg: 1024px;
+  --container-xl: 1280px;
+  --container-2xl: 1536px;
+}
+
+/* ==========================================
+   DARK MODE - System Preference by Default
+   ========================================== */
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    /* Dark mode color palette */
+    --color-background: #0f1413;
+    --color-surface: #1a1f1d;
+    --color-surface-raised: #2d3331;
+    --color-overlay: rgba(255, 255, 255, 0.05);
+
+    --color-text-primary: var(--color-neutral-50);
+    --color-text-secondary: var(--color-neutral-300);
+    --color-text-tertiary: var(--color-neutral-400);
+    --color-text-inverse: var(--color-neutral-900);
+
+    --color-border: var(--color-neutral-800);
+    --color-border-hover: var(--color-neutral-700);
+
+    /* Adjust primary colors for dark mode */
+    --color-primary-500: #5fe9ce;
+    --color-primary-600: #2dd4b8;
+
+    /* Softer shadows in dark mode */
+    --shadow-xs: 0 1px 2px 0 rgba(0, 0, 0, 0.3);
+    --shadow-sm: 0 2px 4px 0 rgba(0, 0, 0, 0.4);
+    --shadow-md: 0 4px 12px 0 rgba(0, 0, 0, 0.5);
+    --shadow-lg: 0 8px 24px 0 rgba(0, 0, 0, 0.6);
+    --shadow-xl: 0 12px 40px 0 rgba(0, 0, 0, 0.7);
+
+    /* Glassmorphism in dark mode */
+    --glass-background: rgba(26, 31, 29, 0.7);
+    --glass-border: rgba(255, 255, 255, 0.1);
+  }
+}
+
+/* ==========================================
+   HIGH CONTRAST MODE - Accessibility
+   ========================================== */
+
+[data-theme="high-contrast"] {
+  --color-background: #ffffff;
+  --color-surface: #ffffff;
+  --color-text-primary: #000000;
+  --color-text-secondary: #000000;
+  --color-primary-500: #0000ff;
+  --color-success-500: #008000;
+  --color-warning-500: #ff8c00;
+  --color-error-500: #ff0000;
+  --color-border: #000000;
+
+  /* High contrast shadows */
+  --shadow-md: 0 0 0 2px #000000;
+  --shadow-lg: 0 0 0 3px #000000;
+}
+
+@media (prefers-color-scheme: dark) {
+  [data-theme="high-contrast"] {
+    --color-background: #000000;
+    --color-surface: #000000;
+    --color-text-primary: #ffffff;
+    --color-text-secondary: #ffffff;
+    --color-primary-500: #00ffff;
+    --color-success-500: #00ff00;
+    --color-warning-500: #ffff00;
+    --color-error-500: #ff00ff;
+    --color-border: #ffffff;
+  }
+}
+
+/* ==========================================
+   REDUCED MOTION - Respect User Preferences
+   ========================================== */
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+/* ==========================================
+   BASE STYLES - Reset & Typography
+   ========================================== */
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html {
+  font-size: 16px;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+  -webkit-tap-highlight-color: transparent;
+}
+
+body {
+  font-family: var(--font-primary);
+  font-size: var(--text-base);
+  line-height: var(--leading-normal);
+  color: var(--color-text-primary);
+  background-color: var(--color-background);
+  transition: background-color var(--transition-base), color var(--transition-base);
+  min-height: 100vh;
+  overflow-x: hidden;
+}
+
+/* Dyslexia-friendly font option */
+body.dyslexic-font {
+  font-family: var(--font-dyslexic);
+  letter-spacing: 0.05em;
+  word-spacing: 0.16em;
+}
+
+/* ==========================================
+   TYPOGRAPHY UTILITIES
+   ========================================== */
+
+h1, h2, h3, h4, h5, h6 {
+  font-weight: var(--font-semibold);
+  line-height: var(--leading-tight);
+  color: var(--color-text-primary);
+  margin-bottom: var(--space-4);
+}
+
+h1 { font-size: var(--text-4xl); letter-spacing: -0.02em; }
+h2 { font-size: var(--text-3xl); letter-spacing: -0.015em; }
+h3 { font-size: var(--text-2xl); }
+h4 { font-size: var(--text-xl); }
+h5 { font-size: var(--text-lg); }
+h6 { font-size: var(--text-base); }
+
+p {
+  margin-bottom: var(--space-4);
+  line-height: var(--leading-relaxed);
+}
+
+a {
+  color: var(--color-primary-500);
+  text-decoration: none;
+  transition: color var(--transition-fast);
+}
+
+a:hover {
+  color: var(--color-primary-600);
+  text-decoration: underline;
+}
+
+a:focus-visible {
+  outline: 2px solid var(--color-primary-500);
+  outline-offset: 2px;
+  border-radius: var(--radius-sm);
+}
+
+/* ==========================================
+   BUTTON SYSTEM - Calm, Accessible
+   ========================================== */
+
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-2);
+  padding: var(--space-3) var(--space-6);
+  font-family: var(--font-primary);
+  font-size: var(--text-base);
+  font-weight: var(--font-medium);
+  line-height: 1;
+  border: none;
+  border-radius: var(--radius-lg);
+  cursor: pointer;
+  transition: all var(--transition-base);
+  white-space: nowrap;
+  user-select: none;
+  position: relative;
+  overflow: hidden;
+}
+
+.btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  pointer-events: none;
+}
+
+.btn:focus-visible {
+  outline: 3px solid var(--color-primary-500);
+  outline-offset: 2px;
+}
+
+/* Primary button - Main actions */
+.btn-primary {
+  background: linear-gradient(135deg, var(--color-primary-500) 0%, var(--color-primary-600) 100%);
+  color: white;
+  box-shadow: var(--shadow-primary);
+}
+
+.btn-primary:hover:not(:disabled) {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-lg);
+}
+
+.btn-primary:active:not(:disabled) {
+  transform: translateY(0);
+  box-shadow: var(--shadow-sm);
+}
+
+/* Secondary button - Less emphasis */
+.btn-secondary {
+  background-color: var(--color-surface);
+  color: var(--color-text-primary);
+  border: 1px solid var(--color-border);
+  box-shadow: var(--shadow-sm);
+}
+
+.btn-secondary:hover:not(:disabled) {
+  background-color: var(--color-neutral-100);
+  border-color: var(--color-border-hover);
+  box-shadow: var(--shadow-md);
+}
+
+/* Ghost button - Minimal */
+.btn-ghost {
+  background-color: transparent;
+  color: var(--color-text-primary);
+}
+
+.btn-ghost:hover:not(:disabled) {
+  background-color: var(--color-overlay);
+}
+
+/* Icon button - Square */
+.btn-icon {
+  padding: var(--space-3);
+  width: 40px;
+  height: 40px;
+}
+
+/* Button sizes */
+.btn-sm {
+  padding: var(--space-2) var(--space-4);
+  font-size: var(--text-sm);
+}
+
+.btn-lg {
+  padding: var(--space-4) var(--space-8);
+  font-size: var(--text-lg);
+}
+
+/* ==========================================
+   CARD SYSTEM - Soft, Elevated
+   ========================================== */
+
+.card {
+  background-color: var(--color-surface);
+  border-radius: var(--radius-xl);
+  padding: var(--space-6);
+  box-shadow: var(--shadow-md);
+  border: 1px solid var(--color-border);
+  transition: all var(--transition-base);
+}
+
+.card:hover {
+  box-shadow: var(--shadow-lg);
+  transform: translateY(-2px);
+}
+
+.card-glass {
+  background: var(--glass-background);
+  backdrop-filter: var(--glass-blur);
+  -webkit-backdrop-filter: var(--glass-blur);
+  border: 1px solid var(--glass-border);
+  box-shadow: var(--glass-shadow);
+}
+
+/* ==========================================
+   FORM ELEMENTS - Accessible, Beautiful
+   ========================================== */
+
+input:not([type="checkbox"]):not([type="radio"]),
+textarea,
+select {
+  width: 100%;
+  padding: var(--space-3) var(--space-4);
+  font-family: var(--font-primary);
+  font-size: var(--text-base);
+  line-height: var(--leading-normal);
+  color: var(--color-text-primary);
+  background-color: var(--color-surface);
+  border: 1.5px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  transition: all var(--transition-fast);
+}
+
+input:focus,
+textarea:focus,
+select:focus {
+  outline: none;
+  border-color: var(--color-primary-500);
+  box-shadow: 0 0 0 3px rgba(77, 158, 147, 0.1);
+}
+
+/* ==========================================
+   ACCESSIBILITY UTILITIES
+   ========================================== */
+
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border-width: 0;
+}
+
+/* Skip to content link */
+.skip-to-content {
+  position: absolute;
+  top: -100%;
+  left: 0;
+  background-color: var(--color-primary-500);
+  color: white;
+  padding: var(--space-4) var(--space-6);
+  border-radius: var(--radius-lg);
+  font-weight: var(--font-semibold);
+  z-index: var(--z-tooltip);
+  transition: top var(--transition-fast);
+}
+
+.skip-to-content:focus {
+  top: var(--space-4);
+}
+
+/* ==========================================
+   LOADING & SKELETON STATES
+   ========================================== */
+
+@keyframes skeleton-pulse {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.5;
+  }
+}
+
+.skeleton {
+  background: linear-gradient(
+    90deg,
+    var(--color-neutral-200) 25%,
+    var(--color-neutral-100) 50%,
+    var(--color-neutral-200) 75%
+  );
+  background-size: 200% 100%;
+  animation: skeleton-pulse 1.5s ease-in-out infinite;
+  border-radius: var(--radius-md);
+}
+
+/* Spinner */
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.spinner {
+  width: 40px;
+  height: 40px;
+  border: 3px solid var(--color-neutral-200);
+  border-top-color: var(--color-primary-500);
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+}
+
+/* Continue in next file due to length... */

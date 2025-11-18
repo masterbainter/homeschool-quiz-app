@@ -1,0 +1,37 @@
+{
+  "name": "homeschool-quiz-app",
+  "version": "1.0.0",
+  "description": "Homeschool Quiz Application with AI-powered quiz generation",
+  "scripts": {
+    "dev": "firebase emulators:start",
+    "dev:ui": "firebase emulators:start --import=./emulator-data --export-on-exit",
+    "dev:hosting": "firebase serve --only hosting --port 5000",
+    "setup-dev": "node setup-dev-users.js",
+    "test:ui": "playwright test tests/ui-visual.spec.js",
+    "test:ui:headed": "playwright test tests/ui-visual.spec.js --headed",
+    "test:ui:debug": "playwright test tests/ui-dev.spec.js --headed --debug",
+    "test:screenshots": "playwright test tests/ui-visual.spec.js --project=chromium",
+    "ui:explore": "playwright test tests/ui-dev.spec.js --headed --debug --project=chromium",
+    "ui:mobile": "playwright test tests/ui-dev.spec.js --headed --debug --project='Mobile Chrome'",
+    "ui:report": "playwright show-report",
+    "deploy": "firebase deploy --only hosting",
+    "deploy:full": "firebase deploy",
+    "deploy:functions": "firebase deploy --only functions",
+    "export:data": "firebase emulators:export ./emulator-data",
+    "import:data": "firebase emulators:start --import=./emulator-data"
+  },
+  "keywords": [
+    "education",
+    "homeschool",
+    "quiz",
+    "firebase"
+  ],
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "@playwright/test": "^1.56.1",
+    "firebase-admin": "^13.6.0",
+    "playwright": "^1.56.1",
+    "selenium-webdriver": "^4.38.0"
+  }
+}

@@ -17,9 +17,11 @@ const admin = {
             return;
         }
 
-        firebase.auth().onAuthStateChanged((user) => {
+        firebase.auth().onAuthStateChanged(async (user) => {
             if (user) {
                 this.currentUser = user;
+                // Load roles from Firebase first
+                await RolesLoader.load();
                 this.checkAdminStatus();
             } else {
                 // Not logged in, redirect to main app
@@ -28,21 +30,10 @@ const admin = {
         });
     },
 
-    // List of admin emails (full access)
-    ADMIN_EMAILS: [
-        'techride.trevor@gmail.com'
-    ],
-
-    // List of teacher emails (all features except usage override/viewing)
-    TEACHER_EMAILS: [
-        'iyoko.bainter@gmail.com',
-        'trevor.bainter@gmail.com'
-    ],
-
     // Check if user has admin privileges
     checkAdminStatus() {
         const userEmail = this.currentUser.email;
-        this.isAdmin = this.ADMIN_EMAILS.includes(userEmail);
+        this.isAdmin = RolesLoader.isAdmin(userEmail);
 
         if (this.isAdmin) {
             this.showAdminPanel();

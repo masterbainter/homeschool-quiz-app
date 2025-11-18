@@ -1,0 +1,499 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Subjects - Homeschool App</title>
+
+    <!-- Favicon & PWA -->
+    <link rel="icon" type="image/png" href="/icons/icon-192x192.png">
+    <link rel="manifest" href="/manifest.json">
+    <meta name="theme-color" content="#4d9e93">
+
+    <!-- 2026 Design System -->
+    <link rel="stylesheet" href="/design-system-2026.css" media="print" onload="this.media='all'">
+    <link rel="stylesheet" href="/app-chrome-2026.css" media="print" onload="this.media='all'">
+    <noscript>
+        <link rel="stylesheet" href="/design-system-2026.css">
+        <link rel="stylesheet" href="/app-chrome-2026.css">
+    </noscript>
+
+    <!-- Critical CSS for instant paint -->
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI', system-ui, sans-serif;
+            background: var(--color-background, #f8faf9);
+            color: var(--color-text-primary, #1a1f1d);
+            line-height: 1.6;
+            -webkit-font-smoothing: antialiased;
+        }
+    </style>
+</head>
+<body>
+    <!-- App Header (Desktop) -->
+    <header class="app-header" id="app-header">
+        <div class="header-content">
+            <div class="header-left">
+                <button onclick="window.location.href='/'" class="btn-icon" aria-label="Home">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path>
+                        <polyline points="9 22 9 12 15 12 15 22"></polyline>
+                    </svg>
+                </button>
+                <h1 class="header-title">
+                    <span>📚</span>
+                    <span>All Subjects</span>
+                </h1>
+            </div>
+            <div class="header-right">
+                <div class="user-menu" id="user-menu-header">
+                    <img id="header-user-photo" src="" alt="Profile" class="user-avatar">
+                    <span id="header-user-name"></span>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <div class="app-container">
+        <main class="main-content">
+            <!-- Loading State -->
+            <div id="loading-section" class="centered-container">
+                <div class="glass-card">
+                    <div class="loading-spinner"></div>
+                    <h2 class="loading-title">Loading Subjects...</h2>
+                    <p class="loading-subtitle">Please wait while we load your curriculum.</p>
+                </div>
+            </div>
+
+            <!-- Subjects Content -->
+            <div id="subjects-section" class="centered-container" style="display: none;">
+                <div class="glass-card subjects-card">
+                    <!-- Header -->
+                    <div class="subjects-header">
+                        <div class="header-icon">📚</div>
+                        <h1 class="subjects-title">Browse Subjects</h1>
+                        <p class="subjects-subtitle">Choose a subject to explore lessons and activities</p>
+                    </div>
+
+                    <!-- Subjects Grid -->
+                    <div id="subjects-grid" class="subjects-grid">
+                        <!-- Subjects will be loaded dynamically -->
+                    </div>
+
+                    <!-- Empty State -->
+                    <div id="empty-subjects" class="empty-state" style="display: none;">
+                        <div class="empty-icon">📚</div>
+                        <h3 class="empty-title">No subjects available yet</h3>
+                        <p class="empty-description">Your curriculum is being prepared. Check back soon!</p>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Bottom Navigation (Mobile) -->
+    <nav class="bottom-nav" id="bottom-nav">
+        <a href="/" class="nav-item">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path>
+            </svg>
+            <span>Home</span>
+        </a>
+        <a href="/subjects" class="nav-item active">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"></path>
+                <path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"></path>
+            </svg>
+            <span>Subjects</span>
+        </a>
+        <a href="/todos" class="nav-item">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <polyline points="9 11 12 14 22 4"></polyline>
+                <path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"></path>
+            </svg>
+            <span>To-Do</span>
+        </a>
+        <a href="/quiz" class="nav-item">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path>
+                <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"></path>
+            </svg>
+            <span>Quizzes</span>
+        </a>
+    </nav>
+
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-database-compat.js"></script>
+
+    <!-- App Scripts -->
+    <script src="/firebase-config.js"></script>
+    <script src="/roles-loader.js"></script>
+    <script src="/toast.js"></script>
+
+    <!-- Subjects Listing Logic -->
+    <script>
+        class SubjectsList {
+            constructor() {
+                this.subjectsData = [];
+                this.init();
+            }
+
+            init() {
+                // Wait for Firebase auth
+                firebase.auth().onAuthStateChanged((user) => {
+                    if (user) {
+                        this.updateUserDisplay(user);
+                        this.loadSubjects();
+                    } else {
+                        // Redirect to home to sign in
+                        window.location.href = '/';
+                    }
+                });
+            }
+
+            updateUserDisplay(user) {
+                document.getElementById('header-user-photo').src = user.photoURL || '';
+                document.getElementById('header-user-name').textContent = user.displayName || 'Student';
+            }
+
+            async loadSubjects() {
+                try {
+                    const snapshot = await firebase.database().ref('curriculum').once('value');
+                    const curriculum = snapshot.val();
+
+                    if (!curriculum) {
+                        this.showEmptyState();
+                        return;
+                    }
+
+                    // Convert to array and filter enabled subjects
+                    this.subjectsData = Object.values(curriculum)
+                        .filter(subject => subject.enabled)
+                        .sort((a, b) => (a.order || 0) - (b.order || 0));
+
+                    if (this.subjectsData.length === 0) {
+                        this.showEmptyState();
+                    } else {
+                        this.renderSubjects();
+                    }
+                } catch (error) {
+                    console.error('Error loading subjects:', error);
+                    showToast('Failed to load subjects', 'error');
+                    this.showEmptyState();
+                }
+            }
+
+            renderSubjects() {
+                const grid = document.getElementById('subjects-grid');
+                grid.innerHTML = '';
+
+                this.subjectsData.forEach(subject => {
+                    const card = this.createSubjectCard(subject);
+                    grid.appendChild(card);
+                });
+
+                // Hide loading, show content
+                document.getElementById('loading-section').style.display = 'none';
+                document.getElementById('subjects-section').style.display = 'block';
+            }
+
+            createSubjectCard(subject) {
+                const card = document.createElement('a');
+                card.href = `/subjects/detail.html?subject=${subject.id}`;
+                card.className = `subject-card subject-${subject.color || 'blue'}`;
+
+                // Count sections
+                const sectionCount = subject.sections ? Object.keys(subject.sections).length : 0;
+
+                card.innerHTML = `
+                    <div class="subject-icon">${subject.icon || '📖'}</div>
+                    <h3 class="subject-title">${subject.title}</h3>
+                    <p class="subject-description">${subject.description || ''}</p>
+                    <div class="subject-meta">
+                        <span class="section-count">${sectionCount} section${sectionCount !== 1 ? 's' : ''}</span>
+                    </div>
+                `;
+
+                return card;
+            }
+
+            showEmptyState() {
+                document.getElementById('loading-section').style.display = 'none';
+                document.getElementById('subjects-section').style.display = 'block';
+                document.getElementById('subjects-grid').style.display = 'none';
+                document.getElementById('empty-subjects').style.display = 'block';
+            }
+        }
+
+        // Initialize when DOM is ready
+        document.addEventListener('DOMContentLoaded', () => {
+            new SubjectsList();
+        });
+    </script>
+
+    <style>
+        /* Centered Container - Like Dashboard */
+        .centered-container {
+            display: flex;
+            justify-content: center;
+            align-items: flex-start;
+            min-height: calc(100vh - 80px);
+            padding: 2rem;
+        }
+
+        @media (max-width: 768px) {
+            .centered-container {
+                padding: 1rem;
+                min-height: calc(100vh - 140px);
+            }
+        }
+
+        /* Glass Card - Like Dashboard Login */
+        .glass-card {
+            background: rgba(42, 47, 45, 0.95);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(77, 158, 147, 0.2);
+            border-radius: 24px;
+            padding: 3rem;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            max-width: 900px;
+            width: 100%;
+        }
+
+        .subjects-card {
+            max-width: 1200px;
+        }
+
+        @media (max-width: 768px) {
+            .glass-card {
+                padding: 2rem 1.5rem;
+                border-radius: 16px;
+            }
+        }
+
+        /* Header Section */
+        .subjects-header {
+            text-align: center;
+            margin-bottom: 3rem;
+        }
+
+        .header-icon {
+            font-size: 4rem;
+            margin-bottom: 1rem;
+            animation: float 3s ease-in-out infinite;
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-10px); }
+        }
+
+        .subjects-title {
+            font-size: 2.5rem;
+            font-weight: 700;
+            color: #ffffff;
+            margin-bottom: 0.75rem;
+            letter-spacing: -0.02em;
+        }
+
+        .subjects-subtitle {
+            font-size: 1.125rem;
+            color: rgba(255, 255, 255, 0.7);
+            font-weight: 400;
+        }
+
+        @media (max-width: 768px) {
+            .header-icon {
+                font-size: 3rem;
+            }
+
+            .subjects-title {
+                font-size: 1.875rem;
+            }
+
+            .subjects-subtitle {
+                font-size: 1rem;
+            }
+        }
+
+        /* Subjects Grid */
+        .subjects-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+            gap: 1.5rem;
+        }
+
+        @media (max-width: 768px) {
+            .subjects-grid {
+                grid-template-columns: 1fr;
+                gap: 1rem;
+            }
+        }
+
+        /* Subject Card */
+        .subject-card {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 16px;
+            padding: 2rem;
+            text-decoration: none;
+            color: inherit;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+        }
+
+        .subject-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: linear-gradient(90deg, var(--subject-color, #4d9e93), transparent);
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .subject-card:hover {
+            transform: translateY(-8px);
+            background: rgba(255, 255, 255, 0.08);
+            border-color: rgba(77, 158, 147, 0.4);
+            box-shadow: 0 12px 40px rgba(77, 158, 147, 0.2);
+        }
+
+        .subject-card:hover::before {
+            opacity: 1;
+        }
+
+        .subject-card:active {
+            transform: translateY(-4px);
+        }
+
+        .subject-icon {
+            font-size: 3.5rem;
+            margin-bottom: 1.25rem;
+            filter: drop-shadow(0 4px 12px rgba(0, 0, 0, 0.3));
+        }
+
+        .subject-title {
+            font-size: 1.375rem;
+            font-weight: 600;
+            color: #ffffff;
+            margin-bottom: 0.75rem;
+            letter-spacing: -0.01em;
+        }
+
+        .subject-description {
+            font-size: 0.9375rem;
+            color: rgba(255, 255, 255, 0.6);
+            margin-bottom: 1.25rem;
+            line-height: 1.6;
+            flex-grow: 1;
+        }
+
+        .subject-meta {
+            margin-top: auto;
+            padding-top: 1.25rem;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            width: 100%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .section-count {
+            font-size: 0.875rem;
+            color: rgba(255, 255, 255, 0.5);
+            font-weight: 500;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .section-count::before {
+            content: '📖';
+            font-size: 1rem;
+        }
+
+        /* Color variants */
+        .subject-blue { --subject-color: #3b82f6; }
+        .subject-blue .subject-icon { color: #3b82f6; }
+
+        .subject-green { --subject-color: #10b981; }
+        .subject-green .subject-icon { color: #10b981; }
+
+        .subject-orange { --subject-color: #f97316; }
+        .subject-orange .subject-icon { color: #f97316; }
+
+        .subject-purple { --subject-color: #8b5cf6; }
+        .subject-purple .subject-icon { color: #8b5cf6; }
+
+        .subject-pink { --subject-color: #ec4899; }
+        .subject-pink .subject-icon { color: #ec4899; }
+
+        .subject-teal { --subject-color: #14b8a6; }
+        .subject-teal .subject-icon { color: #14b8a6; }
+
+        /* Empty State */
+        .empty-state {
+            text-align: center;
+            padding: 4rem 2rem;
+        }
+
+        .empty-icon {
+            font-size: 4rem;
+            margin-bottom: 1.5rem;
+            opacity: 0.5;
+        }
+
+        .empty-title {
+            font-size: 1.5rem;
+            font-weight: 600;
+            color: rgba(255, 255, 255, 0.9);
+            margin-bottom: 0.75rem;
+        }
+
+        .empty-description {
+            font-size: 1rem;
+            color: rgba(255, 255, 255, 0.6);
+        }
+
+        /* Loading State */
+        .loading-title {
+            font-size: 1.75rem;
+            font-weight: 600;
+            color: #ffffff;
+            margin-bottom: 0.75rem;
+            text-align: center;
+        }
+
+        .loading-subtitle {
+            font-size: 1rem;
+            color: rgba(255, 255, 255, 0.7);
+            text-align: center;
+        }
+
+        .loading-spinner {
+            width: 48px;
+            height: 48px;
+            border: 4px solid rgba(77, 158, 147, 0.2);
+            border-top-color: #4d9e93;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 2rem;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+    </style>
+</body>
+</html>

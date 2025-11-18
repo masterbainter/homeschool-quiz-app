@@ -44,6 +44,25 @@ async function loadUserRoles() {
 }
 
 /**
+ * Test function to check available models
+ */
+exports.listModels = functions.https.onCall(async (data, context) => {
+  try {
+    const response = await fetch('https://api.anthropic.com/v1/models', {
+      headers: {
+        'x-api-key': functions.config().anthropic?.key || process.env.ANTHROPIC_API_KEY,
+        'anthropic-version': '2023-06-01'
+      }
+    });
+    const models = await response.json();
+    return { models };
+  } catch (error) {
+    console.error('Error listing models:', error);
+    return { error: error.message };
+  }
+});
+
+/**
  * Cloud Function to generate quiz questions using Claude AI
  * Callable from client-side with proper authentication
  */
@@ -185,7 +204,7 @@ IMPORTANT:
 
     // Call Claude API
     const message = await anthropic.messages.create({
-      model: 'claude-3-5-sonnet-20241022',
+      model: 'claude-sonnet-4-5-20250929',
       max_tokens: 8192,
       temperature: 0.7,
       messages: [{
@@ -244,7 +263,7 @@ IMPORTANT:
       difficulty: difficulty,
       inputTokens: message.usage?.input_tokens || 0,
       outputTokens: message.usage?.output_tokens || 0,
-      model: 'claude-3-5-sonnet-20241022'
+      model: 'claude-sonnet-4-5-20250929'
     };
 
     // Save to database (don't await to avoid slowing response)
@@ -298,3 +317,148 @@ IMPORTANT:
     );
   }
 });
+
+/**
+ * Database-triggered quiz generation
+ * Listens for new quiz requests and processes them
+ */
+exports.processQuizRequest = functions.database
+  .ref('/ai-quiz-requests/{requestId}')
+  .onCreate(async (snapshot, context) => {
+    const requestId = context.params.requestId;
+    const requestData = snapshot.val();
+
+    console.log(`Processing quiz request ${requestId}:`, requestData);
+
+    try {
+      // Build prompt for Claude
+      const prompt = `Generate a ${requestData.difficulty} level quiz for the book "${requestData.bookTitle}"${requestData.bookAuthor ? ` by ${requestData.bookAuthor}` : ''} suitable for ages 10-11.
+
+FOCUS ON: ${requestData.chapter}
+Only create questions about content from this specific chapter or section.
+
+Create exactly ${requestData.numQuestions} multiple-choice questions with 4 options each.
+
+Requirements:
+- Questions should test comprehension of key plot points, characters, and themes from ${requestData.chapter}
+- Make questions engaging and age-appropriate for 10-11 year olds
+- Ensure each question has exactly 4 options
+- Mark the correct answer by its index (0-3)
+- Only include content from ${requestData.chapter}
+
+Format your response as valid JSON with this exact structure:
+{
+  "questions": [
+    {
+      "question": "What happened in this chapter?",
+      "options": ["Option A", "Option B", "Option C", "Option D"],
+      "correctAnswer": 0
+    }
+  ]
+}
+
+CRITICAL INSTRUCTIONS:
+- You MUST return ONLY valid JSON
+- Do NOT include any explanatory text before or after the JSON
+- Do NOT wrap the JSON in markdown code blocks
+- Do NOT include any commentary
+- Start your response with { and end with }
+- Include exactly ${requestData.numQuestions} questions`;
+
+      // Call Claude API
+      const message = await anthropic.messages.create({
+        model: 'claude-sonnet-4-5-20250929',
+        max_tokens: 8192,
+        temperature: 0.7,
+        messages: [{
+          role: 'user',
+          content: prompt
+        }]
+      });
+
+      // Extract response text
+      const responseText = message.content[0].text;
+      console.log('AI Response received, length:', responseText.length);
+      console.log('AI Response preview:', responseText.substring(0, 500));
+
+      // Try to extract JSON from response (handle code blocks, markdown, etc.)
+      let quizData;
+      let cleanedText = responseText;
+
+      // Remove markdown code blocks if present
+      cleanedText = cleanedText.replace(/```json\s*/g, '').replace(/```\s*/g, '');
+
+      // Try to find JSON object
+      const jsonMatch = cleanedText.match(/\{[\s\S]*\}/);
+
+      if (jsonMatch) {
+        try {
+          quizData = JSON.parse(jsonMatch[0]);
+        } catch (parseError) {
+          console.error('JSON parse error:', parseError);
+          console.error('Failed JSON text:', jsonMatch[0].substring(0, 500));
+          throw new Error('Failed to parse AI response as JSON');
+        }
+      } else {
+        console.error('Full AI response:', responseText);
+        throw new Error('No JSON found in AI response');
+      }
+
+      // Validate quiz data structure
+      if (!quizData.questions || !Array.isArray(quizData.questions)) {
+        throw new Error('Invalid quiz data structure');
+      }
+
+      // Validate each question
+      for (let i = 0; i < quizData.questions.length; i++) {
+        const q = quizData.questions[i];
+        if (!q.question || !q.options || !Array.isArray(q.options) || q.options.length !== 4) {
+          throw new Error(`Invalid question structure at index ${i}`);
+        }
+        if (typeof q.correctAnswer !== 'number' || q.correctAnswer < 0 || q.correctAnswer > 3) {
+          throw new Error(`Invalid correctAnswer at index ${i}`);
+        }
+      }
+
+      console.log(`Successfully generated ${quizData.questions.length} questions`);
+
+      // Save result to database
+      await admin.database().ref(`ai-quiz-results/${requestId}`).set({
+        status: 'completed',
+        quiz: quizData,
+        timestamp: admin.database.ServerValue.TIMESTAMP,
+        usage: {
+          inputTokens: message.usage?.input_tokens || 0,
+          outputTokens: message.usage?.output_tokens || 0
+        }
+      });
+
+      // Log usage
+      await admin.database().ref('ai-usage-logs').push({
+        timestamp: admin.database.ServerValue.TIMESTAMP,
+        userId: requestData.userId,
+        userEmail: requestData.userName,
+        bookTitle: requestData.bookTitle,
+        author: requestData.bookAuthor || null,
+        chapter: requestData.chapter,
+        questionCount: quizData.questions.length,
+        difficulty: requestData.difficulty,
+        inputTokens: message.usage?.input_tokens || 0,
+        outputTokens: message.usage?.output_tokens || 0,
+        model: 'claude-sonnet-4-5-20250929',
+        type: 'student-generated'
+      });
+
+      console.log(`Quiz request ${requestId} completed successfully`);
+
+    } catch (error) {
+      console.error(`Error processing quiz request ${requestId}:`, error);
+
+      // Save error to database
+      await admin.database().ref(`ai-quiz-results/${requestId}`).set({
+        status: 'error',
+        error: error.message,
+        timestamp: admin.database.ServerValue.TIMESTAMP
+      });
+    }
+  });

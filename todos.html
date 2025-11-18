@@ -3,98 +3,189 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Todo List - Homeschool App</title>
-    <link rel="stylesheet" href="styles.css">
-    <link rel="stylesheet" href="todos-styles.css">
+    <title>To-Do List - Homeschool App</title>
+
+    <!-- Favicon & PWA -->
+    <link rel="icon" type="image/png" href="/icons/icon-192x192.png">
+    <link rel="manifest" href="/manifest.json">
+    <meta name="theme-color" content="#4d9e93">
+
+    <!-- 2026 Design System -->
+    <link rel="stylesheet" href="/design-system-2026.css" media="print" onload="this.media='all'">
+    <link rel="stylesheet" href="/app-chrome-2026.css" media="print" onload="this.media='all'">
+    <noscript>
+        <link rel="stylesheet" href="/design-system-2026.css">
+        <link rel="stylesheet" href="/app-chrome-2026.css">
+    </noscript>
+
+    <!-- Critical CSS for instant paint -->
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI', system-ui, sans-serif;
+            background: var(--color-background, #f8faf9);
+            color: var(--color-text-primary, #1a1f1d);
+            line-height: 1.6;
+            -webkit-font-smoothing: antialiased;
+        }
+    </style>
 </head>
 <body>
-    <div class="container">
-        <header>
-            <h1>✅ Todo List</h1>
-            <p class="subtitle">Manage homework and learning tasks</p>
-        </header>
-
-        <div id="app">
-            <!-- Auth Check -->
-            <div id="auth-check" class="section">
-                <h2>Please sign in</h2>
-                <p>You need to sign in to view and manage todos.</p>
-                <button onclick="todos.login()" class="btn btn-primary">
-                    <svg width="18" height="18" viewBox="0 0 18 18" style="vertical-align: middle; margin-right: 10px;">
-                        <path fill="#4285F4" d="M16.51 8H8.98v3h4.3c-.18 1-.74 1.48-1.6 2.04v2.01h2.6a7.8 7.8 0 0 0 2.38-5.88c0-.57-.05-.66-.15-1.18z"></path>
-                        <path fill="#34A853" d="M8.98 17c2.16 0 3.97-.72 5.3-1.94l-2.6-2a4.8 4.8 0 0 1-7.18-2.54H1.83v2.07A8 8 0 0 0 8.98 17z"></path>
-                        <path fill="#FBBC05" d="M4.5 10.52a4.8 4.8 0 0 1 0-3.04V5.41H1.83a8 8 0 0 0 0 7.18l2.67-2.07z"></path>
-                        <path fill="#EA4335" d="M8.98 4.18c1.17 0 2.23.4 3.06 1.2l2.3-2.3A8 8 0 0 0 1.83 5.4L4.5 7.49a4.77 4.77 0 0 1 4.48-3.3z"></path>
+    <!-- App Header (Desktop) -->
+    <header class="app-header" style="display: none;" id="app-header">
+        <div class="header-content">
+            <div class="header-left">
+                <button onclick="window.location.href='/'" class="btn-icon" aria-label="Home">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path>
+                        <polyline points="9 22 9 12 15 12 15 22"></polyline>
                     </svg>
-                    Sign in with Google
                 </button>
+                <h1 class="header-title">✅ To-Do List</h1>
             </div>
-
-            <!-- Todo List -->
-            <div id="todos-section" style="display: none;">
-                <!-- User Info Bar -->
-                <div class="section user-bar">
-                    <div class="user-profile-small">
-                        <img id="user-photo" src="" alt="Profile" class="user-photo-small">
-                        <div>
-                            <p class="user-name" id="user-name"></p>
-                            <p class="user-email-small" id="user-email"></p>
-                        </div>
-                    </div>
-                    <div class="user-actions">
-                        <button onclick="todos.goHome()" class="btn btn-secondary">← Back to Quiz App</button>
-                        <button onclick="todos.logout()" class="btn btn-secondary">Sign Out</button>
-                    </div>
-                </div>
-
-                <!-- Admin Controls (only for admin) -->
-                <div id="admin-controls" class="section" style="display: none;">
-                    <h2>📋 All Students' Todos</h2>
-                    <div class="admin-view-toggle">
-                        <label>
-                            <input type="checkbox" id="show-completed" onchange="todos.renderTodos()">
-                            Show completed tasks
-                        </label>
-                    </div>
-                    <div id="all-todos-list" class="todos-by-user">
-                        <!-- All users' todos will be shown here -->
-                    </div>
-                </div>
-
-                <!-- Student View -->
-                <div id="student-view" class="section">
-                    <div class="section-header">
-                        <h2>My Todos</h2>
-                        <div class="stats">
-                            <span class="stat">
-                                <strong id="todo-count">0</strong> pending
-                            </span>
-                            <span class="stat">
-                                <strong id="completed-count">0</strong> completed
-                            </span>
-                        </div>
-                    </div>
-
-                    <!-- Add Todo Form -->
-                    <form id="add-todo-form" onsubmit="todos.addTodo(event)" class="add-todo-form">
-                        <input
-                            type="text"
-                            id="new-todo-input"
-                            placeholder="What do you need to do?"
-                            required
-                            maxlength="200"
-                        >
-                        <button type="submit" class="btn btn-primary">Add Task</button>
-                    </form>
-
-                    <!-- Todos List -->
-                    <div id="todos-list" class="todos-list">
-                        <!-- Todos will be rendered here -->
-                    </div>
+            <div class="header-right">
+                <div class="user-menu" id="user-menu-header" style="display: none;">
+                    <img id="header-user-photo" src="" alt="Profile" class="user-avatar">
+                    <span id="header-user-name"></span>
                 </div>
             </div>
         </div>
+    </header>
+
+    <div class="app-container">
+        <main class="main-content">
+            <div id="app">
+                <!-- Auth Check -->
+                <div id="auth-check" class="auth-section">
+                    <div class="auth-card">
+                        <div class="auth-header">
+                            <h1 class="auth-title">✅ To-Do List</h1>
+                            <p class="auth-subtitle">Manage homework and learning tasks</p>
+                        </div>
+                        <div class="auth-form">
+                            <p class="auth-message">Sign in with your Google account to view and manage your todos.</p>
+                            <button onclick="todos.login()" class="btn-google">
+                                <svg width="18" height="18" viewBox="0 0 18 18" style="vertical-align: middle; margin-right: 10px;">
+                                    <path fill="#4285F4" d="M16.51 8H8.98v3h4.3c-.18 1-.74 1.48-1.6 2.04v2.01h2.6a7.8 7.8 0 0 0 2.38-5.88c0-.57-.05-.66-.15-1.18z"></path>
+                                    <path fill="#34A853" d="M8.98 17c2.16 0 3.97-.72 5.3-1.94l-2.6-2a4.8 4.8 0 0 1-7.18-2.54H1.83v2.07A8 8 0 0 0 8.98 17z"></path>
+                                    <path fill="#FBBC05" d="M4.5 10.52a4.8 4.8 0 0 1 0-3.04V5.41H1.83a8 8 0 0 0 0 7.18l2.67-2.07z"></path>
+                                    <path fill="#EA4335" d="M8.98 4.18c1.17 0 2.23.4 3.06 1.2l2.3-2.3A8 8 0 0 0 1.83 5.4L4.5 7.49a4.77 4.77 0 0 1 4.48-3.3z"></path>
+                                </svg>
+                                Sign in with Google
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Todo List -->
+                <div id="todos-section" style="display: none;">
+                    <!-- Admin Controls (only for admin) -->
+                    <div id="admin-controls" class="section" style="display: none;">
+                        <div class="card">
+                            <div class="section-header">
+                                <h2 class="section-title">📋 All Students' Todos</h2>
+                                <label class="checkbox-label">
+                                    <input type="checkbox" id="show-completed" onchange="todos.renderTodos()" class="checkbox-input">
+                                    <span>Show completed tasks</span>
+                                </label>
+                            </div>
+                            <div id="all-todos-list" class="todos-by-user">
+                                <!-- All users' todos will be shown here -->
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Student View -->
+                    <div id="student-view" class="section">
+                        <!-- Stats Card -->
+                        <div class="card stats-card">
+                            <div class="stats-grid">
+                                <div class="stat-item">
+                                    <div class="stat-icon">📝</div>
+                                    <div class="stat-content">
+                                        <div class="stat-value" id="todo-count">0</div>
+                                        <div class="stat-label">Pending</div>
+                                    </div>
+                                </div>
+                                <div class="stat-item">
+                                    <div class="stat-icon">✅</div>
+                                    <div class="stat-content">
+                                        <div class="stat-value" id="completed-count">0</div>
+                                        <div class="stat-label">Completed</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Add Todo Form -->
+                        <div class="card">
+                            <form id="add-todo-form" onsubmit="todos.addTodo(event)" class="add-todo-form">
+                                <div class="form-group">
+                                    <input
+                                        type="text"
+                                        id="new-todo-input"
+                                        class="input-text"
+                                        placeholder="What do you need to do?"
+                                        required
+                                        maxlength="200"
+                                    >
+                                    <button type="submit" class="btn-primary">
+                                        Add Task
+                                    </button>
+                                </div>
+                            </form>
+                        </div>
+
+                        <!-- Todos List -->
+                        <div class="card">
+                            <div class="section-header">
+                                <h2 class="section-title">My Tasks</h2>
+                            </div>
+                            <div id="todos-list" class="todos-list">
+                                <!-- Todos will be rendered here -->
+                            </div>
+                            <div id="empty-todos" class="empty-state" style="display: none;">
+                                <div class="empty-icon">🎉</div>
+                                <h3 class="empty-title">All done!</h3>
+                                <p class="empty-description">You don't have any pending tasks. Great job!</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
     </div>
+
+    <!-- Bottom Navigation (Mobile) -->
+    <nav class="bottom-nav" id="bottom-nav" style="display: none;">
+        <a href="/" class="nav-item">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path>
+            </svg>
+            <span>Home</span>
+        </a>
+        <a href="/subject.html" class="nav-item">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"></path>
+                <path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"></path>
+            </svg>
+            <span>Subjects</span>
+        </a>
+        <a href="/todos.html" class="nav-item active">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <polyline points="9 11 12 14 22 4"></polyline>
+                <path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"></path>
+            </svg>
+            <span>To-Do</span>
+        </a>
+        <a href="/quiz.html" class="nav-item">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path>
+                <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"></path>
+            </svg>
+            <span>Quizzes</span>
+        </a>
+    </nav>
 
     <!-- Firebase SDK -->
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
@@ -103,6 +194,21 @@
 
     <!-- App Scripts -->
     <script src="firebase-config.js"></script>
+    <script src="roles-loader.js"></script>
+    <script src="toast.js"></script>
     <script src="todos.js"></script>
+
+    <!-- Show navigation when logged in -->
+    <script>
+        firebase.auth().onAuthStateChanged((user) => {
+            if (user) {
+                document.getElementById('app-header').style.display = 'block';
+                document.getElementById('bottom-nav').style.display = 'flex';
+                document.getElementById('user-menu-header').style.display = 'flex';
+                document.getElementById('header-user-photo').src = user.photoURL || '';
+                document.getElementById('header-user-name').textContent = user.displayName || 'Student';
+            }
+        });
+    </script>
 </body>
 </html>

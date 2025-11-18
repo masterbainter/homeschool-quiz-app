@@ -1,4 +1,6 @@
 // Student Progress Tracking Logic
+console.log('=== STUDENTS.JS LOADING ===');
+
 const students = {
     currentUser: null,
     studentUsers: [],
@@ -7,28 +9,40 @@ const students = {
     results: {},
     selectedStudentId: null,
 
-    ADMIN_EMAILS: [
-        'techride.trevor@gmail.com'
-    ],
+    async init() {
+        console.log('=== STUDENTS INIT ===');
+        console.log('Firebase auth:', firebase.auth());
+        console.log('Current user (before listener):', firebase.auth().currentUser);
 
-    TEACHER_EMAILS: [
-        'iyoko.bainter@gmail.com',
-        'trevor.bainter@gmail.com'
-    ],
+        // Check auth FIRST - wait for user to be logged in
+        firebase.auth().onAuthStateChanged(async (user) => {
+            console.log('=== AUTH STATE CHANGED ===');
+            console.log('User object:', user);
+            console.log('User email:', user?.email);
 
-    STUDENT_EMAILS: [
-        'madmaxmadadax@gmail.com',
-        'sakurasaurusjade@gmail.com'
-    ],
-
-    init() {
-        // Check auth - both admins and teachers can access
-        firebase.auth().onAuthStateChanged((user) => {
-            if (!user || !(this.ADMIN_EMAILS.includes(user.email) || this.TEACHER_EMAILS.includes(user.email))) {
-                alert('Access denied. Admin or teacher access required.');
+            if (!user) {
+                console.log('No user logged in, redirecting...');
+                Toast.error('Access denied. Admin or teacher access required.');
                 window.location.href = '/admin';
                 return;
             }
+
+            // NOW load roles (after we know user is authenticated)
+            console.log('User is authenticated, loading roles...');
+            await RolesLoader.load();
+            console.log('Roles loaded:', RolesLoader.roles);
+
+            console.log('Checking permissions for:', user.email);
+            console.log('Is admin?', RolesLoader.isAdmin(user.email));
+            console.log('Is teacher?', RolesLoader.isTeacher(user.email));
+
+            if (!(RolesLoader.isAdmin(user.email) || RolesLoader.isTeacher(user.email))) {
+                console.log('Access denied!');
+                Toast.error('Access denied. Admin or teacher access required.');
+                window.location.href = '/admin';
+                return;
+            }
+            console.log('Access granted!');
             this.currentUser = user;
             this.loadData();
         });
@@ -88,18 +102,41 @@ const students = {
 
         } catch (error) {
             console.error('Error loading data:', error);
-            alert('Failed to load student data. Please try again.');
+            Toast.error('Failed to load student data. Please try again.');
         }
     },
 
     createStudentProfiles(usersData) {
-        this.studentUsers = this.STUDENT_EMAILS.map(email => {
-            // Find user by email from users collection
+        // Get student emails from roles
+        const studentEmails = RolesLoader.roles.students || [];
+
+        console.log('=== CREATE STUDENT PROFILES ===');
+        console.log('Student emails from roles:', studentEmails);
+        console.log('Users in database:', Object.keys(usersData).length);
+        console.log('All users:', Object.keys(usersData).map(uid => ({
+            uid,
+            email: usersData[uid].email,
+            name: usersData[uid].displayName
+        })));
+
+        this.studentUsers = studentEmails.map(email => {
+            // Find user by email from users collection (case-insensitive)
             let userProfile = null;
             let userId = null;
 
+            console.log(`Looking for student: ${email}`);
+
             Object.keys(usersData).forEach(uid => {
-                if (usersData[uid].email === email) {
+                const userEmail = usersData[uid].email;
+                const emailLower = userEmail ? userEmail.toLowerCase() : '';
+                const targetLower = email.toLowerCase();
+                const isMatch = emailLower === targetLower;
+
+                console.log(`  Comparing: "${userEmail}" (${emailLower}) vs "${email}" (${targetLower}) = ${isMatch}`);
+
+                // Case-insensitive email comparison
+                if (usersData[uid].email && isMatch) {
+                    console.log(`  ✓ FOUND MATCH for ${email}`);
                     userProfile = usersData[uid];
                     userId = uid;
                 }
@@ -123,7 +160,7 @@ const students = {
                 : 0;
             const completedQuizzes = new Set(userResults.map(r => r.quizId)).size;
 
-            return {
+            const studentProfile = {
                 userId: userId || `pending-${email}`,
                 email: email,
                 name: userName,
@@ -133,7 +170,14 @@ const students = {
                 assigned: userAssignments,
                 completed: completedQuizzes
             };
+
+            console.log(`Student profile created:`, studentProfile);
+            return studentProfile;
         });
+
+        console.log('=== FINAL STUDENT PROFILES ===');
+        console.log('Total students:', this.studentUsers.length);
+        console.log('Students:', this.studentUsers);
     },
 
     renderStudents() {
@@ -386,7 +430,7 @@ const students = {
 
         // If student hasn't signed in yet, we can't assign (no userId)
         if (student.userId.startsWith('pending-')) {
-            alert(`${student.name} hasn't signed in yet. Ask them to sign in to school.bainter.xyz first, then you can assign quizzes.`);
+            Toast.warning(`${student.name} hasn't signed in yet. Ask them to sign in to school.bainter.xyz first, then you can assign quizzes.`, 8000);
             return;
         }
 
@@ -410,12 +454,12 @@ const students = {
 
         try {
             await database.ref().update(updates);
-            alert('Assignments updated successfully!');
+            Toast.success('Assignments updated successfully!');
             this.closeAssignModal();
             this.loadData(); // Refresh
         } catch (error) {
             console.error('Error saving assignments:', error);
-            alert('Failed to save assignments. Please try again.');
+            Toast.error('Failed to save assignments. Please try again.');
         }
     },
 
@@ -428,7 +472,7 @@ const students = {
             this.loadData(); // Refresh
         } catch (error) {
             console.error('Error removing assignment:', error);
-            alert('Failed to remove assignment.');
+            Toast.error('Failed to remove assignment.');
         }
     },
 
@@ -439,13 +483,166 @@ const students = {
     },
 
     generateQuizForBook(bookId, bookTitle, author) {
-        // Navigate to admin panel with pre-filled book data
-        const params = new URLSearchParams({
-            bookTitle: bookTitle,
-            author: author,
-            source: 'reading-list'
-        });
-        window.location.href = `/teacher?${params.toString()}`;
+        // Find the selected student
+        const student = this.studentUsers.find(s => s.userId === this.selectedStudentId);
+        if (!student) {
+            Toast.warning('Please select a student first');
+            return;
+        }
+
+        // Store book info for quiz generation
+        this.selectedBookForQuiz = {
+            id: bookId,
+            title: bookTitle,
+            author: author
+        };
+
+        // Show the modal
+        document.getElementById('quiz-gen-book-title').textContent = bookTitle;
+        document.getElementById('quiz-gen-book-author').textContent = author;
+        document.getElementById('quiz-gen-student-name').textContent = student.name;
+        document.getElementById('quiz-gen-modal').classList.add('active');
+    },
+
+    closeQuizGenerationModal() {
+        document.getElementById('quiz-gen-modal').classList.remove('active');
+        this.selectedBookForQuiz = null;
+
+        // Reset form
+        document.getElementById('quiz-chapter-input').value = '';
+        document.getElementById('quiz-num-questions').value = '10';
+        document.getElementById('quiz-difficulty-select').value = 'medium';
+    },
+
+    async generateQuizForStudent() {
+        if (!this.selectedBookForQuiz || !this.selectedStudentId) return;
+
+        const student = this.studentUsers.find(s => s.userId === this.selectedStudentId);
+        if (!student) return;
+
+        const chapter = document.getElementById('quiz-chapter-input').value.trim();
+        const numQuestions = parseInt(document.getElementById('quiz-num-questions').value) || 10;
+        const difficulty = document.getElementById('quiz-difficulty-select').value;
+
+        if (!chapter) {
+            Toast.warning('Please enter a chapter or topic');
+            return;
+        }
+
+        // Show loading state
+        const generateBtn = document.querySelector('#quiz-gen-modal .btn-primary');
+        const originalText = generateBtn.textContent;
+        generateBtn.disabled = true;
+        generateBtn.textContent = 'Generating quiz...';
+
+        try {
+            const database = firebase.database();
+
+            // Create AI request
+            const requestData = {
+                type: 'generate-quiz',
+                bookTitle: this.selectedBookForQuiz.title,
+                bookAuthor: this.selectedBookForQuiz.author,
+                chapter: chapter,
+                numQuestions: numQuestions,
+                difficulty: difficulty,
+                studentId: student.userId,
+                studentName: student.name,
+                userId: this.currentUser.uid,
+                userName: this.currentUser.displayName || this.currentUser.email,
+                timestamp: new Date().toISOString(),
+                status: 'pending'
+            };
+
+            // Save request to Firebase
+            const requestRef = await database.ref('ai-quiz-requests').push(requestData);
+            const requestId = requestRef.key;
+
+            // Listen for completion
+            const resultRef = database.ref(`ai-quiz-results/${requestId}`);
+
+            // Set up one-time listener for the result
+            resultRef.on('value', (snapshot) => {
+                const result = snapshot.val();
+
+                if (result && result.status === 'completed') {
+                    // Stop listening
+                    resultRef.off();
+
+                    // Save the quiz
+                    this.saveGeneratedQuiz(result.quiz, chapter, student);
+
+                    // Clean up request
+                    database.ref(`ai-quiz-requests/${requestId}`).remove();
+                    database.ref(`ai-quiz-results/${requestId}`).remove();
+
+                } else if (result && result.status === 'error') {
+                    resultRef.off();
+                    Toast.error(`Failed to generate quiz: ${result.error}`);
+                    generateBtn.disabled = false;
+                    generateBtn.textContent = originalText;
+
+                    // Clean up
+                    database.ref(`ai-quiz-requests/${requestId}`).remove();
+                    database.ref(`ai-quiz-results/${requestId}`).remove();
+                }
+            });
+
+            // Timeout after 2 minutes
+            setTimeout(() => {
+                resultRef.off();
+                Toast.error('Quiz generation timed out. Please try again.');
+                generateBtn.disabled = false;
+                generateBtn.textContent = originalText;
+            }, 120000);
+
+        } catch (error) {
+            console.error('Error generating quiz:', error);
+            Toast.error('Failed to generate quiz. Please try again.');
+            generateBtn.disabled = false;
+            generateBtn.textContent = originalText;
+        }
+    },
+
+    async saveGeneratedQuiz(quiz, chapter, student) {
+        try {
+            const database = firebase.database();
+
+            // Create a unique quiz ID based on book and chapter
+            const bookSlug = this.selectedBookForQuiz.title.toLowerCase().replace(/[^a-z0-9]+/g, '-');
+            const chapterSlug = chapter.toLowerCase().replace(/[^a-z0-9]+/g, '-');
+            const quizId = `reading-${bookSlug}-${chapterSlug}`;
+
+            // Save quiz to Firebase
+            await database.ref(`quizzes/${quizId}`).set({
+                title: `${this.selectedBookForQuiz.title} - ${chapter}`,
+                description: `Quiz for ${this.selectedBookForQuiz.title} by ${this.selectedBookForQuiz.author}`,
+                bookTitle: this.selectedBookForQuiz.title,
+                bookAuthor: this.selectedBookForQuiz.author,
+                chapter: chapter,
+                questions: quiz.questions,
+                createdBy: this.currentUser.uid,
+                createdAt: new Date().toISOString(),
+                type: 'reading'
+            });
+
+            // Assign to student
+            await database.ref(`assignments/${student.userId}/${quizId}`).set({
+                assignedDate: new Date().toISOString(),
+                assignedBy: this.currentUser.email
+            });
+
+            Toast.success(`Quiz generated successfully! "${this.selectedBookForQuiz.title} - ${chapter}" has been assigned to ${student.name}.`);
+
+            this.closeQuizGenerationModal();
+
+            // Reload student data to show the new quiz
+            this.loadData();
+
+        } catch (error) {
+            console.error('Error saving quiz:', error);
+            Toast.error('Quiz was generated but failed to save. Please try again.');
+        }
     },
 
     escapeHtml(text) {

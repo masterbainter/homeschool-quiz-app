@@ -10,18 +10,6 @@ const todos = {
         this.setupAuthListener();
     },
 
-    // List of allowed emails
-    isAllowedUser(email) {
-        const ALLOWED_EMAILS = [
-            'techride.trevor@gmail.com',
-            'iyoko.bainter@gmail.com',
-            'trevor.bainter@gmail.com',
-            'madmaxmadadax@gmail.com',
-            'sakurasaurusjade@gmail.com',
-        ];
-        return ALLOWED_EMAILS.includes(email.toLowerCase());
-    },
-
     // Firebase Authentication Listener
     setupAuthListener() {
         if (!firebase.apps.length) {
@@ -29,10 +17,15 @@ const todos = {
             return;
         }
 
-        firebase.auth().onAuthStateChanged((user) => {
+        firebase.auth().onAuthStateChanged(async (user) => {
             if (user) {
-                // Check if user is allowed
-                if (!this.isAllowedUser(user.email)) {
+                // Load roles AFTER user is authenticated
+                await RolesLoader.load();
+
+                // Check if user is allowed using RolesLoader
+                if (!RolesLoader.isAllowedUser(user.email)) {
+                    console.error('Access denied for:', user.email);
+                    console.log('Current roles:', RolesLoader.roles);
                     alert('Access denied. This account is not authorized.');
                     firebase.auth().signOut();
                     this.showAuthSection();
@@ -52,22 +45,11 @@ const todos = {
         });
     },
 
-    // List of admin emails
-    ADMIN_EMAILS: [
-        'techride.trevor@gmail.com'
-    ],
-
-    // List of teacher emails
-    TEACHER_EMAILS: [
-        'iyoko.bainter@gmail.com',
-        'trevor.bainter@gmail.com'
-    ],
-
     // Check if user is admin or teacher
     checkAdminStatus() {
         const userEmail = this.currentUser.email;
-        this.isAdmin = this.ADMIN_EMAILS.includes(userEmail);
-        this.isTeacher = this.TEACHER_EMAILS.includes(userEmail);
+        this.isAdmin = RolesLoader.isAdmin(userEmail);
+        this.isTeacher = RolesLoader.isTeacher(userEmail);
 
         // Both admins and teachers can view all todos
         if (this.isAdmin || this.isTeacher) {

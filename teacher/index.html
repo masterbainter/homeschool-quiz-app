@@ -3,71 +3,128 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Teacher Panel - Homeschool Quiz App</title>
-    <link rel="stylesheet" href="../styles.css">
-    <link rel="stylesheet" href="teacher-styles.css">
+    <title>Teacher Panel - Homeschool App</title>
+
+    <!-- Favicon & PWA -->
+    <link rel="icon" type="image/png" href="/icons/icon-192x192.png">
+    <link rel="manifest" href="/manifest.json">
+    <meta name="theme-color" content="#4d9e93">
+
+    <!-- 2026 Design System -->
+    <link rel="stylesheet" href="../design-system-2026.css" media="print" onload="this.media='all'">
+    <link rel="stylesheet" href="../app-chrome-2026.css" media="print" onload="this.media='all'">
+    <noscript>
+        <link rel="stylesheet" href="../design-system-2026.css">
+        <link rel="stylesheet" href="../app-chrome-2026.css">
+    </noscript>
+
+    <!-- Critical CSS for instant paint -->
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI', system-ui, sans-serif;
+            background: var(--color-background, #f8faf9);
+            color: var(--color-text-primary, #1a1f1d);
+            line-height: 1.6;
+            -webkit-font-smoothing: antialiased;
+        }
+    </style>
 </head>
 <body>
-    <div class="container">
-        <header>
-            <h1>👨‍🏫 Teacher Panel</h1>
-            <p class="subtitle">Manage quizzes and student assignments</p>
-        </header>
-
-        <div id="app">
-            <!-- Auth Check -->
-            <div id="auth-check" class="section">
-                <h2>Checking authorization...</h2>
-                <p>Please wait while we verify your admin access.</p>
+    <!-- App Header (Desktop) -->
+    <header class="app-header" style="display: none;" id="app-header">
+        <div class="header-content">
+            <div class="header-left">
+                <button onclick="window.location.href='/'" class="btn-icon" aria-label="Home">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path>
+                        <polyline points="9 22 9 12 15 12 15 22"></polyline>
+                    </svg>
+                </button>
+                <h1 class="header-title">👩‍🏫 Teacher Panel</h1>
             </div>
-
-            <!-- Unauthorized -->
-            <div id="unauthorized" class="section" style="display: none;">
-                <h2>⛔ Access Denied</h2>
-                <p>You don't have permission to access the admin panel.</p>
-                <button onclick="window.location.href='/'" class="btn btn-primary">Back to Home</button>
+            <div class="header-right">
+                <div class="user-menu" id="user-menu-header" style="display: none;">
+                    <img id="header-user-photo" src="" alt="Profile" class="user-avatar">
+                    <span id="header-user-name"></span>
+                </div>
             </div>
+        </div>
+    </header>
 
-            <!-- Admin Panel -->
-            <div id="admin-panel" style="display: none;">
-                <!-- Navigation -->
-                <div class="section">
-                    <div class="admin-nav">
-                        <div>
-                            <button onclick="window.location.href='/'" class="btn btn-secondary">← Back to Quiz App</button>
-                            <button onclick="window.location.href='/teacher/books'" class="btn btn-secondary">📚 Book Library</button>
-                            <button onclick="window.location.href='/teacher/students'" class="btn btn-secondary">👨‍🎓 Student Progress</button>
-                            <button onclick="window.location.href='/teacher/help'" class="btn btn-secondary">📖 How to Create Quizzes</button>
-                            <button onclick="window.location.href='/admin'" class="btn btn-secondary" id="admin-panel-btn" style="display: none;">⚙️ Admin Panel</button>
-                        </div>
-                        <div class="admin-user-info">
-                            <img id="admin-user-photo" src="" alt="Profile" class="user-photo-small">
-                            <span id="admin-user-name"></span>
-                        </div>
+    <div class="app-container">
+        <main class="main-content">
+
+            <div id="app">
+                <!-- Auth Check -->
+                <div id="auth-check" class="section">
+                    <div class="card loading-card">
+                        <div class="loading-spinner"></div>
+                        <h2 class="loading-title">Checking authorization...</h2>
+                        <p class="loading-subtitle">Please wait while we verify your access.</p>
                     </div>
                 </div>
 
-                <!-- Quiz List -->
-                <div class="section">
-                    <div class="section-header">
-                        <h2>📚 Book Quizzes</h2>
-                        <button onclick="teacher.showAddQuiz()" class="btn btn-primary">+ Add New Quiz</button>
-                    </div>
-                    <div id="quiz-list" class="admin-quiz-list">
-                        <!-- Quiz items will be populated here -->
+                <!-- Unauthorized -->
+                <div id="unauthorized" class="section" style="display: none;">
+                    <div class="card empty-state-card">
+                        <div class="empty-icon">🔒</div>
+                        <h2 class="empty-title">Access Denied</h2>
+                        <p class="empty-description">You don't have permission to access the teacher panel.</p>
+                        <button onclick="window.location.href='/'" class="btn-primary">← Back to Home</button>
                     </div>
                 </div>
 
-                <!-- Add/Edit Quiz Form -->
-                <div id="quiz-form-section" class="section" style="display: none;">
-                    <div class="section-header">
-                        <h2 id="form-title">Add New Quiz</h2>
-                        <button onclick="teacher.cancelEdit()" class="btn btn-secondary">Cancel</button>
+                <!-- Teacher Panel -->
+                <div id="admin-panel" style="display: none;">
+                    <!-- Navigation -->
+                    <div class="section">
+                        <div class="card">
+                            <div class="nav-grid">
+                                <a href="/teacher/books" class="nav-card">
+                                    <div class="nav-icon">📚</div>
+                                    <div class="nav-label">Book Library</div>
+                                </a>
+                                <a href="/teacher/students" class="nav-card">
+                                    <div class="nav-icon">📊</div>
+                                    <div class="nav-label">Student Progress</div>
+                                </a>
+                                <a href="/teacher/help" class="nav-card">
+                                    <div class="nav-icon">❓</div>
+                                    <div class="nav-label">Help & Guide</div>
+                                </a>
+                                <a href="/admin" class="nav-card" id="admin-panel-link" style="display: none;">
+                                    <div class="nav-icon">⚙️</div>
+                                    <div class="nav-label">Admin Panel</div>
+                                </a>
+                            </div>
+                        </div>
                     </div>
+
+                    <!-- Quiz List -->
+                    <div class="section">
+                        <div class="card">
+                            <div class="section-header">
+                                <h2 class="section-title">Book Quizzes</h2>
+                                <button onclick="teacher.showAddQuiz()" class="btn-primary">+ Add New Quiz</button>
+                            </div>
+                            <div id="quiz-list" class="card-grid">
+                                <!-- Quiz items will be populated here -->
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Add/Edit Quiz Form -->
+                    <div id="quiz-form-section" class="section" style="display: none;">
+                        <div class="card">
+                            <div class="section-header">
+                                <h2 id="form-title" class="section-title">Add New Quiz</h2>
+                                <button onclick="teacher.cancelEdit()" class="btn-secondary">Cancel</button>
+                            </div>
 
                     <!-- AI Generation Section -->
                     <div id="ai-generation-section" class="ai-section" style="display: none;">
-                        <h3>🤖 AI Quiz Generator</h3>
+                        <h3>AI Quiz Generator</h3>
                         <p class="ai-description">Use AI to automatically generate quiz questions based on the book. You can review and edit all questions before saving.</p>
 
                         <div class="form-group">
@@ -117,14 +174,14 @@
                             <textarea id="ai-context" rows="3" placeholder="e.g., Focus on character development, themes, or specific plot events"></textarea>
                         </div>
 
-                        <div class="ai-actions">
-                            <button type="button" onclick="teacher.generateQuizWithAI()" class="btn btn-primary" id="generate-btn">
-                                ✨ Generate Quiz
-                            </button>
-                            <button type="button" onclick="teacher.switchToManual()" class="btn btn-secondary">
-                                ✏️ Manual Entry Instead
-                            </button>
-                        </div>
+                            <div class="form-actions">
+                                <button type="button" onclick="teacher.generateQuizWithAI()" class="btn-primary" id="generate-btn">
+                                    ✨ Generate Quiz with AI
+                                </button>
+                                <button type="button" onclick="teacher.switchToManual()" class="btn-secondary">
+                                    Manual Entry Instead
+                                </button>
+                            </div>
 
                         <div id="ai-loading" class="ai-loading" style="display: none;">
                             <div class="spinner"></div>
@@ -132,42 +189,118 @@
                         </div>
                     </div>
 
-                    <!-- Manual Form Section -->
-                    <form id="quiz-form" onsubmit="teacher.saveQuiz(event)" style="display: none;">
-                        <div class="form-header">
-                            <h3>Quiz Details</h3>
-                            <button type="button" onclick="teacher.showAIGenerator()" class="btn btn-secondary btn-small">
-                                🤖 Use AI Instead
-                            </button>
-                        </div>
+                            <!-- Manual Form Section -->
+                            <form id="quiz-form" onsubmit="teacher.saveQuiz(event)" style="display: none;">
+                                <div class="form-header">
+                                    <h3>Quiz Details</h3>
+                                    <button type="button" onclick="teacher.showAIGenerator()" class="btn-secondary">
+                                        ✨ Use AI Instead
+                                    </button>
+                                </div>
 
-                        <div class="form-group">
-                            <label for="quiz-title">Book Title *</label>
-                            <input type="text" id="quiz-title" required placeholder="e.g., Charlotte's Web">
-                        </div>
+                                <div class="form-group">
+                                    <label for="quiz-title" class="form-label">Book Title *</label>
+                                    <input type="text" id="quiz-title" class="input-text" required placeholder="e.g., Charlotte's Web">
+                                </div>
 
-                        <div class="form-group">
-                            <label for="quiz-description">Description</label>
-                            <input type="text" id="quiz-description" placeholder="e.g., Test your knowledge of E.B. White's classic tale">
-                        </div>
+                                <div class="form-group">
+                                    <label for="quiz-description" class="form-label">Description</label>
+                                    <input type="text" id="quiz-description" class="input-text" placeholder="e.g., Test your knowledge of E.B. White's classic tale">
+                                </div>
 
-                        <div class="form-group">
-                            <label>Questions</label>
-                            <div id="questions-container">
-                                <!-- Questions will be added here -->
-                            </div>
-                            <button type="button" onclick="teacher.addQuestion()" class="btn btn-secondary">+ Add Question</button>
-                        </div>
+                                <div class="form-group">
+                                    <label class="form-label">Questions</label>
+                                    <div id="questions-container">
+                                        <!-- Questions will be added here -->
+                                    </div>
+                                    <button type="button" onclick="teacher.addQuestion()" class="btn-secondary">+ Add Question</button>
+                                </div>
 
-                        <div class="form-actions">
-                            <button type="submit" class="btn btn-primary">Save Quiz</button>
-                            <button type="button" onclick="teacher.cancelEdit()" class="btn btn-secondary">Cancel</button>
+                                <div class="form-actions">
+                                    <button type="submit" class="btn-primary">Save Quiz</button>
+                                    <button type="button" onclick="teacher.cancelEdit()" class="btn-secondary">Cancel</button>
+                                </div>
+                            </form>
                         </div>
-                    </form>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Quiz Details Modal -->
+    <div id="quiz-details-modal" class="modal">
+        <div class="modal-content" style="max-width: 700px;">
+            <div class="modal-header">
+                <h2 id="modal-quiz-title">Quiz Details</h2>
+                <button class="modal-close" onclick="teacher.closeQuizDetailsModal()">×</button>
+            </div>
+
+            <div class="modal-body">
+                <!-- Quiz Info -->
+                <div style="background: #f5f5f5; padding: 15px; border-radius: 6px; margin-bottom: 20px;">
+                    <p id="modal-quiz-description" style="margin: 0 0 10px 0; color: #666;"></p>
+                    <p id="modal-quiz-questions" style="margin: 0; font-weight: 600;"></p>
+                </div>
+
+                <!-- Quiz Preview -->
+                <details style="margin-bottom: 20px;">
+                    <summary style="cursor: pointer; font-weight: 600; padding: 10px; background: #f5f5f5; border-radius: 6px; user-select: none;">
+                        View Quiz Questions
+                    </summary>
+                    <div id="modal-quiz-preview" style="margin-top: 15px; max-height: 300px; overflow-y: auto;">
+                        <!-- Quiz questions will be inserted here -->
+                    </div>
+                </details>
+
+                <!-- Assigned Students -->
+                <h3 style="margin: 20px 0 10px 0;">Assigned To:</h3>
+                <div id="modal-assigned-students" style="max-height: 200px; overflow-y: auto;">
+                    <!-- Student list will be inserted here -->
+                </div>
+
+                    <!-- Actions -->
+                    <div class="modal-actions">
+                        <button onclick="teacher.editQuizFromModal()" class="btn-primary">
+                            ✏️ Edit Quiz
+                        </button>
+                        <button onclick="teacher.archiveQuiz()" class="btn-secondary">
+                            📦 Archive Quiz
+                        </button>
+                        <button onclick="teacher.closeQuizDetailsModal()" class="btn-secondary">
+                            Close
+                        </button>
+                    </div>
                 </div>
             </div>
         </div>
     </div>
+
+    <!-- Bottom Navigation (Mobile) -->
+    <nav class="bottom-nav" id="bottom-nav" style="display: none;">
+        <a href="/" class="nav-item">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path>
+            </svg>
+            <span>Home</span>
+        </a>
+        <a href="/teacher" class="nav-item active">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+                <circle cx="9" cy="7" r="4"></circle>
+                <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
+                <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
+            </svg>
+            <span>Teacher</span>
+        </a>
+        <a href="/admin" class="nav-item" id="admin-nav-link" style="display: none;">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <circle cx="12" cy="12" r="3"></circle>
+                <path d="M12 1v6m0 6v6m-9-9h6m6 0h6"></path>
+            </svg>
+            <span>Admin</span>
+        </a>
+    </nav>
 
     <!-- Firebase SDK -->
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
@@ -176,7 +309,23 @@
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-functions-compat.js"></script>
 
     <!-- App Scripts -->
+    <script src="../env-indicator.js"></script>
+    <script src="../toast.js"></script>
     <script src="../firebase-config.js"></script>
+    <script src="../roles-loader.js"></script>
     <script src="teacher.js"></script>
+
+    <!-- Update user display and show nav when logged in -->
+    <script>
+        firebase.auth().onAuthStateChanged((user) => {
+            if (user) {
+                document.getElementById('app-header').style.display = 'block';
+                document.getElementById('bottom-nav').style.display = 'flex';
+                document.getElementById('user-menu-header').style.display = 'flex';
+                document.getElementById('header-user-photo').src = user.photoURL || '';
+                document.getElementById('header-user-name').textContent = user.displayName || 'Teacher';
+            }
+        });
+    </script>
 </body>
 </html>

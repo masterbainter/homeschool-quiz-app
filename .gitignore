@@ -27,3 +27,14 @@ Thumbs.db
 *.tmp
 .cache/
 google-books-config.js.backup
+
+# Firebase Emulator data
+emulator-data/
+ui-debug.log
+firebase-debug.log
+
+# Playwright
+/test-results/
+/playwright-report/
+/playwright/.cache/
+tests/screenshots/*.png
