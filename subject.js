@@ -84,9 +84,22 @@ const subject = {
     },
 
     updateHeader() {
-        document.getElementById('subject-icon').textContent = this.subjectData.icon || '📖';
-        document.getElementById('subject-title').textContent = this.subjectData.title || 'Subject';
-        document.getElementById('subject-description').textContent = this.subjectData.description || '';
+        // Update desktop header (top bar)
+        const headerIcon = document.getElementById('subject-icon');
+        const headerTitle = document.getElementById('subject-title');
+
+        if (headerIcon) headerIcon.textContent = this.subjectData.icon || '📖';
+        if (headerTitle) headerTitle.textContent = this.subjectData.title || 'Subject';
+
+        // Update large subject icon and title in the glassmorphic card
+        const iconLarge = document.getElementById('subject-icon-large');
+        const titleMain = document.getElementById('subject-title-main');
+        const description = document.getElementById('subject-description');
+
+        if (iconLarge) iconLarge.textContent = this.subjectData.icon || '📖';
+        if (titleMain) titleMain.textContent = this.subjectData.title || 'Subject';
+        if (description) description.textContent = this.subjectData.description || '';
+
         document.title = `${this.subjectData.title} - Homeschool Learning Hub`;
     },
 

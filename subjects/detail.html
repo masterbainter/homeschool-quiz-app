@@ -57,51 +57,59 @@
 
     <div class="app-container">
         <main class="main-content">
-            <div id="app">
-                <!-- Loading State -->
-                <div id="loading-section" class="section">
-                    <div class="card loading-card">
-                        <div class="loading-spinner"></div>
-                        <h2 class="loading-title">Loading...</h2>
-                        <p class="loading-subtitle">Please wait while we load your content.</p>
-                    </div>
+            <!-- Loading State -->
+            <div id="loading-section" class="centered-container">
+                <div class="glass-card">
+                    <div class="loading-spinner"></div>
+                    <h2 class="loading-title">Loading Subject...</h2>
+                    <p class="loading-subtitle">Please wait while we load your content.</p>
                 </div>
+            </div>
 
-                <!-- Not Found State -->
-                <div id="not-found-section" class="section" style="display: none;">
-                    <div class="card empty-state-card">
-                        <div class="empty-icon">⚠️</div>
-                        <h2 class="empty-title">Subject Not Found</h2>
-                        <p class="empty-description">This subject doesn't exist or hasn't been enabled yet.</p>
-                        <button onclick="window.location.href='/'" class="btn-primary">
-                            ← Back to Dashboard
-                        </button>
-                    </div>
+            <!-- Not Found State -->
+            <div id="not-found-section" class="centered-container" style="display: none;">
+                <div class="glass-card">
+                    <div class="empty-icon">⚠️</div>
+                    <h2 class="empty-title">Subject Not Found</h2>
+                    <p class="empty-description">This subject doesn't exist or hasn't been enabled yet.</p>
+                    <button onclick="window.location.href='/subjects'" class="btn-back">
+                        ← Back to Subjects
+                    </button>
                 </div>
+            </div>
 
-                <!-- Subject Content -->
-                <div id="subject-section" style="display: none;">
+            <!-- Subject Content -->
+            <div id="subject-section" class="centered-container" style="display: none;">
+                <div class="glass-card subject-detail-card">
                     <!-- Subject Header -->
-                    <div class="section">
-                        <div class="page-header">
-                            <p class="page-subtitle" id="subject-description">Loading description...</p>
-                        </div>
+                    <div class="subject-detail-header">
+                        <button onclick="window.location.href='/subjects'" class="btn-back-small">
+                            <svg width="20" height="20" viewBox="0 0 20 20" fill="currentColor">
+                                <path d="M10 18a8 8 0 100-16 8 8 0 000 16zm.707-10.293a1 1 0 00-1.414-1.414l-3 3a1 1 0 000 1.414l3 3a1 1 0 001.414-1.414L9.414 11H13a1 1 0 100-2H9.414l1.293-1.293z"/>
+                            </svg>
+                            Back to Subjects
+                        </button>
+                        <div class="subject-icon-large" id="subject-icon-large">🔢</div>
+                        <h1 class="subject-detail-title" id="subject-title-main">Mathematics</h1>
+                        <p class="subject-detail-subtitle" id="subject-description">Loading description...</p>
+                    </div>
+
+                    <!-- Sections Header -->
+                    <div class="sections-header">
+                        <h2 class="sections-title">Choose a Section</h2>
+                        <p class="sections-subtitle">Select a topic to explore</p>
                     </div>
 
                     <!-- Sections Grid -->
-                    <div class="section">
-                        <div class="section-header">
-                            <h2 class="section-title">Choose a Section</h2>
-                            <p class="section-subtitle">Select a topic to explore</p>
-                        </div>
-                        <div id="sections-grid" class="card-grid">
-                            <!-- Sections will be loaded dynamically -->
-                        </div>
-                        <div id="empty-sections" class="card empty-state-card" style="display: none;">
-                            <div class="empty-icon">📚</div>
-                            <h3 class="empty-title">No sections available yet</h3>
-                            <p class="empty-description">Your teacher is still setting up this subject.</p>
-                        </div>
+                    <div id="sections-grid" class="sections-grid">
+                        <!-- Sections will be loaded dynamically -->
+                    </div>
+
+                    <!-- Empty State -->
+                    <div id="empty-sections" class="empty-state" style="display: none;">
+                        <div class="empty-icon">📚</div>
+                        <h3 class="empty-title">No sections available yet</h3>
+                        <p class="empty-description">Your teacher is still setting up this subject.</p>
                     </div>
                 </div>
             </div>
@@ -159,5 +167,348 @@
             }
         });
     </script>
+
+    <style>
+        /* Centered Container - Like Subjects Listing */
+        .centered-container {
+            display: flex;
+            justify-content: center;
+            align-items: flex-start;
+            min-height: calc(100vh - 80px);
+            padding: 2rem;
+        }
+
+        @media (max-width: 768px) {
+            .centered-container {
+                padding: 1rem;
+                min-height: calc(100vh - 140px);
+            }
+        }
+
+        /* Glass Card */
+        .glass-card {
+            background: rgba(42, 47, 45, 0.95);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(77, 158, 147, 0.2);
+            border-radius: 24px;
+            padding: 3rem;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            max-width: 1200px;
+            width: 100%;
+        }
+
+        .subject-detail-card {
+            max-width: 1400px;
+        }
+
+        @media (max-width: 768px) {
+            .glass-card {
+                padding: 2rem 1.5rem;
+                border-radius: 16px;
+            }
+        }
+
+        /* Subject Detail Header */
+        .subject-detail-header {
+            text-align: center;
+            margin-bottom: 3rem;
+            position: relative;
+        }
+
+        .btn-back-small {
+            position: absolute;
+            top: 0;
+            left: 0;
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            color: rgba(255, 255, 255, 0.9);
+            padding: 0.75rem 1.25rem;
+            border-radius: 12px;
+            font-size: 0.875rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .btn-back-small:hover {
+            background: rgba(255, 255, 255, 0.15);
+            border-color: rgba(77, 158, 147, 0.4);
+            transform: translateX(-4px);
+        }
+
+        .btn-back-small svg {
+            opacity: 0.8;
+        }
+
+        @media (max-width: 768px) {
+            .btn-back-small {
+                position: static;
+                margin-bottom: 1.5rem;
+                width: fit-content;
+            }
+        }
+
+        .subject-icon-large {
+            font-size: 5rem;
+            margin-bottom: 1.5rem;
+            animation: float 3s ease-in-out infinite;
+            filter: drop-shadow(0 8px 16px rgba(0, 0, 0, 0.3));
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-10px); }
+        }
+
+        .subject-detail-title {
+            font-size: 3rem;
+            font-weight: 700;
+            color: #ffffff;
+            margin-bottom: 1rem;
+            letter-spacing: -0.02em;
+        }
+
+        .subject-detail-subtitle {
+            font-size: 1.25rem;
+            color: rgba(255, 255, 255, 0.7);
+            font-weight: 400;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        @media (max-width: 768px) {
+            .subject-icon-large {
+                font-size: 3.5rem;
+            }
+
+            .subject-detail-title {
+                font-size: 2rem;
+            }
+
+            .subject-detail-subtitle {
+                font-size: 1rem;
+            }
+        }
+
+        /* Sections Header */
+        .sections-header {
+            text-align: center;
+            margin-bottom: 2.5rem;
+            padding-top: 2rem;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .sections-title {
+            font-size: 1.75rem;
+            font-weight: 600;
+            color: #ffffff;
+            margin-bottom: 0.5rem;
+        }
+
+        .sections-subtitle {
+            font-size: 1rem;
+            color: rgba(255, 255, 255, 0.6);
+        }
+
+        /* Sections Grid */
+        .sections-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+            gap: 1.5rem;
+        }
+
+        @media (max-width: 768px) {
+            .sections-grid {
+                grid-template-columns: 1fr;
+                gap: 1rem;
+            }
+        }
+
+        /* Section Card */
+        .section-card {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 16px;
+            padding: 2rem;
+            text-decoration: none;
+            color: inherit;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+            overflow: hidden;
+            cursor: pointer;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .section-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: linear-gradient(90deg, #4d9e93, transparent);
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .section-card:hover {
+            transform: translateY(-6px);
+            background: rgba(255, 255, 255, 0.08);
+            border-color: rgba(77, 158, 147, 0.4);
+            box-shadow: 0 12px 40px rgba(77, 158, 147, 0.2);
+        }
+
+        .section-card:hover::before {
+            opacity: 1;
+        }
+
+        .section-type-badge {
+            display: inline-block;
+            padding: 0.375rem 0.75rem;
+            background: rgba(77, 158, 147, 0.2);
+            border: 1px solid rgba(77, 158, 147, 0.3);
+            border-radius: 8px;
+            color: #4d9e93;
+            font-size: 0.75rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 1rem;
+            width: fit-content;
+        }
+
+        .section-title-text {
+            font-size: 1.5rem;
+            font-weight: 600;
+            color: #ffffff;
+            margin-bottom: 0.75rem;
+            letter-spacing: -0.01em;
+        }
+
+        .section-description {
+            font-size: 0.9375rem;
+            color: rgba(255, 255, 255, 0.6);
+            margin-bottom: 1.5rem;
+            line-height: 1.6;
+            flex-grow: 1;
+        }
+
+        .section-meta {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: auto;
+            padding-top: 1.25rem;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .section-item-count {
+            font-size: 0.875rem;
+            color: rgba(255, 255, 255, 0.5);
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .section-item-count::before {
+            content: '📄';
+            font-size: 1rem;
+        }
+
+        .section-explore {
+            font-size: 0.875rem;
+            color: #4d9e93;
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .section-explore::after {
+            content: '→';
+            transition: transform 0.3s ease;
+        }
+
+        .section-card:hover .section-explore::after {
+            transform: translateX(4px);
+        }
+
+        /* Empty State */
+        .empty-state {
+            text-align: center;
+            padding: 4rem 2rem;
+        }
+
+        .empty-icon {
+            font-size: 4rem;
+            margin-bottom: 1.5rem;
+            opacity: 0.5;
+        }
+
+        .empty-title {
+            font-size: 1.5rem;
+            font-weight: 600;
+            color: rgba(255, 255, 255, 0.9);
+            margin-bottom: 0.75rem;
+        }
+
+        .empty-description {
+            font-size: 1rem;
+            color: rgba(255, 255, 255, 0.6);
+        }
+
+        /* Loading State */
+        .loading-title {
+            font-size: 1.75rem;
+            font-weight: 600;
+            color: #ffffff;
+            margin-bottom: 0.75rem;
+            text-align: center;
+        }
+
+        .loading-subtitle {
+            font-size: 1rem;
+            color: rgba(255, 255, 255, 0.7);
+            text-align: center;
+        }
+
+        .loading-spinner {
+            width: 48px;
+            height: 48px;
+            border: 4px solid rgba(77, 158, 147, 0.2);
+            border-top-color: #4d9e93;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 2rem;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        .btn-back {
+            background: rgba(77, 158, 147, 0.2);
+            border: 1px solid rgba(77, 158, 147, 0.4);
+            color: #4d9e93;
+            padding: 1rem 2rem;
+            border-radius: 12px;
+            font-size: 1rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            margin-top: 2rem;
+        }
+
+        .btn-back:hover {
+            background: rgba(77, 158, 147, 0.3);
+            border-color: rgba(77, 158, 147, 0.5);
+            transform: translateY(-2px);
+        }
+    </style>
 </body>
 </html>
