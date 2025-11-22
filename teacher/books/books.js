@@ -144,9 +144,10 @@ const books = {
 
         if (this.searchResults.length === 0) {
             container.innerHTML = `
-                <div class="no-results">
-                    <h3>No books found</h3>
-                    <p>Try a different search term or check your spelling</p>
+                <div class="empty-state">
+                    <div class="empty-icon">📚</div>
+                    <h3 class="empty-title">No books found</h3>
+                    <p class="empty-description">Try a different search term or check your spelling</p>
                 </div>
             `;
             container.style.display = 'block';
@@ -171,11 +172,11 @@ const books = {
                     ${book.isbn ? `<span class="book-meta-item">ISBN: ${book.isbn}</span>` : ''}
                 </div>
                 <div class="book-actions">
-                    <button class="btn btn-primary" onclick="event.stopPropagation(); books.showAssignModal('${book.id}')">
-                        Assign to Student
+                    <button class="btn-assign" onclick="event.stopPropagation(); books.showAssignModal('${book.id}')">
+                        📚 Assign
                     </button>
-                    <button class="btn btn-secondary" onclick="event.stopPropagation(); books.showQuizGenerationModal('${book.id}')">
-                        Generate Quiz
+                    <button class="btn-quiz" onclick="event.stopPropagation(); books.showQuizGenerationModal('${book.id}')">
+                        ✨ Quiz
                     </button>
                 </div>
             </div>

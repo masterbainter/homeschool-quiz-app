@@ -3,107 +3,193 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Book Library - Admin Panel</title>
-    <link rel="stylesheet" href="/design-system.css">
-    <link rel="stylesheet" href="/styles.css">
-    <link rel="stylesheet" href="/teacher/admin-styles.css">
+    <title>Book Library - Teacher Panel</title>
+
+    <!-- Favicon & PWA -->
+    <link rel="icon" type="image/png" href="/icons/icon-192x192.png">
+    <link rel="manifest" href="/manifest.json">
+    <meta name="theme-color" content="#4d9e93">
+
+    <!-- 2026 Design System -->
+    <link rel="stylesheet" href="/design-system-2026.css" media="print" onload="this.media='all'">
+    <link rel="stylesheet" href="/app-chrome-2026.css" media="print" onload="this.media='all'">
+    <noscript>
+        <link rel="stylesheet" href="/design-system-2026.css">
+        <link rel="stylesheet" href="/app-chrome-2026.css">
+    </noscript>
+
+    <!-- Critical CSS for instant paint -->
     <style>
-        .book-search-container {
-            max-width: 1400px;
-            margin: 0 auto;
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI', system-ui, sans-serif;
+            background: var(--color-background, #f8faf9);
+            color: var(--color-text-primary, #1a1f1d);
+            line-height: 1.6;
+            -webkit-font-smoothing: antialiased;
         }
 
+        /* Search Section Styles */
         .search-section {
-            background: white;
-            padding: 25px;
-            border-radius: 8px;
-            margin-bottom: 25px;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            margin-bottom: 2rem;
+        }
+
+        .search-header {
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+
+        .search-icon {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+        }
+
+        .search-title {
+            font-size: 2rem;
+            font-weight: 700;
+            color: var(--color-text-primary);
+            margin-bottom: 0.5rem;
+        }
+
+        .search-subtitle {
+            font-size: 1.1rem;
+            color: var(--color-text-secondary);
         }
 
         .search-box {
             display: flex;
-            gap: 10px;
-            margin-bottom: 15px;
+            gap: 12px;
+            margin-bottom: 1rem;
         }
 
-        .search-box input {
+        .search-input {
             flex: 1;
-            padding: 12px 20px;
+            padding: 14px 20px;
             font-size: 16px;
-            border: 2px solid #ddd;
-            border-radius: 6px;
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            border-radius: 12px;
+            background: rgba(255, 255, 255, 0.5);
+            backdrop-filter: blur(10px);
+            transition: all 0.3s ease;
         }
 
-        .search-box input:focus {
+        .search-input:focus {
             outline: none;
-            border-color: #667eea;
+            border-color: var(--color-primary);
+            background: rgba(255, 255, 255, 0.8);
+            box-shadow: 0 4px 12px rgba(77, 158, 147, 0.15);
         }
 
-        .search-box button {
-            padding: 12px 30px;
+        .btn-search {
+            padding: 14px 32px;
             font-size: 16px;
+            font-weight: 600;
+            background: linear-gradient(135deg, var(--color-primary) 0%, var(--color-secondary) 100%);
+            color: white;
+            border: none;
+            border-radius: 12px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .btn-search:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(77, 158, 147, 0.3);
         }
 
         .search-tips {
-            font-size: 0.9em;
-            color: #666;
-            margin-top: 10px;
+            font-size: 0.9rem;
+            color: var(--color-text-secondary);
+            text-align: center;
+            padding: 12px;
+            background: rgba(255, 255, 255, 0.5);
+            border-radius: 8px;
         }
 
         .search-tips strong {
-            color: #333;
+            color: var(--color-text-primary);
         }
 
+        /* API Warning */
+        .api-warning {
+            background: linear-gradient(135deg, rgba(255, 193, 7, 0.15), rgba(255, 152, 0, 0.15));
+            border: 2px solid rgba(255, 193, 7, 0.4);
+            border-radius: 16px;
+            padding: 20px;
+            margin-bottom: 24px;
+            backdrop-filter: blur(10px);
+        }
+
+        .api-warning strong {
+            color: #f57c00;
+            display: block;
+            margin-bottom: 8px;
+        }
+
+        .api-warning p {
+            color: #5d4037;
+            margin-bottom: 6px;
+        }
+
+        .api-warning code {
+            background: rgba(255, 255, 255, 0.6);
+            padding: 2px 8px;
+            border-radius: 4px;
+            font-family: 'Monaco', 'Courier New', monospace;
+        }
+
+        /* Books Grid */
         .books-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-            gap: 20px;
-            margin-top: 20px;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 24px;
+            margin-top: 24px;
         }
 
         .book-card {
-            background: white;
-            border-radius: 8px;
-            padding: 20px;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-            transition: transform 0.2s, box-shadow 0.2s;
+            background: rgba(255, 255, 255, 0.7);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.4);
+            border-radius: 20px;
+            padding: 24px;
+            transition: all 0.3s ease;
             cursor: pointer;
         }
 
         .book-card:hover {
-            transform: translateY(-4px);
-            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+            transform: translateY(-6px);
+            box-shadow: 0 12px 30px rgba(0, 0, 0, 0.12);
+            border-color: rgba(77, 158, 147, 0.4);
         }
 
         .book-cover {
             width: 100%;
-            height: 280px;
+            height: 300px;
             object-fit: contain;
-            background: #f5f5f5;
-            border-radius: 4px;
-            margin-bottom: 15px;
+            background: rgba(248, 250, 249, 0.8);
+            border-radius: 12px;
+            margin-bottom: 16px;
         }
 
         .book-cover-placeholder {
             width: 100%;
-            height: 280px;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            height: 300px;
+            background: linear-gradient(135deg, var(--color-primary) 0%, var(--color-secondary) 100%);
             display: flex;
             align-items: center;
             justify-content: center;
-            border-radius: 4px;
-            margin-bottom: 15px;
+            border-radius: 12px;
+            margin-bottom: 16px;
             color: white;
-            font-size: 48px;
+            font-size: 64px;
         }
 
         .book-title {
-            font-size: 1.1em;
-            font-weight: 600;
+            font-size: 1.15rem;
+            font-weight: 700;
             margin-bottom: 8px;
-            color: #333;
-            line-height: 1.3;
+            color: var(--color-text-primary);
+            line-height: 1.4;
             display: -webkit-box;
             -webkit-line-clamp: 2;
             -webkit-box-orient: vertical;
@@ -111,24 +197,25 @@
         }
 
         .book-author {
-            color: #666;
-            margin-bottom: 10px;
-            font-size: 0.95em;
+            color: var(--color-text-secondary);
+            margin-bottom: 12px;
+            font-size: 0.95rem;
         }
 
         .book-meta {
             display: flex;
-            gap: 10px;
+            gap: 8px;
             flex-wrap: wrap;
-            margin-bottom: 15px;
-            font-size: 0.85em;
+            margin-bottom: 16px;
+            font-size: 0.85rem;
         }
 
         .book-meta-item {
-            background: #f0f0f0;
-            padding: 4px 10px;
-            border-radius: 12px;
-            color: #666;
+            background: rgba(77, 158, 147, 0.1);
+            padding: 6px 12px;
+            border-radius: 20px;
+            color: var(--color-primary);
+            font-weight: 500;
         }
 
         .book-actions {
@@ -138,39 +225,85 @@
 
         .book-actions button {
             flex: 1;
-            padding: 8px;
-            font-size: 0.9em;
+            padding: 10px;
+            font-size: 0.9rem;
+            border-radius: 10px;
+            border: none;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s ease;
         }
 
-        .loading {
-            text-align: center;
-            padding: 40px;
-            color: #666;
+        .btn-assign {
+            background: linear-gradient(135deg, var(--color-primary) 0%, var(--color-secondary) 100%);
+            color: white;
         }
 
-        .no-results {
+        .btn-assign:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(77, 158, 147, 0.3);
+        }
+
+        .btn-quiz {
+            background: rgba(255, 193, 7, 0.9);
+            color: #5d4037;
+        }
+
+        .btn-quiz:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(255, 193, 7, 0.3);
+        }
+
+        /* Loading State */
+        .loading-state {
             text-align: center;
             padding: 60px 20px;
-            color: #999;
         }
 
-        .no-results h3 {
-            margin-bottom: 10px;
+        .loading-spinner {
+            width: 50px;
+            height: 50px;
+            border: 4px solid rgba(77, 158, 147, 0.2);
+            border-top-color: var(--color-primary);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 20px;
         }
 
-        .api-warning {
-            background: #fff3cd;
-            border-left: 4px solid #ffc107;
-            padding: 15px;
-            margin-bottom: 20px;
-            border-radius: 4px;
+        @keyframes spin {
+            to { transform: rotate(360deg); }
         }
 
-        .api-warning strong {
-            color: #856404;
+        .loading-text {
+            font-size: 1.1rem;
+            color: var(--color-text-secondary);
         }
 
-        /* Modal for assigning books */
+        /* Empty State */
+        .empty-state {
+            text-align: center;
+            padding: 80px 20px;
+        }
+
+        .empty-icon {
+            font-size: 4rem;
+            margin-bottom: 16px;
+            opacity: 0.6;
+        }
+
+        .empty-title {
+            font-size: 1.5rem;
+            font-weight: 600;
+            color: var(--color-text-primary);
+            margin-bottom: 8px;
+        }
+
+        .empty-description {
+            font-size: 1rem;
+            color: var(--color-text-secondary);
+        }
+
+        /* Modal Styles */
         .modal {
             display: none;
             position: fixed;
@@ -178,7 +311,8 @@
             left: 0;
             width: 100%;
             height: 100%;
-            background: rgba(0,0,0,0.5);
+            background: rgba(0, 0, 0, 0.6);
+            backdrop-filter: blur(8px);
             z-index: 1000;
             align-items: center;
             justify-content: center;
@@ -189,127 +323,306 @@
         }
 
         .modal-content {
-            background: white;
-            border-radius: 8px;
-            max-width: 500px;
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(20px);
+            border-radius: 24px;
+            border: 1px solid rgba(255, 255, 255, 0.4);
+            max-width: 550px;
             width: 90%;
-            max-height: 80vh;
+            max-height: 85vh;
             overflow-y: auto;
-            padding: 30px;
+            padding: 32px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
         }
 
         .modal-header {
             display: flex;
             justify-content: space-between;
             align-items: start;
-            margin-bottom: 20px;
+            margin-bottom: 24px;
         }
 
         .modal-header h2 {
             margin: 0;
+            font-size: 1.75rem;
+            color: var(--color-text-primary);
         }
 
         .close-modal {
-            background: none;
+            background: rgba(0, 0, 0, 0.05);
             border: none;
             font-size: 28px;
             cursor: pointer;
-            color: #999;
+            color: var(--color-text-secondary);
             padding: 0;
-            width: 30px;
-            height: 30px;
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            transition: all 0.3s ease;
+        }
+
+        .close-modal:hover {
+            background: rgba(0, 0, 0, 0.1);
+            transform: rotate(90deg);
         }
 
         .student-list {
             display: flex;
             flex-direction: column;
-            gap: 10px;
+            gap: 12px;
+            margin: 20px 0;
         }
 
         .student-checkbox {
             display: flex;
             align-items: center;
-            padding: 12px;
-            border: 2px solid #ddd;
-            border-radius: 6px;
+            padding: 14px;
+            border: 2px solid rgba(77, 158, 147, 0.2);
+            border-radius: 12px;
             cursor: pointer;
+            transition: all 0.3s ease;
+            background: rgba(255, 255, 255, 0.5);
         }
 
         .student-checkbox:hover {
-            border-color: #667eea;
-            background: #f8f9ff;
+            border-color: var(--color-primary);
+            background: rgba(77, 158, 147, 0.05);
         }
 
         .student-checkbox input {
             margin-right: 12px;
-            width: 18px;
-            height: 18px;
+            width: 20px;
+            height: 20px;
+            cursor: pointer;
         }
 
         .student-checkbox label {
             cursor: pointer;
             flex: 1;
+            font-weight: 500;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: var(--color-text-primary);
+        }
+
+        .form-group input,
+        .form-group select {
+            width: 100%;
+            padding: 12px 16px;
+            border: 2px solid rgba(77, 158, 147, 0.2);
+            border-radius: 10px;
+            font-size: 15px;
+            background: rgba(255, 255, 255, 0.7);
+            transition: all 0.3s ease;
+        }
+
+        .form-group input:focus,
+        .form-group select:focus {
+            outline: none;
+            border-color: var(--color-primary);
+            background: rgba(255, 255, 255, 0.95);
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, var(--color-primary) 0%, var(--color-secondary) 100%);
+            color: white;
+            padding: 14px 28px;
+            border: none;
+            border-radius: 12px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(77, 158, 147, 0.3);
+        }
+
+        .btn-secondary {
+            background: rgba(0, 0, 0, 0.05);
+            color: var(--color-text-primary);
+            padding: 14px 28px;
+            border: none;
+            border-radius: 12px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .btn-secondary:hover {
+            background: rgba(0, 0, 0, 0.1);
+        }
+
+        .book-info-display {
+            padding: 16px;
+            background: rgba(77, 158, 147, 0.08);
+            border-radius: 12px;
+            margin-bottom: 24px;
+        }
+
+        .book-info-display h3 {
+            margin: 0 0 6px 0;
+            color: var(--color-text-primary);
+        }
+
+        .book-info-display p {
+            margin: 0;
+            color: var(--color-text-secondary);
+        }
+
+        .action-buttons {
+            display: flex;
+            gap: 12px;
+            margin-top: 24px;
+        }
+
+        .back-buttons {
+            text-align: center;
+            margin-top: 40px;
+            display: flex;
+            gap: 12px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .books-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .search-box {
+                flex-direction: column;
+            }
+
+            .btn-search {
+                width: 100%;
+            }
+
+            .modal-content {
+                padding: 24px;
+            }
+
+            .action-buttons {
+                flex-direction: column;
+            }
+
+            .action-buttons button {
+                width: 100%;
+            }
         }
     </style>
 </head>
 <body>
-    <div class="container">
-        <header>
-            <h1>Book Library</h1>
-            <p class="subtitle">Search and assign books to students</p>
-        </header>
-
-        <!-- Auth Check -->
-        <div id="auth-check" style="text-align: center; padding: 40px;">
-            <p>Checking authentication...</p>
-        </div>
-
-        <!-- Unauthorized -->
-        <div id="unauthorized" style="display: none; text-align: center; padding: 40px;">
-            <h2>Access Denied</h2>
-            <p>Only admins and teachers can access the book library.</p>
-            <button onclick="window.location.href='/'" class="btn btn-secondary">Go Home</button>
-        </div>
-
-        <!-- Main Content -->
-        <div id="content" class="book-search-container" style="display: none;">
-            <!-- API Key Warning -->
-            <div id="api-warning" class="api-warning" style="display: none;">
-                <strong>⚠️ Google Books API Not Configured</strong>
-                <p>Please add your Google Books API key to <code>google-books-config.js</code> to enable book search.</p>
-                <p>Get a free API key at: <a href="https://console.cloud.google.com/apis/credentials" target="_blank">Google Cloud Console</a></p>
+    <!-- App Header (Desktop) -->
+    <header class="app-header" id="app-header">
+        <div class="header-content">
+            <div class="header-left">
+                <button onclick="window.location.href='/'" class="btn-icon" aria-label="Home">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path>
+                        <polyline points="9 22 9 12 15 12 15 22"></polyline>
+                    </svg>
+                </button>
+                <h1 class="header-title">📚 Book Library</h1>
             </div>
-
-            <!-- Search Section -->
-            <div class="search-section">
-                <div class="search-box">
-                    <input type="text" id="search-query" placeholder="Search by title, author, or ISBN..." onkeypress="if(event.key==='Enter') books.search()">
-                    <button onclick="books.search()" class="btn btn-primary">Search Books</button>
+            <div class="header-right">
+                <div class="user-menu" id="user-menu-header">
+                    <img id="header-user-photo" src="" alt="Profile" class="user-avatar">
+                    <span id="header-user-name"></span>
                 </div>
-                <div class="search-tips">
-                    <strong>Tips:</strong> Search by title ("Charlotte's Web"), author ("E.B. White"), or ISBN (9780064400558)
+            </div>
+        </div>
+    </header>
+
+    <div class="app-container">
+        <main class="main-content">
+            <!-- Auth Check -->
+            <div id="auth-check" class="centered-container">
+                <div class="glass-card">
+                    <div class="loading-state">
+                        <div class="loading-spinner"></div>
+                        <p class="loading-text">Checking authentication...</p>
+                    </div>
                 </div>
             </div>
 
-            <!-- Results -->
-            <div id="results-container">
-                <div class="no-results">
-                    <h3>Search for books to get started</h3>
-                    <p>Try searching for "Charlotte's Web", "Harry Potter", or any book you'd like to assign</p>
+            <!-- Unauthorized -->
+            <div id="unauthorized" class="centered-container" style="display: none;">
+                <div class="glass-card">
+                    <div class="empty-state">
+                        <div class="empty-icon">🔒</div>
+                        <h2 class="empty-title">Access Denied</h2>
+                        <p class="empty-description">Only admins and teachers can access the book library.</p>
+                        <div style="margin-top: 24px;">
+                            <button onclick="window.location.href='/'" class="btn-primary">Go Home</button>
+                        </div>
+                    </div>
                 </div>
             </div>
 
-            <!-- Loading State -->
-            <div id="loading" class="loading" style="display: none;">
-                <div class="spinner"></div>
-                <p>Searching books...</p>
-            </div>
+            <!-- Main Content -->
+            <div id="content" class="centered-container" style="display: none;">
+                <div class="glass-card">
+                    <!-- Search Header -->
+                    <div class="search-header">
+                        <div class="search-icon">📚</div>
+                        <h1 class="search-title">Book Library</h1>
+                        <p class="search-subtitle">Search and assign books to students</p>
+                    </div>
 
-            <div style="text-align: center; margin-top: 30px; display: flex; gap: 10px; justify-content: center;">
-                <button onclick="window.location.href='/'" class="btn btn-secondary">Home</button>
-                <button onclick="window.location.href='/teacher'" class="btn btn-secondary">← Back to Teacher Panel</button>
+                    <!-- API Key Warning -->
+                    <div id="api-warning" class="api-warning" style="display: none;">
+                        <strong>⚠️ Google Books API Not Configured</strong>
+                        <p>Please add your Google Books API key to <code>google-books-config.js</code> to enable book search.</p>
+                        <p>Get a free API key at: <a href="https://console.cloud.google.com/apis/credentials" target="_blank" style="color: #f57c00; font-weight: 600;">Google Cloud Console</a></p>
+                    </div>
+
+                    <!-- Search Section -->
+                    <div class="search-section">
+                        <div class="search-box">
+                            <input type="text" id="search-query" class="search-input" placeholder="Search by title, author, or ISBN..." onkeypress="if(event.key==='Enter') books.search()">
+                            <button onclick="books.search()" class="btn-search">🔍 Search</button>
+                        </div>
+                        <div class="search-tips">
+                            <strong>Tips:</strong> Search by title ("Charlotte's Web"), author ("E.B. White"), or ISBN (9780064400558)
+                        </div>
+                    </div>
+
+                    <!-- Results Container -->
+                    <div id="results-container">
+                        <div class="empty-state">
+                            <div class="empty-icon">🔍</div>
+                            <h3 class="empty-title">Search for books to get started</h3>
+                            <p class="empty-description">Try searching for "Charlotte's Web", "Harry Potter", or any book you'd like to assign</p>
+                        </div>
+                    </div>
+
+                    <!-- Loading State -->
+                    <div id="loading" class="loading-state" style="display: none;">
+                        <div class="loading-spinner"></div>
+                        <p class="loading-text">Searching books...</p>
+                    </div>
+
+                    <!-- Back Buttons -->
+                    <div class="back-buttons">
+                        <button onclick="window.location.href='/'" class="btn-secondary">🏠 Home</button>
+                        <button onclick="window.location.href='/teacher'" class="btn-secondary">← Teacher Panel</button>
+                    </div>
+                </div>
             </div>
-        </div>
+        </main>
     </div>
 
     <!-- Assign Book Modal -->
@@ -320,18 +633,18 @@
                 <button class="close-modal" onclick="books.closeAssignModal()">×</button>
             </div>
 
-            <div id="selected-book-info" style="margin-bottom: 20px;">
+            <div id="selected-book-info" class="book-info-display">
                 <!-- Book info will be inserted here -->
             </div>
 
-            <h3 style="margin-bottom: 15px;">Select Students:</h3>
+            <h3 style="margin-bottom: 16px; color: var(--color-text-primary);">Select Students:</h3>
             <div id="student-list" class="student-list">
                 <!-- Students will be loaded here -->
             </div>
 
-            <div style="margin-top: 20px; display: flex; gap: 10px;">
-                <button onclick="books.confirmAssignment()" class="btn btn-primary" style="flex: 1;">Assign Book</button>
-                <button onclick="books.closeAssignModal()" class="btn btn-secondary">Cancel</button>
+            <div class="action-buttons">
+                <button onclick="books.confirmAssignment()" class="btn-primary" style="flex: 1;">✓ Assign Book</button>
+                <button onclick="books.closeAssignModal()" class="btn-secondary">Cancel</button>
             </div>
         </div>
     </div>
@@ -344,26 +657,26 @@
                 <button class="close-modal" onclick="books.closeQuizGenerationModal()">×</button>
             </div>
 
-            <div style="padding: 15px; background: #f5f5f5; border-radius: 6px; margin-bottom: 20px;">
-                <h3 id="quiz-gen-book-title" style="margin: 0 0 5px 0;"></h3>
-                <p id="quiz-gen-book-author" style="margin: 0; color: #666;"></p>
+            <div class="book-info-display">
+                <h3 id="quiz-gen-book-title"></h3>
+                <p id="quiz-gen-book-author"></p>
             </div>
 
             <div class="form-group">
                 <label for="quiz-student-select">Assign to Student *</label>
-                <select id="quiz-student-select" style="width: 100%; padding: 10px; border: 2px solid #ddd; border-radius: 6px; font-size: 14px;">
+                <select id="quiz-student-select">
                     <option value="">Select a student...</option>
                 </select>
             </div>
 
-            <div class="form-group" style="margin-top: 15px;">
+            <div class="form-group">
                 <label for="quiz-chapter-input">Chapter or Topic *</label>
-                <input type="text" id="quiz-chapter-input" placeholder="e.g., Chapter 5, The Great Hall, etc." style="width: 100%; padding: 10px; border: 2px solid #ddd; border-radius: 6px; font-size: 14px;">
+                <input type="text" id="quiz-chapter-input" placeholder="e.g., Chapter 5, The Great Hall, etc.">
             </div>
 
-            <div class="form-group" style="margin-top: 15px;">
+            <div class="form-group">
                 <label for="quiz-num-questions">Number of Questions</label>
-                <select id="quiz-num-questions" style="width: 100%; padding: 10px; border: 2px solid #ddd; border-radius: 6px; font-size: 14px;">
+                <select id="quiz-num-questions">
                     <option value="5">5 questions</option>
                     <option value="10" selected>10 questions</option>
                     <option value="15">15 questions</option>
@@ -371,21 +684,21 @@
                 </select>
             </div>
 
-            <div class="form-group" style="margin-top: 15px;">
+            <div class="form-group">
                 <label for="quiz-difficulty-select">Difficulty Level</label>
-                <select id="quiz-difficulty-select" style="width: 100%; padding: 10px; border: 2px solid #ddd; border-radius: 6px; font-size: 14px;">
+                <select id="quiz-difficulty-select">
                     <option value="easy">Easy - Basic comprehension</option>
                     <option value="medium" selected>Medium - Understanding & analysis</option>
                     <option value="hard">Hard - Deep analysis & critical thinking</option>
                 </select>
             </div>
 
-            <div style="margin-top: 25px; display: flex; gap: 10px;">
-                <button onclick="books.generateQuizForStudent()" class="btn btn-primary" style="flex: 1;">Generate Quiz</button>
-                <button onclick="books.closeQuizGenerationModal()" class="btn btn-secondary">Cancel</button>
+            <div class="action-buttons">
+                <button onclick="books.generateQuizForStudent()" class="btn-primary" style="flex: 1;">✨ Generate Quiz</button>
+                <button onclick="books.closeQuizGenerationModal()" class="btn-secondary">Cancel</button>
             </div>
 
-            <p style="margin-top: 15px; font-size: 0.85em; color: #666;">
+            <p style="margin-top: 16px; font-size: 0.85rem; color: var(--color-text-secondary); text-align: center;">
                 * The quiz will be automatically assigned to the selected student once generated.
             </p>
         </div>
